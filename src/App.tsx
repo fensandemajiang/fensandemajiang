@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import MainView from './components/MainView';
+import Routes from './components/Routes';
 import './App.css';
 
 type AppProps = {};
@@ -7,7 +7,7 @@ type AppProps = {};
 const App: FunctionComponent<AppProps> = () => {
   return (
     <>
-      <MainView />
+      <Routes />
     </>
   );
 };
