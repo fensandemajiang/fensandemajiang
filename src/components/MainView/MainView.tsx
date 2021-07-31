@@ -1,11 +1,15 @@
 import React, { FunctionComponent } from 'react';
-import './MainView.css';
+import Nav from './Nav';
+import Hero from './Hero';
+import Footer from './Footer';
 
 const MainView: FunctionComponent = () => {
   return (
-    <div className="mainview">
-      <div className="mainview__content">Hello world</div>
-    </div>
+    <>
+      <Nav />
+      <Hero />
+      <Footer />
+    </>
   );
 };
 

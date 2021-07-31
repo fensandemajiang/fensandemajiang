@@ -6,9 +6,9 @@ type AppProps = {};
 
 const App: FunctionComponent<AppProps> = () => {
   return (
-    <>
+    <div className="fensandemajiang">
       <Routes />
-    </>
+    </div>
   );
 };
 

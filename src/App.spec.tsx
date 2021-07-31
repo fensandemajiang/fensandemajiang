@@ -4,5 +4,5 @@ import App from './App';
 
 it('renders', () => {
   mount(<App />);
-  cy.get('.mainview').should('exist');
+  cy.get('.fensandemajiang').should('exist');
 });

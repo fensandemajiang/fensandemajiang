@@ -1,1 +1,12 @@
-{}
+{
+  "nav": {
+    "Home": "Home",
+    "Play": "Play"
+  },
+  "hero": {
+    "imgalt": "Graphic of mahjong pieces",
+    "description": "Graphic of mahjong pieces",
+    "top": "Mahjong",
+    "bottom": "Decentralized"
+  }
+}
