@@ -1,12 +1,12 @@
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const onClick = () => {
-    history.push('/dashboard');
+    history.push('/lobby');
   };
   return (
     <div className="m-16 flex justify-center items-center">
