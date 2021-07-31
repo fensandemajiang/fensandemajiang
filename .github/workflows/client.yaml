@@ -34,3 +34,31 @@ jobs:
 
       - name: Integration Test
         run: yarn run test:integration:ci
+
+      - name: Pushes to another repository
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          TARGET_DIR=$(mktemp -d)
+          SOURCE_DIR=$(mktemp -d)
+          echo "Copying contents to git repo"
+          cd dist
+          touch .nojekyll
+          cd ..
+          cp -ra "./dist"/. "$TARGET_DIR"
+          cd $SOURCE_DIR
+          git config --global user.email "sdammobubbles@gmail.com"
+          git config --global user.name "seendsouza"
+          git clone --single-branch --branch main https://${API_TOKEN_GITHUB}@github.com/fensandemajiang/fensandemajiang.github.io.git site
+          ls -la site
+          mv "$SOURCE_DIR/site/.git" "$TARGET_DIR"
+          cd "$TARGET_DIR"
+          echo "Adding git commit"
+          ORIGIN_COMMIT="https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+          COMMIT_MESSAGE="See $ORIGIN_COMMIT"
+          git add .
+          git status
+          # git diff-index : to avoid doing the git commit failing if there are no changes to be commit
+          git diff-index --quiet HEAD || git commit --message "$COMMIT_MESSAGE"
+          echo "Pushing git commit"
+          git push origin --set-upstream main
