@@ -1,0 +1,13 @@
+.build
+build
+dist
+dist-ssr
+*.local
+.DS_Store
+web_modules
+node_modules
+package-lock.json
+yarn-error.log
+coverage
+.nyc_output
+cypress/screenshots
