@@ -1,5 +1,5 @@
 import React, { createContext, FC } from 'react';
-import Peer from 'simple-peer';
+import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 
 interface Props {}
 
@@ -9,15 +9,11 @@ export { PeerContext };
 
 export default function createPeerContextProvider(isInit: boolean): FC<Props> {
   return ({ children, ...props }) => {
-    const peer = new Peer({
+    const peer = new SimplePeer({
       initiator: isInit,
-      trickle: false
-    })
+      trickle: false,
+    });
 
-    return (
-      <PeerContext.Provider value={peer}>
-        {children}
-      </PeerContext.Provider>
-    );
-  }
+    return <PeerContext.Provider value={peer}>{children}</PeerContext.Provider>;
+  };
 }
