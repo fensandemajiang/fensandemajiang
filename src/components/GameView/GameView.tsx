@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FunctionComponent } from 'react';
 //import createPeerContextProvider, { PeerContext } from '../p2p/p2p';
-import Peer from 'simple-peer';
+import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import './GameView.css';
 
 const GameView: FunctionComponent = () => {
@@ -8,11 +8,11 @@ const GameView: FunctionComponent = () => {
   //const [peer, setPeer] = useState<any>({});
   const [id, setId] = useState({});
 
-  const peer = new Peer();
+  const peer = new SimplePeer();
   useEffect(() => {
     const init = window.location.hash === '#init';
     console.log(init);
-/*
+    /*
     setPeer(new Peer({
       initiator: false,
       trickle: false
@@ -20,7 +20,7 @@ const GameView: FunctionComponent = () => {
 
 */
 
-/*
+    /*
     peer.on("signal", (data: {}) => {
       setId(data);
       console.log("hey");
@@ -30,22 +30,15 @@ const GameView: FunctionComponent = () => {
       alert(data);
     });
 */
-
   }, []);
 
   if (peer != null) {
-    console.log("exists");
+    console.log('exists');
   } else {
-    console.log("none");
+    console.log('none');
   }
 
-
-
-  return (
-    <div className="mainview">
-      Game
-    </div>
-  );
+  return <div className="mainview">Game</div>;
 };
 
 export default GameView;
