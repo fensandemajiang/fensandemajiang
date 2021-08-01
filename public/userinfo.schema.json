@@ -1,0 +1,69 @@
+{
+  "$id": "https://fensandemajiang.github.io/userinfo.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Connection and user profile data for starting a game",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["offer", "pranswer", "answer", "rollback"]
+    },
+    "sdp": {
+      "type": "string"
+    },
+    "name": {
+      "$ref": "#/definitions/imageSources"
+    },
+    "image": {
+      "$ref": "#/definitions/imageSources"
+    }
+  },
+  "required": ["type", "sdp", "name", "image"],
+  "definitions": {
+    "IPFSUrl": {
+      "type": "string",
+      "pattern": "^ipfs://.+",
+      "maxLength": 150
+    },
+    "positiveInteger": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "imageMetadata": {
+      "type": "object",
+      "properties": {
+        "src": {
+          "$ref": "#/definitions/IPFSUrl"
+        },
+        "mimeType": {
+          "type": "string",
+          "maxLength": 50
+        },
+        "width": {
+          "$ref": "#/definitions/positiveInteger"
+        },
+        "height": {
+          "$ref": "#/definitions/positiveInteger"
+        },
+        "size": {
+          "$ref": "#/definitions/positiveInteger"
+        }
+      },
+      "required": ["src", "mimeType", "width", "height"]
+    },
+    "imageSources": {
+      "type": "object",
+      "properties": {
+        "original": {
+          "$ref": "#/definitions/imageMetadata"
+        },
+        "alternatives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/imageMetadata"
+          }
+        }
+      }
+    }
+  }
+}
