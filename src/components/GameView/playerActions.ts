@@ -2,13 +2,13 @@ import { Action } from '../../types';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import type { PlayerAction, Tile, GameDataState } from '../../types';
 
-export function processRecievedData(
+export function processReceivedData(
   gameDataStore: GameDataState,
-  recievedData: PlayerAction,
+  receivedData: PlayerAction,
 ): GameDataState {
-  const dataBody = recievedData.body;
+  const dataBody = receivedData.body;
 
-  switch (recievedData.action) {
+  switch (receivedData.action) {
     case Action.DrawTile:
       if (dataBody.tile) {
         // update store accordingly in zustand
