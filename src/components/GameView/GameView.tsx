@@ -1,5 +1,5 @@
 import React, { useEffect, FunctionComponent } from 'react';
-import PeerContextProvider from './p2p';
+import PeerContextProvider from './PeerContextProvidor';
 import { useGameDataStore } from '../../utils/store';
 import { Suite, Flower, Dragon, Wind } from '../../types';
 import type { Tile } from '../../types';
