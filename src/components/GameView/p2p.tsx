@@ -1,8 +1,9 @@
 import React, { createContext, FC, ReactChild } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore } from '../../utils/store';
+import { processRecievedData } from './playerActions';
 
-import type { ConnectionState } from '../../types';
+import type { ConnectionState, PlayerAction } from '../../types';
 
 type Props = {
   children?: ReactChild | ReactChild[]
@@ -36,6 +37,12 @@ export default function PeerContextProvider ({ children }: Props) {
     peers[id].on("signal", (data) => {
       // send data to db for user with current id
       // might be able batch inserts into the db to increase efficiency
+    });
+
+    peers[id].on("data", (data) => {
+      // determine what kind of data was sent over
+      // modify state in zustand accordingly
+      processRecievedData(JSON.parse(data));
     });
   }
 
