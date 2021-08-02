@@ -1,9 +1,9 @@
-import React, { createContext, FC, ReactChild } from 'react';
+import React, { createContext, ReactChild, ReactElement } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import { useConnectionStore } from '../../utils/store';
+import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { processRecievedData } from './playerActions';
 
-import type { ConnectionState, PlayerAction } from '../../types';
+import type { ConnectionState, } from '../../types';
 
 type Props = {
   children?: ReactChild | ReactChild[]
@@ -13,7 +13,7 @@ const PeerContext = createContext({});
 
 export { PeerContext };
 
-export default function PeerContextProvider ({ children }: Props) {
+export default function PeerContextProvider ({ children }: Props): ReactElement {
   const connectionState: ConnectionState = useConnectionStore(state => state.connectionState);
   const signalIDs: string[] = connectionState.signalIDs;
   const userID: string = connectionState.userID;
@@ -42,7 +42,11 @@ export default function PeerContextProvider ({ children }: Props) {
     peers[id].on("data", (data) => {
       // determine what kind of data was sent over
       // modify state in zustand accordingly
-      processRecievedData(JSON.parse(data));
+      const newDataStore = processRecievedData(useGameDataStore.getState().gameDataState, JSON.parse(data));
+      useGameDataStore.setState({
+        ...useGameDataStore.getState(),
+        gameDataState: newDataStore
+      });
     });
   }
 

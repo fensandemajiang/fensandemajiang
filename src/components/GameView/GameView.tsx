@@ -1,32 +1,71 @@
-import React, { useState, useEffect, FunctionComponent } from 'react';
-import PeerContextProvider, { PeerContext } from './p2p';
+import React, { useEffect, FunctionComponent } from 'react';
+import PeerContextProvider from './p2p';
 import { useGameDataStore } from '../../utils/store';
-import { Suite } from '../../types';
+import { Suite, Flower, Dragon, Wind } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
 
 const GameView: FunctionComponent = () => {
   useEffect(() => {
     // initalize game state
-    const gameState = useGameDataStore(state => state.gameDataState);
   
-    // set player IDs
+    // TODO: set player IDs
     // get player IDs from connection State? or from db
 
-    // generate deck of tiles
-    // randomize deck of tiles
-    // give tiles to users
+    // fill in Wan, Tong and Tiao
     const deck: Tile[] = []
-    for (var num: number = 1; num <= 9; num++) {
-      for (var suite of [Suite.Wan, Suite.Tong, Suite.Tiao]) {
+    for (let num = 1; num <= 9; num++) { // face value
+      for (const suite of [Suite.Wan, Suite.Tong, Suite.Tiao]) { // suite
+        for (let count = 0; count < 4; count++) { // count
+          deck.push({
+            suite: suite,
+            value: num
+          });
+        }
+      }
+    }
+
+    // fill in dragons 
+    for (const dragon in Object.keys(Dragon)) { // face value
+      for (let count = 0; count < 4; count++) { //count
         deck.push({
-          suite: suite,
-          value: num
+          suite: Suite.Dragons,
+          dragon: dragon as Dragon
+        });
+      }
+    }
+  
+    // fill in winds
+    for (const wind of Object.keys(Wind)) {
+      for (let count = 0; count < 4; count++) {
+        deck.push({
+          suite: Suite.Winds,
+          wind: wind as Wind
         });
       }
     }
 
-    
+    // fill in flowers
+    for (const flower of Object.keys(Flower)) {
+      for (let count = 0; count < 4; count++) {
+        deck.push({
+          suite: Suite.Flowers,
+          flower: flower as Flower
+        });
+      }
+    }
+
+    // TODO: randomize deck
+    // TODO: deal tiles to players
+
+    // update deck
+    useGameDataStore.setState({
+      ...useGameDataStore.getState(),
+      gameDataState: {
+        ...useGameDataStore.getState().gameDataState,
+        deck: deck
+      }
+    });
   }, []);
 
   return (

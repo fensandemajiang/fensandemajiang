@@ -46,10 +46,34 @@ export enum Suite {
   Flowers
 }
 
+export enum Wind {
+  North = "North",
+  South = "South", 
+  East = "East",
+  West = "West"
+}
+
+export enum Dragon {
+  Red = "Red",
+  White = "White",
+  Green = "Green"
+}
+
+export enum Flower {
+  Summer = "Summer",
+  Fall = "Fall",
+  Winter = "Winter",
+  Spring = "Spring",
+  Bamboo = "Bamboo",
+  Chrys = "Chrys",
+  Orchid = "Orchid",
+  Plum = "Plum"
+}
+
 export interface Tile {
   suite: Suite
   value?: number
-  wind?: string
-  dragon?: string
-  flower?: string
+  wind?: Wind
+  dragon?: Dragon
+  flower?: Flower
 }

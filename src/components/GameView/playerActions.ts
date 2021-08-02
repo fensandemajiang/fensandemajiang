@@ -1,13 +1,8 @@
-import { useContext } from 'react';
-import { PeerContext } from './p2p';
 import { Action } from '../../types';
-import { useGameDataStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import type { PlayerAction, Tile } from '../../types';
+import type { PlayerAction, Tile, GameDataState } from '../../types';
 
-export function processRecievedData(recievedData: PlayerAction) {
-  const gameDataStore = useGameDataStore(state => state.gameDataState);
-  const updateDataStore = useGameDataStore(state => state.updateGameDataState);
+export function processRecievedData(gameDataStore: GameDataState, recievedData: PlayerAction): GameDataState {
   const dataBody = recievedData.body;
   
   switch (recievedData.action) {
@@ -16,6 +11,7 @@ export function processRecievedData(recievedData: PlayerAction) {
         // update store accordingly in zustand
         
       }
+      return gameDataStore;
       break;
     case Action.PlaceTile:
       if (dataBody.tile) {
@@ -25,34 +21,39 @@ export function processRecievedData(recievedData: PlayerAction) {
         const newDiscardsOfAllPlayers = { ...discards };
         newDiscardsOfAllPlayers[currPlayer] = newDiscardsOfCurrentPlayer;
 
-        updateDataStore({
+        return {
           ...gameDataStore,
           discards: newDiscardsOfAllPlayers
-        });
+        };
       }
       break;
     case Action.Chi:
+      return gameDataStore;
       break;
     case Action.Peng:
+      return gameDataStore;
       break;
     case Action.Gang:
+      return gameDataStore;
       break;
     case Action.ShowFlower:
+      return gameDataStore;
       break;
     case Action.ReplaceFlower:
+      return gameDataStore;
       break;
   }
+
+  return gameDataStore;
 }
 
-function sendToEveryone(data: string) {
-  const peers: { [userId: string]: SimplePeer.Instance } = useContext(PeerContext);
-
+function sendToEveryone(peers: { [userId: string]: SimplePeer.Instance }, data: string): void {
   for (const id in peers) {
     peers[id].send(data);
   }
 }
 
-export function sendDrawTile(tile: Tile, wasFlower?: boolean) {
+export function sendDrawTile(peers: { [userId: string]: SimplePeer.Instance }, tile: Tile, wasFlower?: boolean): void {
   const drawAction: PlayerAction = {
     action: wasFlower? Action.ReplaceFlower : Action.DrawTile,
     body: {
@@ -60,10 +61,10 @@ export function sendDrawTile(tile: Tile, wasFlower?: boolean) {
     }
   };
 
-  sendToEveryone(JSON.stringify(drawAction));
+  sendToEveryone(peers, JSON.stringify(drawAction));
 }
 
-export function sendPlaceTile(tile: Tile) {
+export function sendPlaceTile(peers: { [userId: string]: SimplePeer.Instance }, tile: Tile): void {
   const placeAction: PlayerAction = {
     action: Action.PlaceTile,
     body: {
@@ -71,10 +72,10 @@ export function sendPlaceTile(tile: Tile) {
     }
   };
 
-  sendToEveryone(JSON.stringify(placeAction));
+  sendToEveryone(peers, JSON.stringify(placeAction));
 }
 
-export function sendConsumeTile(actionType: Action, fromPlayer: string, toPlayer: string, tile: Tile) {
+export function sendConsumeTile(peers: { [userId: string]: SimplePeer.Instance }, actionType: Action, fromPlayer: string, toPlayer: string, tile: Tile): void {
   const consumeAction: PlayerAction = {
     action: actionType,
     body: {
@@ -84,10 +85,10 @@ export function sendConsumeTile(actionType: Action, fromPlayer: string, toPlayer
     }
   };
 
-  sendToEveryone(JSON.stringify(consumeAction));
+  sendToEveryone(peers, JSON.stringify(consumeAction));
 }
 
-export function sendShowFlower(tile: Tile){
+export function sendShowFlower(peers: { [userId: string]: SimplePeer.Instance }, tile: Tile): void {
   const showFlowerAction: PlayerAction = {
     action: Action.ShowFlower,
     body: {
@@ -95,5 +96,5 @@ export function sendShowFlower(tile: Tile){
     }
   };
 
-  sendToEveryone(JSON.stringify(showFlowerAction));
+  sendToEveryone(peers, JSON.stringify(showFlowerAction));
 }
