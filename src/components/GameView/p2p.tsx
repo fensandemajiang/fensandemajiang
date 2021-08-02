@@ -15,7 +15,7 @@ export { PeerContext };
 
 export default function PeerContextProvider ({ children }: Props) {
   const connectionState: ConnectionState = useConnectionStore(state => state.connectionState);
-  const signalIDs: { [key: number]: string } = connectionState.signalIDs;
+  const signalIDs: number[] = connectionState.signalIDs;
   const userID: number = connectionState.userID;
   
   const peers: { [userId: number]: SimplePeer.Instance } = {};

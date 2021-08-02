@@ -7,13 +7,15 @@ import type { PlayerAction, Tile } from '../../types';
 export function processRecievedData(recievedData: PlayerAction) {
   switch (recievedData.action) {
     case Action.DrawTile:
-      const tile: Tile | undefined = recievedData.body?.tile;
-
-      if (tile) {
+      if (recievedData.body?.tile) {
         // update store accordingly in zustand
+
       }
       break;
     case Action.PlaceTile:
+      if (recievedData.body?.tile) {
+
+      }
       break;
     case Action.Chi:
       break;
@@ -22,6 +24,10 @@ export function processRecievedData(recievedData: PlayerAction) {
     case Action.Pang:
       break;
     case Action.Gang:
+      break;
+    case Action.ShowFlower:
+      break;
+    case Action.ReplaceFlower:
       break;
   }
 }
@@ -34,13 +40,48 @@ function sendToEveryone(data: string) {
   }
 }
 
-export function sendDrawTile(tile: Tile) {
+export function sendDrawTile(tile: Tile, wasFlower?: boolean) {
   const drawAction: PlayerAction = {
-    "action": Action.DrawTile,
-    "body": {
-      "tile": tile
+    action: wasFlower? Action.ReplaceFlower : Action.DrawTile,
+    body: {
+      tile: tile
     }
   };
 
   sendToEveryone(JSON.stringify(drawAction));
+}
+
+export function sendPlaceTile(tile: Tile) {
+  const placeAction: PlayerAction = {
+    action: Action.PlaceTile,
+    body: {
+      tile: tile
+    }
+  };
+
+  sendToEveryone(JSON.stringify(placeAction));
+}
+
+export function sendConsumeTile(actionType: Action, fromPlayer: number, toPlayer: number, tile: Tile) {
+  const consumeAction: PlayerAction = {
+    action: actionType,
+    body: {
+      tile: tile,
+      playerFrom: fromPlayer,
+      playerTo: toPlayer
+    }
+  };
+
+  sendToEveryone(JSON.stringify(consumeAction));
+}
+
+export function sendShowFlower(tile: Tile){
+  const showFlowerAction: PlayerAction = {
+    action: Action.ShowFlower,
+    body: {
+      tile: tile
+    }
+  };
+
+  sendToEveryone(JSON.stringify(showFlowerAction));
 }

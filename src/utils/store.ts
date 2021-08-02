@@ -7,7 +7,7 @@ export type ConnectionDataStore = {
 }
 
 const initialConnectionDataState: ConnectionState  = {
-  signalIDs: {},
+  signalIDs: [],
   userID: 0
 }
 

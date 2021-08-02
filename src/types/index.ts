@@ -2,7 +2,7 @@
 export type LiteralUnion<T extends U, U> = T | (U & {});
 
 export interface ConnectionState {
-  signalIDs: { [key: number]: string}, //length 3, one for each possible opponent
+  signalIDs: number[],
   userID: number
 }
 
@@ -12,15 +12,17 @@ export enum Action {
   Chi,
   Kong,
   Pang,
-  Gang
+  Gang,
+  ShowFlower,
+  ReplaceFlower
 }
 
 export interface PlayerAction {
   action: Action
   body?: {
     tile?: Tile
-    playerFrom?: string
-    playerTo?: string
+    playerFrom?: number
+    playerTo?: number
   }
 }
 

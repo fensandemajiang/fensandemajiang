@@ -7,6 +7,7 @@ const GameView: FunctionComponent = () => {
   return (
     <div className="mainview">
       <PeerContextProvider>
+        hello world
       </PeerContextProvider>
     </div>
   );
