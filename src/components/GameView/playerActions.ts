@@ -1,27 +1,39 @@
 import { useContext } from 'react';
 import { PeerContext } from './p2p';
 import { Action } from '../../types';
+import { useGameDataStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import type { PlayerAction, Tile } from '../../types';
 
 export function processRecievedData(recievedData: PlayerAction) {
+  const gameDataStore = useGameDataStore(state => state.gameDataState);
+  const updateDataStore = useGameDataStore(state => state.updateGameDataState);
+  const dataBody = recievedData.body;
+  
   switch (recievedData.action) {
     case Action.DrawTile:
-      if (recievedData.body?.tile) {
+      if (dataBody.tile) {
         // update store accordingly in zustand
-
+        
       }
       break;
     case Action.PlaceTile:
-      if (recievedData.body?.tile) {
+      if (dataBody.tile) {
+        const discards = gameDataStore.discards;
+        const currPlayer = gameDataStore.currentTurn;
+        const newDiscardsOfCurrentPlayer = [ ...discards[currPlayer], dataBody.tile];
+        const newDiscardsOfAllPlayers = { ...discards };
+        newDiscardsOfAllPlayers[currPlayer] = newDiscardsOfCurrentPlayer;
 
+        updateDataStore({
+          ...gameDataStore,
+          discards: newDiscardsOfAllPlayers
+        });
       }
       break;
     case Action.Chi:
       break;
-    case Action.Kong:
-      break;
-    case Action.Pang:
+    case Action.Peng:
       break;
     case Action.Gang:
       break;
@@ -62,7 +74,7 @@ export function sendPlaceTile(tile: Tile) {
   sendToEveryone(JSON.stringify(placeAction));
 }
 
-export function sendConsumeTile(actionType: Action, fromPlayer: number, toPlayer: number, tile: Tile) {
+export function sendConsumeTile(actionType: Action, fromPlayer: string, toPlayer: string, tile: Tile) {
   const consumeAction: PlayerAction = {
     action: actionType,
     body: {

@@ -2,16 +2,27 @@
 export type LiteralUnion<T extends U, U> = T | (U & {});
 
 export interface ConnectionState {
-  signalIDs: number[],
-  userID: number
+  signalIDs: string[],
+  userID: string
+}
+
+export interface GameDataState {
+  deck: Tile[],
+  discards: { [userId: string]: Tile[] },
+  shownTiles: { [userId: string]: Tile[][] },
+  flowers: { [userId: string]: Tile[] },
+  yourHand: Tile[],
+  allPlayerIds: string[],
+  yourPlayerId: string,
+  currentTurn: string,
+  currentPlayerIndex: number
 }
 
 export enum Action {
   DrawTile = 1,
   PlaceTile,
   Chi,
-  Kong,
-  Pang,
+  Peng,
   Gang,
   ShowFlower,
   ReplaceFlower
@@ -19,10 +30,10 @@ export enum Action {
 
 export interface PlayerAction {
   action: Action
-  body?: {
+  body: {
     tile?: Tile
-    playerFrom?: number
-    playerTo?: number
+    playerFrom?: string
+    playerTo?: string
   }
 }
 
@@ -39,6 +50,6 @@ export interface Tile {
   suite: Suite
   value?: number
   wind?: string
-  dragon: string
-  flower: string
+  dragon?: string
+  flower?: string
 }

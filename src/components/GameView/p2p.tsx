@@ -15,19 +15,19 @@ export { PeerContext };
 
 export default function PeerContextProvider ({ children }: Props) {
   const connectionState: ConnectionState = useConnectionStore(state => state.connectionState);
-  const signalIDs: number[] = connectionState.signalIDs;
-  const userID: number = connectionState.userID;
+  const signalIDs: string[] = connectionState.signalIDs;
+  const userID: string = connectionState.userID;
   
-  const peers: { [userId: number]: SimplePeer.Instance } = {};
+  const peers: { [userId: string]: SimplePeer.Instance } = {};
   // create signals first before receiving to reduce waiting time
   // create and send relevant signals
   for (const id in signalIDs) {
-    if (userID < parseInt(id)) { // we init
+    if (userID < id) { // we init
        peers[id] = new SimplePeer({
         initiator: true,
         trickle: false
       });
-    } else if (userID > parseInt(id))  { // partner inits
+    } else if (userID > id)  { // partner inits
       peers[id] = new SimplePeer({
         initiator: false,
         trickle: false
@@ -48,7 +48,7 @@ export default function PeerContextProvider ({ children }: Props) {
 
   // respond to signals
   for (const id in signalIDs) {
-    if (userID > parseInt(id)) {
+    if (userID > id) {
       // wait until corresponding entry appears in db
       
       const partnerSignalData = "";
