@@ -47,8 +47,32 @@ export function processReceivedData(
     case Action.ReplaceFlower:
       return gameDataStore;
       break;
+    case Action.GiveDeck:
+      if (dataBody.deck && dataBody.playerTo) {
+        const newDeckOwner = dataBody.playerTo;
+        const newDeck = dataBody.deck;
+
+        return {
+          ...gameDataStore,
+          deck: newDeck,
+          playerWithDeck: newDeckOwner,
+        };
+      }
+      break;
+    case Action.GiveHand:
+      if (dataBody.deck && dataBody.playerTo) {
+        //const toPlayer = dataBody.playerTo; // do we even need playerTo here? i guess we could do another check to see we are the correct recipient...
+        const hand = dataBody.deck;
+
+        return {
+          ...gameDataStore,
+          yourHand: hand,
+        };
+      }
+      break;
   }
 
+  console.error('Action not processed properly');
   return gameDataStore;
 }
 
@@ -59,6 +83,52 @@ function sendToEveryone(
   for (const id in peers) {
     peers[id].send(data);
   }
+}
+
+export function updateGameState(
+  peers: { [userId: string]: SimplePeer.Instance },
+  gameState: string,
+): void {
+  const updateGameStateAction: PlayerAction = {
+    action: Action.UpdateGameState,
+    body: {
+      gameState: gameState,
+    },
+  };
+
+  sendToEveryone(peers, JSON.stringify(updateGameStateAction));
+}
+
+export function sendHand(
+  peers: { [userId: string]: SimplePeer.Instance },
+  hand: Tile[],
+  toPlayer: string,
+): void {
+  const giveHandAction: PlayerAction = {
+    action: Action.GiveHand,
+    body: {
+      deck: hand,
+      playerTo: toPlayer, // do we even need playerTo here?
+    },
+  };
+
+  peers[toPlayer].send(JSON.stringify(giveHandAction));
+}
+
+export function giveDeck(
+  peers: { [userId: string]: SimplePeer.Instance },
+  deck: Tile[],
+  toPlayer: string,
+): void {
+  const giveDeckAction: PlayerAction = {
+    action: Action.GiveDeck,
+    body: {
+      deck: deck,
+      playerTo: toPlayer,
+    },
+  };
+
+  sendToEveryone(peers, JSON.stringify(giveDeckAction));
 }
 
 export function sendDrawTile(

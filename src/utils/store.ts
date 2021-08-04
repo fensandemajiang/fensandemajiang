@@ -1,5 +1,6 @@
 import create, { SetState } from 'zustand';
-import type { ConnectionState, GameDataState } from '../types';
+import { Suite, Dragon, Flower, Wind } from '../types';
+import type { ConnectionState, GameDataState, Tile } from '../types';
 
 export type ConnectionDataStore = {
   connectionState: ConnectionState;
@@ -24,8 +25,57 @@ export type GameDataStore = {
   updateGameDataState: (gameDataState: GameDataState) => void;
 };
 
+const initDeck: Tile[] = ((): Tile[] => {
+  const deck: Tile[] = [];
+  for (let num = 1; num <= 9; num++) {
+    // face value
+    for (const suite of [Suite.Wan, Suite.Tong, Suite.Tiao]) {
+      // suite
+      for (let count = 0; count < 4; count++) {
+        // count
+        deck.push({
+          suite: suite,
+          value: num,
+        });
+      }
+    }
+  }
+
+  // fill in dragons
+  for (const dragon in Object.keys(Dragon)) {
+    // face value
+    for (let count = 0; count < 4; count++) {
+      //count
+      deck.push({
+        suite: Suite.Dragons,
+        dragon: dragon as Dragon,
+      });
+    }
+  }
+
+  // fill in winds
+  for (const wind of Object.keys(Wind)) {
+    for (let count = 0; count < 4; count++) {
+      deck.push({
+        suite: Suite.Winds,
+        wind: wind as Wind,
+      });
+    }
+  }
+
+  // fill in flowers
+  for (const flower of Object.keys(Flower)) {
+    deck.push({
+      suite: Suite.Flowers,
+      flower: flower as Flower,
+    });
+  }
+
+  return deck;
+})();
+
 const initialGameDataState: GameDataState = {
-  deck: [],
+  deck: initDeck,
   discards: {},
   shownTiles: {},
   flowers: {},
@@ -34,6 +84,9 @@ const initialGameDataState: GameDataState = {
   yourPlayerId: '',
   currentTurn: '', //userId of current player
   currentPlayerIndex: 0,
+  currentState: 'shuffleDeck',
+  roundNumber: 0,
+  playerWithDeck: '',
 };
 
 export const useGameDataStore = create<GameDataStore>(

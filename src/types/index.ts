@@ -16,6 +16,9 @@ export interface GameDataState {
   yourPlayerId: string;
   currentTurn: string;
   currentPlayerIndex: number;
+  currentState: string;
+  roundNumber: number;
+  playerWithDeck: string; // empty string or null if no player has deck
 }
 
 export enum Action {
@@ -26,14 +29,19 @@ export enum Action {
   Gang,
   ShowFlower,
   ReplaceFlower,
+  GiveDeck,
+  GiveHand,
+  UpdateGameState,
 }
 
 export interface PlayerAction {
   action: Action;
   body: {
     tile?: Tile;
+    deck?: Tile[];
     playerFrom?: string;
     playerTo?: string;
+    gameState?: string;
   };
 }
 
