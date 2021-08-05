@@ -233,6 +233,7 @@ const GameView: FunctionComponent = () => {
           const currPlayerDiscards: Tile[] = dataStore.discards[currPlayerId];
           const mostRecentDiscarded: Tile =
             currPlayerDiscards[currPlayerDiscards.length - 1];
+          /*
           if (false) {
             // if we consume the tile
             const newHand: Tile[] = [
@@ -245,7 +246,7 @@ const GameView: FunctionComponent = () => {
               currPlayerDiscards.length - 1,
             );
 
-            // TODO we actually have to display the card after we consume it
+            // TODO we actually have to display the tile and its set after we consume it
 
             useGameDataStore.setState({
               ...useGameDataStore.getState(),
@@ -269,9 +270,9 @@ const GameView: FunctionComponent = () => {
               dataStore.yourPlayerId,
               mostRecentDiscarded,
             );
-          } else {
-            updateCurrentPlayerIndex(peers, newCurrPlayerInd);
-          }
+          } else {*/
+          updateCurrentPlayerIndex(peers, newCurrPlayerInd);
+          //}
           updateGameState(peers, GameState.DrawPlayCard);
         }
         break;
