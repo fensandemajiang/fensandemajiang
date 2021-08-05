@@ -22,10 +22,10 @@ export interface GameDataState {
 }
 
 export enum GameState {
-  ShuffleDeck = "ShuffleDeck",
-  DrawPlayCard = "DrawPlayCard",
-  PengGang = "PengGang",
-  Chi = "Chi"
+  ShuffleDeck = 'ShuffleDeck',
+  DrawPlayCard = 'DrawPlayCard',
+  PengGang = 'PengGang',
+  Chi = 'Chi',
 }
 
 export enum Action {

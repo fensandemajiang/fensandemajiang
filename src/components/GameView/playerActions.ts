@@ -95,9 +95,11 @@ export function updateCurrentPlayerIndex(
   const updateCurrentPlayerIndexAction: PlayerAction = {
     action: Action.UpdateCurrentPlayerIndex,
     body: {
-      playerIndex: currPlayerInd
-    }
-  }
+      playerIndex: currPlayerInd,
+    },
+  };
+
+  sendToEveryone(peers, JSON.stringify(updateCurrentPlayerIndexAction));
 }
 
 export function updateGameState(
