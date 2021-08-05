@@ -1,5 +1,5 @@
 import create, { SetState } from 'zustand';
-import { Suite, Dragon, Flower, Wind } from '../types';
+import { Suite, Dragon, Flower, Wind, GameState } from '../types';
 import type { ConnectionState, GameDataState, Tile } from '../types';
 
 export type ConnectionDataStore = {
@@ -84,7 +84,7 @@ const initialGameDataState: GameDataState = {
   yourPlayerId: '',
   currentTurn: '', //userId of current player
   currentPlayerIndex: 0,
-  currentState: 'shuffleDeck',
+  currentState: GameState.ShuffleDeck,
   roundNumber: 0,
   playerWithDeck: '',
 };

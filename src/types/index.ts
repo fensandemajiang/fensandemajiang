@@ -16,9 +16,16 @@ export interface GameDataState {
   yourPlayerId: string;
   currentTurn: string;
   currentPlayerIndex: number;
-  currentState: string;
+  currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck
+}
+
+export enum GameState {
+  ShuffleDeck = "ShuffleDeck",
+  DrawPlayCard = "DrawPlayCard",
+  PengGang = "PengGang",
+  Chi = "Chi"
 }
 
 export enum Action {
@@ -32,6 +39,7 @@ export enum Action {
   GiveDeck,
   GiveHand,
   UpdateGameState,
+  UpdateCurrentPlayerIndex,
 }
 
 export interface PlayerAction {
@@ -42,6 +50,7 @@ export interface PlayerAction {
     playerFrom?: string;
     playerTo?: string;
     gameState?: string;
+    playerIndex?: number;
   };
 }
 

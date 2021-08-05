@@ -1,4 +1,4 @@
-import { Action } from '../../types';
+import { Action, GameState } from '../../types';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import type { PlayerAction, Tile, GameDataState } from '../../types';
 
@@ -9,12 +9,15 @@ export function processReceivedData(
   const dataBody = receivedData.body;
 
   switch (receivedData.action) {
+    /* this action is probably not needed anymore but keeping this around for now until i'm certain about it
     case Action.DrawTile:
       if (dataBody.tile) {
         // update store accordingly in zustand
+        
       }
       return gameDataStore;
       break;
+    */
     case Action.PlaceTile:
       if (dataBody.tile) {
         const discards = gameDataStore.discards;
@@ -85,9 +88,21 @@ function sendToEveryone(
   }
 }
 
+export function updateCurrentPlayerIndex(
+  peers: { [userId: string]: SimplePeer.Instance },
+  currPlayerInd: number,
+): void {
+  const updateCurrentPlayerIndexAction: PlayerAction = {
+    action: Action.UpdateCurrentPlayerIndex,
+    body: {
+      playerIndex: currPlayerInd
+    }
+  }
+}
+
 export function updateGameState(
   peers: { [userId: string]: SimplePeer.Instance },
-  gameState: string,
+  gameState: GameState,
 ): void {
   const updateGameStateAction: PlayerAction = {
     action: Action.UpdateGameState,
@@ -131,6 +146,7 @@ export function giveDeck(
   sendToEveryone(peers, JSON.stringify(giveDeckAction));
 }
 
+/* we don't need to let everyone else know about the card we drew
 export function sendDrawTile(
   peers: { [userId: string]: SimplePeer.Instance },
   tile: Tile,
@@ -145,6 +161,7 @@ export function sendDrawTile(
 
   sendToEveryone(peers, JSON.stringify(drawAction));
 }
+*/
 
 export function sendPlaceTile(
   peers: { [userId: string]: SimplePeer.Instance },

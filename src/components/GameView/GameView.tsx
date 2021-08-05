@@ -1,16 +1,17 @@
 import React, { useEffect, useContext, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import { compStr, getRandomInt } from '../../utils/utilFunc';
-import { giveDeck, updateGameState, sendHand } from './playerActions';
+import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
+import { giveDeck, updateGameState, sendHand, sendPlaceTile, updateCurrentPlayerIndex, sendConsumeTile } from './playerActions';
 import { PeerContext } from './PeerContextProvidor';
+import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
 
 const GameView: FunctionComponent = () => {
-  const deck = useGameDataStore((state) => state.gameDataState.deck);
-  const peers: { [userId: string]: SimplePeer.Instance } =
-    useContext(PeerContext);
+  const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
+  const gameState: GameState = useGameDataStore((state) => state.gameDataState.currentState);
+  const peers: { [userId: string]: SimplePeer.Instance } = useContext(PeerContext);
 
   function randomizeDeck(deck: Tile[]): Tile[] {
     const newDeck = [...deck];
@@ -57,7 +58,6 @@ const GameView: FunctionComponent = () => {
         yourPlayerId: yourPlayerId,
         currentTurn: currentPlayerId,
         currentPlayerIndex: currentPlayerIndex,
-        currentState: 'shuffleDeck',
         deck: newDeck,
       },
     });
@@ -75,7 +75,7 @@ const GameView: FunctionComponent = () => {
     // edge case I thought of a few days ago, but that I can't remember anymore. I guess this is what you
     // get when you hackathon stuff together.
     if (
-      gameState.currentState === 'shuffleDeck' &&
+      gameState.currentState === GameState.ShuffleDeck &&
       gameState.playerWithDeck !== ''
     ) {
       let newCurrentPlayerInd = gameState.currentPlayerIndex + 1;
@@ -102,7 +102,7 @@ const GameView: FunctionComponent = () => {
           giveDeck(peers, newDeck, '');
 
           // game state is updated, game begins
-          updateGameState(peers, 'drawCard');
+          updateGameState(peers, GameState.DrawPlayCard);
         } else {
           // give deck to next player
           giveDeck(peers, newDeck, newCurrentPlayerId);
@@ -120,6 +120,121 @@ const GameView: FunctionComponent = () => {
       });
     }
   }, [deck, peers]);
+
+  // the main game function
+  // every time game state is updated, all the everything should occur (e.g. Visual updates)
+  useEffect(() => {
+    const dataStore = useGameDataStore.getState().gameDataState;
+
+    switch (gameState) {
+      case GameState.DrawPlayCard:
+        if (amCurrentPlayer(dataStore.yourPlayerId, dataStore.currentPlayerIndex, dataStore.allPlayerIds)) {
+          var newDeck: Tile[] = [...dataStore.deck];
+          var newHand: Tile[] = [...dataStore.yourHand];
+            
+          // only draw card if hand has 13 cards, we sometimes just chi or peng. So, we may not need to draw card
+          if (newHand.length <= 13) {
+            const drawnCard: Tile = newDeck[newDeck.length - 1]; // TODO: check deck is empty and if so, end the game
+            newDeck = newDeck.slice(0, newDeck.length - 1); // remove last element
+            newHand.push(drawnCard);
+
+            // do we even need to update store here? probably not necessary so will remove for now
+            /*
+            useGameDataStore.setState({ 
+              ...useGameDataStore.getState(),
+              gameDataState: {
+                ...dataStore,
+                deck: newDeck,
+                yourHand: newHand
+              }
+            });
+            */
+          }
+
+          // render something to tell player to choose card to discard
+          // block this function somehow? or move the rest of this functionality into some button?
+          // most of this should probably get moved to some sort of callback function that runs if user decides to chi
+          // once user has selected tile to discard, continue on
+
+          // this is placeholder logic, until we actually implement how to discard tile
+          const tileToDiscardIndex = 0;
+          const discardedTile: Tile = newHand[tileToDiscardIndex];
+          newHand.splice(tileToDiscardIndex, 1);
+          var newDiscards = { ...dataStore.discards };
+          newDiscards[dataStore.yourPlayerId].push(discardedTile);
+          
+          useGameDataStore.setState({
+            ...useGameDataStore.getState(),
+            gameDataState: {
+              ...dataStore,
+              yourHand: newHand,
+              discards: newDiscards
+            }
+          });
+
+          giveDeck(peers, newDeck, "");
+          sendPlaceTile(peers, discardedTile);
+          updateGameState(peers, GameState.PengGang);
+        } else {
+          // not the current player who drew a card, should probably still render some sort of animation for the other player?
+        }
+        break;
+      case GameState.PengGang:
+        // if not current player, aka i'm not the player who just played the tile, and so i can peng/gang it
+        if (!amCurrentPlayer(dataStore.yourPlayerId, dataStore.currentPlayerIndex, dataStore.allPlayerIds)) {
+          // wait 5 seconds
+          // most of this should probably get moved to some sort of callback function that runs if user decides to chi
+
+          //if we peng/gang, we have to update newCurrPlayerInd to us.
+          // logic here can be largely copied from chi
+
+          updateGameState(peers, GameState.Chi);
+        }
+        break;
+      case GameState.Chi:
+        // if not current player, aka i'm not the player who just played the tile, and so i can peng/gang it
+        if (!amCurrentPlayer(dataStore.yourPlayerId, dataStore.currentPlayerIndex, dataStore.allPlayerIds)) {
+          // wait 5 seconds
+
+          var newCurrPlayerInd = dataStore.currentPlayerIndex + 1;
+
+          // some more placeholder logic to help out
+          // most of this should probably get moved to some sort of callback function that runs if user decides to chi
+          const currPlayerId: string = dataStore.allPlayerIds[dataStore.currentPlayerIndex % 4];
+          const currPlayerDiscards: Tile[] = dataStore.discards[currPlayerId];
+          const mostRecentDiscarded: Tile = currPlayerDiscards[currPlayerDiscards.length - 1];
+          if (false) { // if we consume the tile
+            const newHand: Tile[] = [...dataStore.yourHand, mostRecentDiscarded];
+            const newDiscards = { ...dataStore.discards };
+            newDiscards[currPlayerId] = currPlayerDiscards.slice(0, currPlayerDiscards.length - 1);
+
+            // TODO we actually have to display the card after we consume it
+            
+            useGameDataStore.setState({
+              ...useGameDataStore.getState(),
+              gameDataState: {
+                ...dataStore,
+                yourHand: newHand,
+                discards: newDiscards
+              }
+            });
+      
+            //if we chi, we have to update newCurrPlayerInd to us.
+            updateCurrentPlayerIndex(peers, dataStore.allPlayerIds.indexOf(dataStore.yourPlayerId));
+
+            sendConsumeTile(peers, 
+                            Action.Chi, 
+                            currPlayerId,
+                            dataStore.yourPlayerId,
+                            mostRecentDiscarded);
+          } else {
+            updateCurrentPlayerIndex(peers, newCurrPlayerInd);
+          }
+          updateGameState(peers, GameState.DrawPlayCard);
+        }
+        break;
+    }
+  }, [gameState, peers]);
 
   return <div className="mainview">hello world</div>;
 };
