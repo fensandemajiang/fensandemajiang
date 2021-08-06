@@ -1,7 +1,12 @@
 import React, { useEffect, useContext, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
+import {
+  compStr,
+  getRandomInt,
+  amCurrentPlayer,
+  findGrouping,
+} from '../../utils/utilFunc';
 import {
   giveDeck,
   updateGameState,
@@ -233,10 +238,24 @@ const GameView: FunctionComponent = () => {
           const currPlayerDiscards: Tile[] = dataStore.discards[currPlayerId];
           const mostRecentDiscarded: Tile =
             currPlayerDiscards[currPlayerDiscards.length - 1];
+
+          // display each of these groups as an option to user to select
+          // user has to decide how to chi
+          const group: number[][] = findGrouping(
+            [...dataStore.yourHand, mostRecentDiscarded],
+            Action.Chi,
+            mostRecentDiscarded,
+          );
+          const selectedChiGroupIndex = 0; // this is the index of the group the user selected
+          const valSortedChiGroup: number[] = group[selectedChiGroupIndex];
+          const indSortedChiGroup: number[] = valSortedChiGroup
+            .sort()
+            .reverse();
+
           /*
-          if (false) {
+          if (userConsumesTile) {
             // if we consume the tile
-            const newHand: Tile[] = [
+            var newHand: Tile[] = [
               ...dataStore.yourHand,
               mostRecentDiscarded,
             ];
@@ -246,7 +265,19 @@ const GameView: FunctionComponent = () => {
               currPlayerDiscards.length - 1,
             );
 
-            // TODO we actually have to display the tile and its set after we consume it
+            const newMyToShowTiles: Tile[][] = 
+              [...dataStore.shownTiles[dataStore.yourPlayerId],
+                 [newHand[valSortedChiGroup[0]], 
+                  newHand[valSortedChiGroup[1]], 
+                  newHand[valSortedChiGroup[2]]]
+              ];
+            var newToShowTiles: { [userId: string]: Tile[][] } = { ...dataStore.shownTiles };
+            newToShowTiles[dataStore.yourPlayerId] = newMyToShowTiles;
+
+            // removes tiles from hand
+            newHand.splice(indSortedChiGroup[0], 1);
+            newHand.splice(indSortedChiGroup[1], 1);
+            newHand.splice(indSortedChiGroup[2], 1);
 
             useGameDataStore.setState({
               ...useGameDataStore.getState(),
@@ -254,6 +285,7 @@ const GameView: FunctionComponent = () => {
                 ...dataStore,
                 yourHand: newHand,
                 discards: newDiscards,
+                shownTiles: newToShowTiles
               },
             });
 
