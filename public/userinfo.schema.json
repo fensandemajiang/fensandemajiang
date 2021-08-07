@@ -12,7 +12,7 @@
       "type": "string"
     },
     "name": {
-      "$ref": "#/definitions/imageSources"
+      "type": "string"
     },
     "image": {
       "$ref": "#/definitions/imageSources"
