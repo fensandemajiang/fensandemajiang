@@ -5,11 +5,13 @@ import Footer from './Footer';
 
 const MainView: FunctionComponent = () => {
   return (
-    <>
-      <Nav />
-      <Hero />
+    <div className="flex flex-col h-screen">
+      <div className="flex-auto flex-shrink-0">
+        <Nav />
+        <Hero />
+      </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
