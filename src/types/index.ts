@@ -4,6 +4,13 @@ export type LiteralUnion<T extends U, U> = T | (U & {});
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
+  userConnectionState: UserConnectionState[];
+}
+export enum UserConnectionState {
+  Connected,
+  NotConnected,
+  AwaitingOffer,
+  AwaitingResponse,
 }
 
 export interface GameDataState {
