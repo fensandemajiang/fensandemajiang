@@ -1,5 +1,12 @@
 import create, { SetState } from 'zustand';
-import { Suite, Dragon, Flower, Wind, GameState } from '../types';
+import {
+  Suite,
+  Dragon,
+  Flower,
+  Wind,
+  GameState,
+  UserConnectionState,
+} from '../types';
 import type { ConnectionState, GameDataState, Tile } from '../types';
 
 export type ConnectionDataStore = {
@@ -10,6 +17,7 @@ export type ConnectionDataStore = {
 const initialConnectionDataState: ConnectionState = {
   signalIDs: [],
   userID: '',
+  userConnectionState: [],
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(
