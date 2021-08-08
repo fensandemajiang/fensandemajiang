@@ -1,2 +1,2 @@
-import GameView from './GameView';
-export default GameView;
+import GameViewInit from './GameViewInit';
+export default GameViewInit;
