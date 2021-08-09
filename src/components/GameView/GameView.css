@@ -1,0 +1,15 @@
+.game-view-container{
+    display: inline-flex;
+    flex-direction: row;
+    background-color: #232646;
+    min-width: 100%;
+    min-height: 100%;
+    gap: 3em;
+    padding-right: 3em;
+}
+.game-view-right{
+    display: inline-flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 1000px;
+}

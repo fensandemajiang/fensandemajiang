@@ -1,0 +1,15 @@
+.sidebar{ 
+    width: 50px;
+    background-color: #363C6B;
+    color: white;
+    margin: 0;
+    text-align: center;
+}
+
+.sidebar a{
+    font-size: 40px;
+}
+
+.sidebar a:hover{
+    opacity: 75%;
+}
