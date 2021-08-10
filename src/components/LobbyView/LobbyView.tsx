@@ -2,6 +2,7 @@ import React, { FunctionComponent } from 'react';
 import LPanel from './LPanel';
 import RPanel from './RPanel';
 import Login from './Login';
+import OldLobby from './OldLobby';
 import './LobbyView.css';
 
 const LobbyView: FunctionComponent = () => {
@@ -23,11 +24,11 @@ const LobbyView: FunctionComponent = () => {
             <RPanel />
           </div>
         </div>
+        <OldLobby />
       </div>
     </>
   ) : (
     <Login />
   );
 };
-
 export default LobbyView;

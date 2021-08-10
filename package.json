@@ -25,6 +25,7 @@
     "react-i18next": "^11.8.8",
     "react-router-dom": "^5.2.0",
     "web3modal": "^1.9.4",
+    "vite-compatible-simple-peer": "^9.11.0",
     "zustand": "^3.2.0"
   },
   "devDependencies": {

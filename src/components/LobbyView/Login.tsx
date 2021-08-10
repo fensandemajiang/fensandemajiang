@@ -12,7 +12,7 @@ const web3Modal = new Web3Modal({
   cacheProvider: true,
 });
 
-const CERAMIC_URL = process.env.CERAMIC_API || 'http://localhost:7007';
+const CERAMIC_URL = 'http://localhost:7007';
 
 const threeIdConnect = new ThreeIdConnect();
 
@@ -36,9 +36,8 @@ const Login: FunctionComponent = () => {
     const jws = await did.createJWS({ hello: 'world' });
     console.log(jws);
 
-    window.idx = new IDX({ ceramic });
-    window.ceramic = ceramic;
-    window.did = did.id;
+    const idx = new IDX({ ceramic });
+    const didId = did.id;
   };
 
   const loginOnClick = () => {};
