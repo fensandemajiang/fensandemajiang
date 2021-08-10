@@ -5,6 +5,8 @@ import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver';
 import Ceramic from '@ceramicnetwork/http-client';
 import { IDX } from '@ceramicstudio/idx';
 import { DID } from 'dids';
+import { useUserStore } from '../../utils/store';
+import type { BasicProfile } from '../../types';
 import './LobbyView.css';
 
 const web3Modal = new Web3Modal({
@@ -12,11 +14,12 @@ const web3Modal = new Web3Modal({
   cacheProvider: true,
 });
 
-const CERAMIC_URL = 'http://localhost:7007';
+const CERAMIC_URL = 'https://ceramic-clay.3boxlabs.com/';
 
 const threeIdConnect = new ThreeIdConnect();
 
 const Login: FunctionComponent = () => {
+  const { updateUserState } = useUserStore();
   const authenticate = async () => {
     const ethProvider = await web3Modal.connect();
     const addresses = await ethProvider.enable();
@@ -31,16 +34,39 @@ const Login: FunctionComponent = () => {
     });
 
     await did.authenticate();
-    console.log(did.id);
-
-    const jws = await did.createJWS({ hello: 'world' });
-    console.log(jws);
 
     const idx = new IDX({ ceramic });
-    const didId = did.id;
+    let basicProfile: BasicProfile | null = await idx.get(
+      'basicProfile',
+      did.id,
+    );
+    if (basicProfile === null) {
+      basicProfile = await createProfile(idx);
+    }
+
+    updateUserState({
+      loggedIn: true,
+      profile: basicProfile,
+      did: did,
+      ceramic: ceramic,
+      idx: idx,
+    });
   };
 
-  const loginOnClick = () => {};
+  const createProfile = async (idx: IDX): Promise<BasicProfile> => {
+    const profile = {
+      name: 'username',
+      description: 'Love to play Mahjong on my free time',
+      residenceCountry: 'Canada',
+    };
+    // TODO: Implement profile
+
+    return profile;
+  };
+
+  const loginOnClick = () => {
+    authenticate();
+  };
   return (
     <div className="lobbyview__rpanel p-4 br-2 text-white rounded-xl m-8">
       <div className="w-100 m-4"></div>

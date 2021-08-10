@@ -4,15 +4,16 @@ import RPanel from './RPanel';
 import Login from './Login';
 import OldLobby from './OldLobby';
 import './LobbyView.css';
+import { useUserStore } from '../../utils/store';
 
 const LobbyView: FunctionComponent = () => {
+  const { loggedIn } = useUserStore((state) => state.userState);
   const props = {
-    username: 'username',
+    name: 'username',
     description: 'Love to play Mahjong on my free time',
-    country: 'Canada',
+    residenceCountry: 'Canada',
     age: 18,
   };
-  const loggedIn = true;
   return loggedIn ? (
     <>
       <div className="lobbyview h-screen">
