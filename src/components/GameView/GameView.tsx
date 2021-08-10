@@ -5,8 +5,8 @@ import {
   compStr,
   getRandomInt,
   amCurrentPlayer,
-  findGrouping,
 } from '../../utils/utilFunc';
+import { findGrouping, hasWon } from './GameFunctions';
 import {
   giveDeck,
   updateGameState,
@@ -172,6 +172,14 @@ const GameView: FunctionComponent = () => {
             */
           }
 
+          // user has won?
+          // returns amount of points won (if user won)
+          const wonAmount: number = hasWon(dataStore.yourHand); 
+          if (wonAmount !== -1) {
+            //exit game...somehow
+          }
+            
+
           // render something to tell player to choose card to discard
           // block this function somehow? or move the rest of this functionality into some button?
           // most of this should probably get moved to some sort of callback function that runs if user decides to chi
@@ -209,7 +217,7 @@ const GameView: FunctionComponent = () => {
             dataStore.allPlayerIds,
           )
         ) {
-          // wait 5 seconds
+          // wait 3 seconds
           // most of this should probably get moved to some sort of callback function that runs if user decides to chi
 
           //if we peng/gang, we have to update newCurrPlayerInd to us.

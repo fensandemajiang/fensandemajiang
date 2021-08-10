@@ -21,8 +21,8 @@ export interface GameDataState {
   yourHand: Tile[];
   allPlayerIds: string[];
   yourPlayerId: string;
-  currentTurn: string;
-  currentPlayerIndex: number;
+  currentTurn: string; // id of current player
+  currentPlayerIndex: number; 
   currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck
