@@ -1,14 +1,9 @@
 .action-button{
-    display:block;
-    margin: auto;
-    font-size: 2em;
-    padding: 0.7em 1.2em;
-    height: 3em;
+    display: block;
+    padding: 1vh 1vw;
     border-radius: 1em;
-    background-color: purple;
-    color: white;
-}
-
-.width-100{
-    width:100%;
+    background-color: #FDB813;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    font-size: larger;
 }

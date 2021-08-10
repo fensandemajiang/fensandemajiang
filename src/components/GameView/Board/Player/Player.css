@@ -1,0 +1,45 @@
+.player,
+.player-reverse{
+    width: 15%;
+    display: flex; 
+    flex-direction: row;
+    align-items: flex-end;
+}
+
+.player-reverse{
+    flex-direction: row-reverse;
+}
+
+.player .hand{
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.25em;
+}
+
+.player-up{
+    width: 50%;
+    height: 60%;
+    display: flex; 
+    flex-direction: column-reverse;
+    justify-content: space-around;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.player-up .hand{
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 0.25em;
+}
+
+.player-up .hand > div{
+    width: 10px;
+    height: 20px;
+    margin-left: 10px;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}

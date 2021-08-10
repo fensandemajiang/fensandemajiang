@@ -20,6 +20,7 @@ import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
 import Board from "./Board/Board" 
+import Actions from "./Actions/Actions"
 import Deck from "./Deck/Deck"
 import Sidebar from "../GlobalComponents/Sidebar/Sidebar"
 
@@ -319,8 +320,14 @@ const GameView: FunctionComponent = () => {
     <div className="game-view-container">
       <Sidebar></Sidebar>
       <div className="game-view-right">
-        <Board></Board>
-        <Deck></Deck>
+        <div className="game-view-top">
+          <Board></Board>
+          
+        </div>
+        <div className="game-view-bot">
+          <Deck></Deck>
+          <Actions></Actions>
+        </div>
       </div>
     </div>
   </>

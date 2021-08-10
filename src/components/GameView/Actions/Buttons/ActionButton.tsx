@@ -5,7 +5,7 @@ import "./ActionButton.css"
 
 
 function ActionButton(props: InferProps<typeof ActionButton.propTypes>) {
-    const textArr: string[] = ["text1"]
+    const textArr: string[] = ["Chow", "Pung", "Kong", "Get Tile"]
     let text : string = "null"
 
     if (typeof(props.type) == "number"){

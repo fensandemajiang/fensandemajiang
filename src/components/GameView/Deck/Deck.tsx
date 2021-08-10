@@ -18,9 +18,9 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
     return (
         <>  
             <div className="deck-container">
-                <div className="deck">
+                <ol className="deck">
                     {tiles}
-                </div>
+                </ol>
             </div>
         </>
     )

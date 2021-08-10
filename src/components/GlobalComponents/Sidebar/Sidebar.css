@@ -1,13 +1,14 @@
 .sidebar{ 
     width: 50px;
     background-color: #363C6B;
-    color: white;
+    color: #858CC1;
     margin: 0;
     text-align: center;
 }
 
 .sidebar a{
     font-size: 40px;
+    font-weight: 1000;
 }
 
 .sidebar a:hover{

@@ -1,11 +1,18 @@
 .board-container{
     background-color: #363C6B;
-    width: 80%;
-    height: 70%;
-    margin: 40px auto;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: space-between;
     border-radius: 2em;
     padding: 2em;
     color: white;
+}
+
+.board{
+    width: 100%;
+    height: 100%;
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
 }

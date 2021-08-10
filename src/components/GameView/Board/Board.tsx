@@ -1,6 +1,7 @@
 import React, {MouseEvent}  from "react"
 import PropTypes, { InferProps } from 'prop-types';
-import ActionButton from "../Actions/Buttons/ActionButton";
+import Timer from "./Timer/Timer";
+import Player from "./Player/Player";
 import "./Board.css"
 
 function Board(props: InferProps<typeof Board.propTypes>) {
@@ -18,7 +19,12 @@ function Board(props: InferProps<typeof Board.propTypes>) {
     return (
         <>
             <div className="board-container">
-                Helloasdfadfaf
+                <div className="board">
+                    <Timer></Timer>
+                    <Player></Player>
+                    <Player orientation="up"></Player>
+                    <Player orientation="left"></Player>
+                </div>
             </div>
         </>
     )

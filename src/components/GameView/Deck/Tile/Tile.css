@@ -8,7 +8,7 @@
 
 .deck-tile{
     background-color: white;
-    border-radius: 2em;
+    border-radius: 1em;
     min-width: 10px;
     min-height: 100%;
 }
