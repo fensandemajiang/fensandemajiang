@@ -1,0 +1,13 @@
+.lobbyview {
+  background-color: var(--space-purple-900);
+}
+.lobbyview__lpanel {
+  background-color: var(--space-purple-600);
+}
+.lobbyview__rpanel {
+  background-color: var(--space-purple-600);
+}
+
+.lobbyview__button {
+  background-color: var(--space-purple-400);
+}

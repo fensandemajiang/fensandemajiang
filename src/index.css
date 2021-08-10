@@ -2,6 +2,18 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+:root {
+  --white: #fff;
+  --light-gray: #e5e5e5;
+  --gray: #b3b3b3;
+  --dark-gray: #333;
+  --off-black: #2c2c2c;
+  --black: #000;
+  --space-purple-400: #858cc1;
+  --space-purple-600: #363c6b;
+  --space-purple-900: #232646;
+}
+
 body {
   margin: 0;
   font-family: Inter var, sans-serif;
