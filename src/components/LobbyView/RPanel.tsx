@@ -1,11 +1,14 @@
-import React, { FunctionComponent } from 'react';
+import React, { useState, FunctionComponent } from 'react';
 import { Identity, createUserAuth, PrivateKey, Client, KeyInfo, UserAuth, ThreadID } from '@textile/hub'
 //import { BigNumber, utils } from 'ethers';
+import CreateTableModal from './CreateTableModal';
 import { useUserStore } from '../../utils/store';
 import history from '../../history-helper';
 import './LobbyView.css';
 
 const RPanel: FunctionComponent = () => {
+  const [createOpen, setCreateOpen] = useState(false);
+
   async function start () {
     
     const keyInfo: KeyInfo = {
@@ -111,7 +114,8 @@ const RPanel: FunctionComponent = () => {
   const createOnClick = () => {
     //history.push('/play?create=true');
 
-    start();
+    //start();
+    setCreateOpen(true);
   };
   const joinOnClick = () => {
     history.push('/play?join=true');
@@ -134,6 +138,7 @@ const RPanel: FunctionComponent = () => {
           Join a Table
         </button>
       </div>
+      <CreateTableModal tableCode={"testingtesting"} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
     </div>
   );
 };
