@@ -17,9 +17,11 @@ import history from '../../history-helper';
 import './LobbyView.css';
 
 const RPanel: FunctionComponent = () => {
-  const [createOpen, setCreateOpen] = useState(false);
+  //const [createOpen, setCreateOpen] = useState(false);
 
   const { did } = useUserStore((state) => state.userState);
+
+  var newId: Identity;
 
   if (did) {
     const didPublic: Public = {
@@ -43,6 +45,8 @@ const RPanel: FunctionComponent = () => {
 
       public: didPublic,
     };
+
+    newId = didIdentity;
   }
 
   async function start() {
@@ -86,7 +90,7 @@ const RPanel: FunctionComponent = () => {
     //console.log(useUserStore.getState().userState);
     //console.log(userId);
 
-    const didId: string = did?.id ?? '';
+    //const didId: string = did?.id ?? '';
 
     /*
     const hash = utils.keccak256(''));
@@ -103,9 +107,9 @@ const RPanel: FunctionComponent = () => {
     }
     const identity = PrivateKey.fromRawEd25519Seed(Uint8Array.from(array))
     */
-    const identity = PrivateKey.fromRandom();
+    //const identity: Identity = PrivateKey.fromRandom();
 
-    var id: Identity;
+    //var id: Identity = didIdentity;
     //if (userId) {
     //id = PrivateKey.fromString('kjzl6cwe1jw146zfmqa10a5x1vry6au3t362p44uttz4l0k4hi88o41zplhmxnf');
     //PrivateKey.fromRawEd25519Seed();
@@ -113,7 +117,7 @@ const RPanel: FunctionComponent = () => {
     //} else {
     //  id = PrivateKey.fromRandom();
     //}
-    const tok = client.getToken(identity);
+    const tok = client.getToken(newId);
     //var id: Identity;
     //id = PrivateKey.fromRandom();
     //const tok = await client.getToken(id);
@@ -149,7 +153,7 @@ const RPanel: FunctionComponent = () => {
     //history.push('/play?create=true');
 
     //start();
-    setCreateOpen(true);
+    //setCreateOpen(true);
   };
   const joinOnClick = () => {
     history.push('/play?join=true');
@@ -172,7 +176,7 @@ const RPanel: FunctionComponent = () => {
           Join a Table
         </button>
       </div>
-      <CreateTableModal tableCode={"testingtesting"} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
+      { /*<CreateTableModal tableCode={"testingtesting"} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />*/ }
     </div>
   );
 };
