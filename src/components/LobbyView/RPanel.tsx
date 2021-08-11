@@ -18,28 +18,38 @@ import './LobbyView.css';
 const RPanel: FunctionComponent = () => {
   const { did } = useUserStore((state) => state.userState);
 
+  let identity: Identity;
+
   if (did) {
-    const didPublic: Public = {
-      verify: (data: Buffer, sig: Buffer): Promise<boolean> => {
-        return did
-          .verifyJWS(sig.toString())
-          .then(
-            (res) =>
-              res.didResolutionResult.didDocumentMetadata.error === undefined,
-          );
-      },
-      bytes: publicKeyBytesFromString(did.id),
-    };
+    try {
+      const didPublic: Public = {
+        verify: (data: Buffer, sig: Buffer): Promise<boolean> => {
+          return did
+            .verifyJWS(sig.toString())
+            .then(
+              (res) =>
+                res.didResolutionResult.didDocumentMetadata.error === undefined,
+            );
+        },
+        bytes: publicKeyBytesFromString(did.id),
+      };
 
-    const didIdentity: Identity = {
-      sign: (data: Buffer): Promise<Buffer> => {
-        return did
-          .createJWS(data)
-          .then((out) => Buffer.from(JSON.stringify(out)));
-      },
+      const didIdentity: Identity = {
+        sign: (data: Buffer): Promise<Buffer> => {
+          return did
+            .createJWS(data)
+            .then((out) => Buffer.from(JSON.stringify(out)));
+        },
 
-      public: didPublic,
-    };
+        public: didPublic,
+      };
+      identity = didIdentity;
+    } catch (err) {
+      console.error(err);
+      identity = PrivateKey.fromRandom();
+    }
+  } else {
+    identity = PrivateKey.fromRandom();
   }
 
   async function start() {
@@ -78,13 +88,6 @@ const RPanel: FunctionComponent = () => {
       'bylrhy7swvhnh33lg7ykhksw36elbxvvfyynceli',
     );
     const client = await Client.withUserAuth(auth);
-    //const userId: string | undefined | null = await useUserStore.getState().userState.idx?.get("ed25519-identity");
-
-    //console.log(useUserStore.getState().userState);
-    //console.log(userId);
-
-    const didId: string = did?.id ?? '';
-
     /*
     const hash = utils.keccak256(''));
 
@@ -100,9 +103,9 @@ const RPanel: FunctionComponent = () => {
     }
     const identity = PrivateKey.fromRawEd25519Seed(Uint8Array.from(array))
     */
-    const identity = PrivateKey.fromRandom();
+    // const identity = PrivateKey.fromRandom();
 
-    var id: Identity;
+    // var id: Identity;
     //if (userId) {
     //id = PrivateKey.fromString('kjzl6cwe1jw146zfmqa10a5x1vry6au3t362p44uttz4l0k4hi88o41zplhmxnf');
     //PrivateKey.fromRawEd25519Seed();
