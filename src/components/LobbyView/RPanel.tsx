@@ -11,12 +11,14 @@ import {
   publicKeyBytesFromString,
 } from '@textile/hub';
 import CreateTableModal from './CreateTableModal';
+import JoinTableModal from './JoinTableModal';
 import { useUserStore } from '../../utils/store';
 import history from '../../history-helper';
 import './LobbyView.css';
 
 const RPanel: FunctionComponent = () => {
   const [createOpen, setCreateOpen] = useState(false);
+  const [joinOpen, setJoinOpen] = useState(false);
   const [client, setClient] = useState<Client | undefined>(undefined);
   const [identity, setIdentity] = useState<Identity | undefined>(undefined);
   const { did } = useUserStore((state) => state.userState);
@@ -76,7 +78,7 @@ const RPanel: FunctionComponent = () => {
   };
 
   const joinOnClick = () => {
-    history.push('/play?join=true');
+    setJoinOpen(true);
   };
 
   return (
@@ -97,7 +99,8 @@ const RPanel: FunctionComponent = () => {
           Join a Table
         </button>
       </div>
-      <CreateTableModal tableCode={"testingtesting"} client={client} identity={identity} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
+      <CreateTableModal client={client} identity={identity} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
+      <JoinTableModal client={client} identity={identity} open={joinOpen} hitClose={() => setJoinOpen(!joinOpen)} />
     </div>
   );
 };

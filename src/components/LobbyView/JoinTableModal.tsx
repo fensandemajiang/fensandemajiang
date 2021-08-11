@@ -17,14 +17,15 @@ import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
 
-export default function CreateTableModal(props: { client: Client | undefined, identity: Identity | undefined, open: boolean, hitClose: () => void }) {
+export default function JoinTableModal(props: { client: Client | undefined, identity: Identity | undefined, open: boolean, hitClose: () => void }) {
   const cancelButtonRef = useRef(null)
   const [tableCode, setTableCode] = useState("");
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
+  const [hasJoined, setHasJoined] = useState<boolean>(false);
 
   useEffect(() => {
-    async function asyncWrapper() { await createTable(); }
+    async function asyncWrapper() { await init(); }
     asyncWrapper();
 
     useConnectionStore.setState({
@@ -37,79 +38,18 @@ export default function CreateTableModal(props: { client: Client | undefined, id
 
   }, [props.open]);
 
-  async function createTable() {
+  async function init() {
     const client = props.client;
     const identity = props.identity;
-
-    if (props.open) {
-      if (client && identity) {
-        setTableCode("loading...");
-
-        const tok = await client.getToken(identity);
-        // check if table db already exists
-        const existingDB = await client.listDBs();
-        if (existingDB.filter(dbInfo => dbInfo?.name === "table" && dbInfo?.id === threadId.toString()).length === 0) {
-          await client.newDB(threadId, "table"); // creates a new db named table
-        }
-
-        await client.newCollection(threadId, { name: "playerId" }); // create a collection of player ids
-        await client.newCollection(threadId, { name: "connectDetail" }); // creates separate collection for players to place their signal data for p2p
-
-        const dbInfo = await client.getDBInfo(threadId);
-        setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
-
-        const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
-        
-        const insertPlayer: DbConnectionPlayer = {
-          playerId: userId,
-          ready: false
-        };
-        await client.create(threadId, "playerId", [insertPlayer]);
-        setPlayerCount(1);
-
-        const listenFilters: Filter[] = [
-          { collectionName: "playerId" },
-          { actionTypes: ['CREATE'] }
-        ];
-        client.listen(threadId, listenFilters, (reply, err) => {
-          async function asyncWrapper() {
-            if (client) {
-              const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
-              const connectionStore = useConnectionStore.getState().connectionState;
-              const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
-
-              useConnectionStore.setState({
-                ...useConnectionStore.getState(),
-                connectionState: {
-                  ...useConnectionStore.getState().connectionState,
-                  signalIDs: usersIds
-                }
-              });
-
-              setPlayerCount(playerCount + 1);
-
-              // table is full
-              if (usersIds.length === 4) {
-                const myId = useConnectionStore.getState().connectionState.userID;
-                for (let i = 0; i < 4; i++) {
-                  if (data[i].playerId === myId)
-                    data[i].ready = true;
-                }
-                await client.save(threadId, "playerId", data);
-
-                // change page and start game 
-                history.push('/play');
-              }
-            }
-          }
-          asyncWrapper();
-        });
-      }
+    if (client && identity) {
+      await client.getToken(identity);
     }
   }
 
   async function close() {
     //check if collections were created, if so delete them
+    
+    /*
     const client = props.client;
     if (client) {
       const collections = await client.listCollections(threadId);
@@ -124,14 +64,81 @@ export default function CreateTableModal(props: { client: Client | undefined, id
         }
       }
 
+    }
+*/
+    const client = props.client;
+    if (client) {
+      setTableCode("");
       setPlayerCount(0);
     }
 
     props.hitClose();
   }
 
-  function copyToClip() {
-    navigator.clipboard.writeText(tableCode);
+  async function joinTable() {
+    const client = props.client;
+    const identity = props.identity;
+    
+    if (client && identity) {
+      await client.joinFromInfo(JSON.parse(tableCode));
+
+      const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
+      const insertPlayer: DbConnectionPlayer = {
+        playerId: userId,
+        ready: false
+      };
+      await client.create(threadId, "playerId", [insertPlayer]);
+
+      const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+      const playersAtTable: string[] = data.map((p: DbConnectionPlayer) => p.playerId);
+      useConnectionStore.setState({
+        ...useConnectionStore.getState(),
+        connectionState: {
+          ...useConnectionStore.getState().connectionState,
+          signalIDs: playersAtTable
+        }
+      });
+
+      setPlayerCount(playersAtTable.length);
+
+      const listenFilters: Filter[] = [
+        { collectionName: "playerId" },
+        { actionTypes: ['CREATE'] }
+      ];
+      client.listen(threadId, listenFilters, (reply, err) => {
+        async function asyncWrapper() {
+          if (client) {
+            const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+            const connectionStore = useConnectionStore.getState().connectionState;
+            const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
+
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                signalIDs: usersIds
+              }
+            });
+
+            setPlayerCount(playerCount + 1);
+
+            // table is full
+            if (usersIds.length === 4) {
+              const myId = useConnectionStore.getState().connectionState.userID;
+              for (let i = 0; i < 4; i++) {
+                if (data[i].playerId === myId)
+                  data[i].ready = true;
+              }
+              await client.save(threadId, "playerId", data);
+
+              // change page and start game 
+              history.push('/play');
+            }
+          }
+        }
+        asyncWrapper();
+      });
+    }
   }
 
   return (
@@ -175,22 +182,25 @@ export default function CreateTableModal(props: { client: Client | undefined, id
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
-                      Create Table
+                      Join Table
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        You have created a table with the following code:
+                        You are joining a game, please enter the join key:
 
                       </p>
                       
                       <div className="flex my-4 shadow rounded">
-                        <div className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username"> {tableCode} </div> 
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4" onClick={copyToClip}> copy </button>
+                        <input className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" placeholder="Room Key" value={tableCode} onChange={(e) => setTableCode(e.target.value)} />
                       </div>
-
-                      <p className="text-sm text-gray-500">
-                        Send this to your friends for them to join. Currently {playerCount} {playerCount === 1 ? "player has" : "players have" } joined.
-                      </p>
+                      { hasJoined ?
+                        (<p className="text-sm text-gray-500">
+                          Once your friends have created a table, they should get a room key, paste it above to join
+                        </p>) :
+                         (<p className="text-sm text-gray-500">
+                          You have joined a table with {playerCount} players.
+                        </p>)
+                      }
 
                       <div>
                         
@@ -200,7 +210,11 @@ export default function CreateTableModal(props: { client: Client | undefined, id
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-
+                <button type="button" 
+                        onClick={joinTable}
+                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                  Join 
+                </button>
                 <button
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
