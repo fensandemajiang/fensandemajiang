@@ -1,8 +1,134 @@
-import React, { Fragment, useRef, useState } from 'react'
+import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
+import {
+  Filter,
+  Public,
+  Identity,
+  createUserAuth,
+  PrivateKey,
+  Client,
+  KeyInfo,
+  UserAuth,
+  ThreadID,
+  publicKeyBytesFromString,
+} from '@textile/hub';
+import history from '../../history-helper';
+import { useUserStore, useConnectionStore } from '../../utils/store';
+import type { DbConnectionPlayer } from '../../types';
 
-export default function CreateTableModal(props: { tableCode: string, open: boolean, hitClose: () => void }) {
+
+export default function CreateTableModal(props: { tableCode: string, client: Client | undefined, identity: Identity | undefined, open: boolean, hitClose: () => void }) {
   const cancelButtonRef = useRef(null)
+  const [tableCode, setTableCode] = useState("");
+  const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
+  const [playerCount, setPlayerCount] = useState<number>(0);
+
+  useEffect(() => {
+    async function asyncWrapper() { await createTable(); }
+    asyncWrapper();
+
+    useConnectionStore.setState({
+      ...useConnectionStore.getState(),
+      connectionState: {
+        ...useConnectionStore.getState().connectionState,
+        userID: useUserStore.getState().userState.did?.id ?? ""
+      }
+    });
+
+  }, [props.open]);
+
+  async function createTable() {
+    const client = props.client;
+    const identity = props.identity;
+
+    if (props.open) {
+      if (client && identity) {
+        setTableCode("loading...");
+
+        const tok = await client.getToken(identity);
+        // check if table db already exists
+        const existingDB = await client.listDBs();
+        if (existingDB.filter(dbInfo => dbInfo?.name === "table" && dbInfo?.id === threadId.toString()).length === 0) {
+          await client.newDB(threadId, "table"); // creates a new db named table
+        }
+
+        await client.newCollection(threadId, { name: "playerId" }); // create a collection of player ids
+        await client.newCollection(threadId, { name: "connectDetail" }); // creates separate collection for players to place their signal data for p2p
+
+        const dbInfo = await client.getDBInfo(threadId);
+        setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
+
+        const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
+        
+        const insertPlayer: DbConnectionPlayer = {
+          playerId: userId,
+          ready: false
+        };
+        await client.create(threadId, "playerId", [insertPlayer]);
+        setPlayerCount(1);
+
+        const listenFilters: Filter[] = [
+          { collectionName: "playerId" },
+          { actionTypes: ['CREATE'] }
+        ];
+        client.listen(threadId, listenFilters, (reply, err) => {
+          async function asyncWrapper() {
+            if (client) {
+              const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+              const connectionStore = useConnectionStore.getState().connectionState;
+              const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
+
+              useConnectionStore.setState({
+                ...useConnectionStore.getState(),
+                connectionState: {
+                  ...useConnectionStore.getState().connectionState,
+                  signalIDs: usersIds
+                }
+              });
+
+              setPlayerCount(playerCount + 1);
+
+              // table is full
+              if (usersIds.length === 4) {
+                const myId = useConnectionStore.getState().connectionState.userID;
+                for (let i = 0; i < 4; i++) {
+                  if (data[i].playerId === myId)
+                    data[i].ready = true;
+                }
+                await client.save(threadId, "playerId", data);
+
+                // change page and start game 
+                history.push('/play');
+              }
+            }
+          }
+          asyncWrapper();
+        });
+      }
+    }
+  }
+
+  async function close() {
+    //check if collections were created, if so delete them
+    const client = props.client;
+    if (client) {
+      const collections = await client.listCollections(threadId);
+
+      for (let i = 0; i < collections.length; i++) {
+        if (collections[i].name === "playerId") {
+          console.log("delete playerId");
+          await client.deleteCollection(threadId, "playerId");
+        } else if (collections[i].name === "connectDetail") {
+          console.log("delete connectDetail");
+          await client.deleteCollection(threadId, "connectDetail");
+        }
+      }
+
+      setPlayerCount(0);
+    }
+
+    props.hitClose();
+  }
 
   function copyToClip() {
     navigator.clipboard.writeText(props.tableCode);
@@ -58,12 +184,12 @@ export default function CreateTableModal(props: { tableCode: string, open: boole
                       </p>
                       
                       <div className="flex my-4 shadow rounded">
-                        <div className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username"> {props.tableCode} </div> 
+                        <div className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username"> {tableCode} </div> 
                         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4" onClick={copyToClip}> copy </button>
                       </div>
 
                       <p className="text-sm text-gray-500">
-                        Send this to your friends for them to join.
+                        Send this to your friends for them to join. Currently {playerCount} {playerCount === 1 ? "player has" : "players have" } joined.
                       </p>
 
                       <div>
@@ -78,7 +204,7 @@ export default function CreateTableModal(props: { tableCode: string, open: boole
                 <button
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={props.hitClose}
+                  onClick={close}
                   ref={cancelButtonRef}
                 >
                   Cancel

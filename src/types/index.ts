@@ -1,6 +1,11 @@
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U> = T | (U & {});
 
+export interface DbConnectionPlayer {
+  playerId: string;
+  ready: boolean
+}
+
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
