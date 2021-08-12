@@ -46,8 +46,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
   }, [open]);
 
   async function init() {
-    const client = client;
-    const identity = identity;
     if (client && identity) {
       await client.getToken(identity);
     }
@@ -73,7 +71,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
 
     }
 */
-    const client = client;
     if (client) {
       setTableCode('');
       setPlayerCount(0);
@@ -83,9 +80,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
   }
 
   async function joinTable() {
-    const client = client;
-    const identity = identity;
-
     if (client && identity) {
       await client.joinFromInfo(JSON.parse(tableCode));
 
