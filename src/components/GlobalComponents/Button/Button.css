@@ -1,0 +1,12 @@
+.default-button {
+  text-align: center;
+  cursor: pointer;
+  -webkit-transition: 0.2s ease;
+  -moz-transition: 0.2s ease;
+  -o-transition: 0.2s ease;
+  transition: 0.2s ease;
+}
+
+.default-button:hover {
+  opacity: 70%;
+}
