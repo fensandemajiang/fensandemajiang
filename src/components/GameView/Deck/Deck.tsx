@@ -5,11 +5,11 @@ import "./Deck.css"
 
 function Deck(props: InferProps<typeof Deck.propTypes>) {
 
-    const size : number = 14;
+    const size = 14;
 
     const tiles = []
     
-    for(let i:number = 0; i < size; i++){
+    for(let i = 0; i < size; i++){
         tiles.push(
             <Tile></Tile>
         )

@@ -101,12 +101,12 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
         setInterval(() => {
           setConnectionState(UserConnectionState.Connected, idInd);
           console.log('ping for response', id);
-          if (false) {
-            // entry in db
-            const partnerSignalData = ''; // get value from db
-            peers[signalIDs[idInd]].signal(JSON.parse(partnerSignalData)); // send response acknowledging connection to opp
-            clearInterval(checkArr[idInd]);
-          }
+          // if (false) {
+          //   // entry in db
+          //   const partnerSignalData = ''; // get value from db
+          //   peers[signalIDs[idInd]].signal(JSON.parse(partnerSignalData)); // send response acknowledging connection to opp
+          //   clearInterval(checkArr[idInd]);
+          // }
         }, 1000),
       );
     }
