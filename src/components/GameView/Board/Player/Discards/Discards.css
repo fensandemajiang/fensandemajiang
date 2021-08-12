@@ -1,28 +1,26 @@
-.discards{
-    display: flex;
+.discards {
+  display: flex;
 }
 
-.discard-right{
-    width: 85%;
-    height: 80%;
-    flex-direction: column-reverse;
-    flex-wrap: wrap;
+.discard-right {
+  width: 85%;
+  height: 80%;
+  flex-direction: column-reverse;
+  flex-wrap: wrap;
 }
 
-.discard-left{
-    width: 85%;
-    height: 80%;
-    flex-direction: column;
-    flex-wrap: wrap-reverse;
+.discard-left {
+  width: 85%;
+  height: 80%;
+  flex-direction: column;
+  flex-wrap: wrap-reverse;
 }
 
-
-.discard-up{
-    width: 60%;
-    height: 70%;
-    flex-direction: row-reverse;
-    flex-wrap: wrap-reverse;
-    justify-content: flex-end;
-    gap: 5%;
+.discard-up {
+  width: 60%;
+  height: 70%;
+  flex-direction: row-reverse;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 5%;
 }
-

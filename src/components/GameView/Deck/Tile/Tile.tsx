@@ -1,21 +1,19 @@
-import React from "react"
+import React from 'react';
 import PropTypes, { InferProps } from 'prop-types';
-import "./Tile.css"
+import './Tile.css';
 
 function Tile(props: InferProps<typeof Tile.propTypes>) {
-    return (
-        <>  
-            <li className="deck-tile-container">
-                <div className="deck-tile">
-                </div>
-            </li>
-            
-        </>
-    )
+  return (
+    <>
+      <li className="deck-tile-container">
+        <div className="deck-tile"></div>
+      </li>
+    </>
+  );
 }
 
 Tile.propTypes = {
-    any: PropTypes.any
-}
+  any: PropTypes.any,
+};
 
 export default Tile;

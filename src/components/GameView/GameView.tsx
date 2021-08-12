@@ -15,10 +15,10 @@ import { PeerContext } from './PeerContextProvidor';
 import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
-import Board from "./Board/Board" 
-import Actions from "./Actions/Actions"
-import Deck from "./Deck/Deck"
-import Sidebar from "../GlobalComponents/Sidebar/Sidebar"
+import Board from './Board/Board';
+import Actions from './Actions/Actions';
+import Deck from './Deck/Deck';
+import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 
 const GameView: FunctionComponent = () => {
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
@@ -319,23 +319,21 @@ const GameView: FunctionComponent = () => {
   }, [gameState, peers]);
 
   return (
-  <>
-    <div className="game-view-container">
-      <Sidebar></Sidebar>
-      <div className="game-view-right">
-        <div className="game-view-top">
-          <Board></Board>
-          
-        </div>
-        <div className="game-view-bot">
-          <Deck></Deck>
-          <Actions></Actions>
+    <>
+      <div className="game-view-container">
+        <Sidebar></Sidebar>
+        <div className="game-view-right">
+          <div className="game-view-top">
+            <Board></Board>
+          </div>
+          <div className="game-view-bot">
+            <Deck></Deck>
+            <Actions></Actions>
+          </div>
         </div>
       </div>
-    </div>
-  </>
-  )
-  
+    </>
+  );
 };
 
 export default GameView;

@@ -1,33 +1,28 @@
-import React, {MouseEvent}  from "react"
+import React, { MouseEvent } from 'react';
 import PropTypes, { InferProps } from 'prop-types';
-import Tile from "./Tile/Tile";
-import "./Deck.css"
+import Tile from './Tile/Tile';
+import './Deck.css';
 
 function Deck(props: InferProps<typeof Deck.propTypes>) {
+  const size = 14;
 
-    const size = 14;
+  const tiles = [];
 
-    const tiles = []
-    
-    for(let i = 0; i < size; i++){
-        tiles.push(
-            <Tile></Tile>
-        )
-    }
+  for (let i = 0; i < size; i++) {
+    tiles.push(<Tile></Tile>);
+  }
 
-    return (
-        <>  
-            <div className="deck-container">
-                <ol className="deck">
-                    {tiles}
-                </ol>
-            </div>
-        </>
-    )
+  return (
+    <>
+      <div className="deck-container">
+        <ol className="deck">{tiles}</ol>
+      </div>
+    </>
+  );
 }
 
 Deck.propTypes = {
-    any: PropTypes.any
-}
+  any: PropTypes.any,
+};
 
 export default Deck;

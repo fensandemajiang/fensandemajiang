@@ -1,32 +1,32 @@
-.game-view-container{
-    display: inline-flex;
-    flex-direction: row;
-    background-color: #232646;
-    min-width: 100%;
-    min-height: 100%;
-    gap: 3em;
-    padding-right: 3em;
+.game-view-container {
+  display: inline-flex;
+  flex-direction: row;
+  background-color: #232646;
+  min-width: 100%;
+  min-height: 100%;
+  gap: 3em;
+  padding-right: 3em;
 }
-.game-view-right{
-    display: inline-flex;
-    flex-direction: column;
-    max-height: 100vh;
-    min-height: 550px;
-    width: 100%;
-    min-width: 1000px;
+.game-view-right {
+  display: inline-flex;
+  flex-direction: column;
+  max-height: 100vh;
+  min-height: 550px;
+  width: 100%;
+  min-width: 1000px;
 }
-.game-view-top{
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    height: 80%;
-    padding: 40px 0;
+.game-view-top {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  height: 80%;
+  padding: 40px 0;
 }
 
-.game-view-bot{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    height: 20%;
+.game-view-bot {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 20%;
 }
