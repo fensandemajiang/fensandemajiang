@@ -12,7 +12,7 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>){
     if(typeof(props.type) == "number"){
         img = <img src={images[props.type]} className="small-tile-image"></img>
     } else{
-        img = <div className="no-image">{2}</div>
+        img = <div className="no-image"></div>
     }
 
     let orientation : string = "tile-right"

@@ -22,6 +22,7 @@
     height: 70%;
     flex-direction: row-reverse;
     flex-wrap: wrap-reverse;
+    justify-content: flex-end;
     gap: 5%;
 }
 

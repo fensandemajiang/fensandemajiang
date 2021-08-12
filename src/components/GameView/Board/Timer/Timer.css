@@ -17,4 +17,5 @@
     margin: 0.25em;
     font-size: 2em;
     font-weight: 800;
+    white-space:nowrap;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes, {InferProps} from "prop-types"
-import UprightTile from "../UprightTile/UprightTile";
-import Discards from "../Discards/Discards";
+import UprightTile from "./UprightTile/UprightTile";
+import Discards from "./Discards/Discards";
 import "./Player.css"
 
 function Player(props: InferProps<typeof Player.propTypes>){
