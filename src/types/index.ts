@@ -1,6 +1,11 @@
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U> = T | (U & {});
 
+export interface DbConnectionPlayer {
+  playerId: string;
+  ready: boolean;
+}
+
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
@@ -21,11 +26,50 @@ export interface GameDataState {
   yourHand: Tile[];
   allPlayerIds: string[];
   yourPlayerId: string;
-  currentTurn: string;
+  currentTurn: string; // id of current player
   currentPlayerIndex: number;
   currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck
+}
+
+export interface ImageMetadata {
+  src: string;
+  mimeType: string;
+  width: number;
+  height: number;
+  size?: number;
+}
+
+export interface ImageSources {
+  original: ImageMetadata;
+  alternatives?: ImageMetadata[];
+}
+
+export interface BasicProfile {
+  name?: string;
+  description?: string;
+  emoji?: string;
+  birthDate?: string;
+  url?: string;
+  gender?: string;
+  homeLocation?: string;
+  residenceCountry?: string;
+  nationalitiies?: string[];
+  affiliations?: string[];
+  image?: ImageSources;
+  background?: ImageSources;
+}
+
+import type { IDX } from '@ceramicstudio/idx';
+import type Ceramic from '@ceramicnetwork/http-client';
+import type { DID } from 'dids';
+export interface UserState {
+  loggedIn: boolean;
+  profile?: BasicProfile;
+  did?: DID;
+  ceramic?: Ceramic;
+  idx?: IDX;
 }
 
 export enum GameState {

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
 
-const Footer = () => {
+const Footer: FunctionComponent = () => {
   return (
     <footer className="bg-gray-300 text-center bottom-0 p-4 flex-shrink-0">
       <div className="font-bold">

@@ -1,12 +1,5 @@
 import create, { SetState } from 'zustand';
-import {
-  Suite,
-  Dragon,
-  Flower,
-  Wind,
-  GameState,
-  UserConnectionState,
-} from '../types';
+import { Suite, Dragon, Flower, Wind, GameState, UserState } from '../types';
 import type { ConnectionState, GameDataState, Tile } from '../types';
 
 export type ConnectionDataStore = {
@@ -104,3 +97,20 @@ export const useGameDataStore = create<GameDataStore>(
       set({ gameDataState }),
   }),
 );
+
+export type UserStore = {
+  userState: UserState;
+  updateUserState: (userState: UserState) => void;
+};
+const initialUserState: UserState = {
+  loggedIn: false,
+  profile: undefined,
+  did: undefined,
+  ceramic: undefined,
+  idx: undefined,
+};
+
+export const useUserStore = create<UserStore>((set: SetState<UserStore>) => ({
+  userState: initialUserState,
+  updateUserState: (userState: UserState) => set({ userState }),
+}));
