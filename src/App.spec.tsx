@@ -2,7 +2,7 @@ import React from 'react';
 import { mount } from '@cypress/react';
 import App from './App';
 
-it('renders', () => {
-  mount(<App />);
-  cy.get('.fensandemajiang').should('exist');
-});
+// it('renders', () => {
+//   mount(<App />);
+//   cy.get('.fensandemajiang').should('exist');
+// });
