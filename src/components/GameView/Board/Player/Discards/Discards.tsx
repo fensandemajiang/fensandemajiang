@@ -5,11 +5,11 @@ import "./Discards.css"
 
 function Discards(props: InferProps<typeof Discards.propTypes>){
 
-    const num_discards : number = 2;
-    const total : number = 8;
+    const num_discards = 2;
+    const total = 8;
     const discards = []
 
-    for(let i:number = 0; i < total; i++){
+    for(let i = 0; i < total; i++){
         if(i < num_discards){
             discards.push(<DiscardedTile type={0} orientation={props.orientation}></DiscardedTile>)
         }else{

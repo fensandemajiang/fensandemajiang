@@ -15,7 +15,7 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>){
         img = <div className="no-image"></div>
     }
 
-    let orientation : string = "tile-right"
+    let orientation = "tile-right"
 
     if(props.orientation == "left"){
         orientation = "tile-left"

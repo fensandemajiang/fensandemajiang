@@ -6,8 +6,8 @@ import "./Player.css"
 
 function Player(props: InferProps<typeof Player.propTypes>){
 
-    let className: string = "player";
-    const hand_size: number = 13
+    let className = "player";
+    const hand_size = 13
 
     const deck = []
 
@@ -17,7 +17,7 @@ function Player(props: InferProps<typeof Player.propTypes>){
         className="player-up"
     }
 
-    for(let i: number = 0; i < hand_size; i++){
+    for(let i = 0; i < hand_size; i++){
         deck.push(
             <UprightTile></UprightTile>
         )
