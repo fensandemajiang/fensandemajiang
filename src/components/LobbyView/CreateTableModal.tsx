@@ -17,11 +17,12 @@ import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
 
-export default function CreateTableModal(props: { client: Client | undefined, identity: Identity | undefined, open: boolean, hitClose: () => void }) {
+export default function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
   const cancelButtonRef = useRef(null)
   const [tableCode, setTableCode] = useState("");
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
+  const { client, identity } = useConnectionStore(state => state.connectionState);
 
   useEffect(() => {
     async function asyncWrapper() { await createTable(); }
@@ -38,94 +39,86 @@ export default function CreateTableModal(props: { client: Client | undefined, id
   }, [props.open]);
 
   async function createTable() {
-    const client = props.client;
-    const identity = props.identity;
-
     if (props.open) {
-      if (client && identity) {
-        setTableCode("loading...");
+      setTableCode("loading...");
 
-        const tok = await client.getToken(identity);
-        // check if table db already exists
-        const existingDB = await client.listDBs();
-        if (existingDB.filter(dbInfo => dbInfo?.name === "table" && dbInfo?.id === threadId.toString()).length === 0) {
-          await client.newDB(threadId, "table"); // creates a new db named table
-        }
+      const tok = await client.getToken(identity);
+      // check if table db already exists
+      const existingDB = await client.listDBs();
+      if (existingDB.filter(dbInfo => dbInfo?.name === "table" && dbInfo?.id === threadId.toString()).length === 0) {
+        await client.newDB(threadId, "table"); // creates a new db named table
+      }
 
-        await client.newCollection(threadId, { name: "playerId" }); // create a collection of player ids
-        await client.newCollection(threadId, { name: "connectDetail" }); // creates separate collection for players to place their signal data for p2p
+      await client.newCollection(threadId, { name: "playerId" }); // create a collection of player ids
+      await client.newCollection(threadId, { name: "connectDetail" }); // creates separate collection for players to place their signal data for p2p
 
-        const dbInfo = await client.getDBInfo(threadId);
-        setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
+      const dbInfo = await client.getDBInfo(threadId);
+      setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
 
-        const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
-        
-        const insertPlayer: DbConnectionPlayer = {
-          playerId: userId,
-          ready: false
-        };
-        await client.create(threadId, "playerId", [insertPlayer]);
-        setPlayerCount(1);
+      const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
+      
+      const insertPlayer: DbConnectionPlayer = {
+        playerId: userId,
+        ready: false
+      };
+      await client.create(threadId, "playerId", [insertPlayer]);
+      setPlayerCount(1);
 
-        const listenFilters: Filter[] = [
-          { collectionName: "playerId" },
-          { actionTypes: ['CREATE'] }
-        ];
-        client.listen(threadId, listenFilters, (reply, err) => {
-          async function asyncWrapper() {
-            if (client) {
-              const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
-              const connectionStore = useConnectionStore.getState().connectionState;
-              const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
+      const listenFilters: Filter[] = [
+        { collectionName: "playerId" },
+        { actionTypes: ['CREATE'] }
+      ];
+      client.listen(threadId, listenFilters, (reply, err) => {
+        async function asyncWrapper() {
+          if (client) {
+            const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+            const connectionStore = useConnectionStore.getState().connectionState;
+            const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
 
-              useConnectionStore.setState({
-                ...useConnectionStore.getState(),
-                connectionState: {
-                  ...useConnectionStore.getState().connectionState,
-                  signalIDs: usersIds
-                }
-              });
-
-              setPlayerCount(playerCount + 1);
-
-              // table is full
-              if (usersIds.length === 4) {
-                const myId = useConnectionStore.getState().connectionState.userID;
-                for (let i = 0; i < 4; i++) {
-                  if (data[i].playerId === myId)
-                    data[i].ready = true;
-                }
-                await client.save(threadId, "playerId", data);
-
-                // change page and start game 
-                history.push('/play');
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                signalIDs: usersIds
               }
+            });
+
+            setPlayerCount(playerCount + 1);
+
+            // table is full
+            if (usersIds.length === 4) {
+              const myId = useConnectionStore.getState().connectionState.userID;
+              for (let i = 0; i < 4; i++) {
+                if (data[i].playerId === myId)
+                  data[i].ready = true;
+              }
+              await client.save(threadId, "playerId", data);
+
+              // change page and start game 
+              history.push('/play');
             }
           }
-          asyncWrapper();
-        });
-      }
+        }
+        asyncWrapper();
+      });
     }
   }
 
   async function close() {
     //check if collections were created, if so delete them
-    const client = props.client;
-    if (client) {
-      const collections = await client.listCollections(threadId);
+    const collections = await client.listCollections(threadId);
 
-      for (let i = 0; i < collections.length; i++) {
-        if (collections[i].name === "playerId") {
-          console.log("delete playerId");
-          await client.deleteCollection(threadId, "playerId");
-        } else if (collections[i].name === "connectDetail") {
-          console.log("delete connectDetail");
-          await client.deleteCollection(threadId, "connectDetail");
-        }
+    for (let i = 0; i < collections.length; i++) {
+      if (collections[i].name === "playerId") {
+        console.log("delete playerId");
+        await client.deleteCollection(threadId, "playerId");
+      } else if (collections[i].name === "connectDetail") {
+        console.log("delete connectDetail");
+        await client.deleteCollection(threadId, "connectDetail");
       }
-
-      setPlayerCount(0);
     }
+
+    setPlayerCount(0);
 
     props.hitClose();
   }

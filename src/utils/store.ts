@@ -1,6 +1,7 @@
 import create, { SetState } from 'zustand';
 import { Suite, Dragon, Flower, Wind, GameState, UserState } from '../types';
 import type { ConnectionState, GameDataState, Tile } from '../types';
+import { Client, Identity, PrivateKey } from '@textile/hub';
 
 export type ConnectionDataStore = {
   connectionState: ConnectionState;
@@ -11,6 +12,8 @@ const initialConnectionDataState: ConnectionState = {
   signalIDs: [],
   userID: '',
   userConnectionState: [],
+  client: new Client(),
+  identity: PrivateKey.fromRandom()
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(

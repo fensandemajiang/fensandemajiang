@@ -16,11 +16,10 @@ const LobbyView: FunctionComponent = () => {
   };
 
   const setIDs = () => {
-    console.log(useConnectionStore.getState().connectionState);
-
     useConnectionStore.setState({
       ...useConnectionStore.getState(),
       connectionState: {
+        ...useConnectionStore.getState().connectionState,
         userID: userId,
         signalIDs: [opp1, opp2, opp3],
         userConnectionState: [

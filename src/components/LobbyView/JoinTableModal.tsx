@@ -17,12 +17,13 @@ import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
 
-export default function JoinTableModal(props: { client: Client | undefined, identity: Identity | undefined, open: boolean, hitClose: () => void }) {
+export default function JoinTableModal(props: { open: boolean, hitClose: () => void }) {
   const cancelButtonRef = useRef(null)
   const [tableCode, setTableCode] = useState("");
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
+  const { client, identity } = useConnectionStore(s => s.connectionState);
 
   useEffect(() => {
     async function asyncWrapper() { await init(); }
@@ -39,106 +40,83 @@ export default function JoinTableModal(props: { client: Client | undefined, iden
   }, [props.open]);
 
   async function init() {
-    const client = props.client;
-    const identity = props.identity;
-    if (client && identity) {
+    if (props.open) {
       await client.getToken(identity);
     }
   }
 
   async function close() {
-    //check if collections were created, if so delete them
-    
-    /*
-    const client = props.client;
-    if (client) {
-      const collections = await client.listCollections(threadId);
+    //we didn't create table
+    //the person who created the table should be responsible for the db
+    //so we don't delete anything
+    setTableCode("");
+    setPlayerCount(0);
 
-      for (let i = 0; i < collections.length; i++) {
-        if (collections[i].name === "playerId") {
-          console.log("delete playerId");
-          await client.deleteCollection(threadId, "playerId");
-        } else if (collections[i].name === "connectDetail") {
-          console.log("delete connectDetail");
-          await client.deleteCollection(threadId, "connectDetail");
-        }
-      }
-
-    }
-*/
-    const client = props.client;
-    if (client) {
-      setTableCode("");
-      setPlayerCount(0);
-    }
-
+    setHasJoined(false);
     props.hitClose();
   }
 
   async function joinTable() {
-    const client = props.client;
-    const identity = props.identity;
-    
-    if (client && identity) {
-      await client.joinFromInfo(JSON.parse(tableCode));
+    await client.joinFromInfo(JSON.parse(tableCode));
 
-      const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
-      const insertPlayer: DbConnectionPlayer = {
-        playerId: userId,
-        ready: false
-      };
-      await client.create(threadId, "playerId", [insertPlayer]);
+    const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
+    const insertPlayer: DbConnectionPlayer = {
+      playerId: userId,
+      ready: false
+    };
+    await client.create(threadId, "playerId", [insertPlayer]);
 
-      const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
-      const playersAtTable: string[] = data.map((p: DbConnectionPlayer) => p.playerId);
-      useConnectionStore.setState({
-        ...useConnectionStore.getState(),
-        connectionState: {
-          ...useConnectionStore.getState().connectionState,
-          signalIDs: playersAtTable
-        }
-      });
+    const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+    const playersAtTable: string[] = data.map((p: DbConnectionPlayer) => p.playerId);
+    useConnectionStore.setState({
+      ...useConnectionStore.getState(),
+      connectionState: {
+        ...useConnectionStore.getState().connectionState,
+        signalIDs: playersAtTable
+      }
+    });
 
-      setPlayerCount(playersAtTable.length);
+    setPlayerCount(playersAtTable.length);
 
-      const listenFilters: Filter[] = [
-        { collectionName: "playerId" },
-        { actionTypes: ['CREATE'] }
-      ];
-      client.listen(threadId, listenFilters, (reply, err) => {
-        async function asyncWrapper() {
-          if (client) {
-            const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
-            const connectionStore = useConnectionStore.getState().connectionState;
-            const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
+    const listenFilters: Filter[] = [
+      { collectionName: "playerId" },
+      { actionTypes: ['CREATE'] }
+    ];
+    client.listen(threadId, listenFilters, (reply, err) => {
+      async function asyncWrapper() {
+        if (client) {
+          const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
+          const connectionStore = useConnectionStore.getState().connectionState;
+          const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
 
-            useConnectionStore.setState({
-              ...useConnectionStore.getState(),
-              connectionState: {
-                ...useConnectionStore.getState().connectionState,
-                signalIDs: usersIds
-              }
-            });
-
-            setPlayerCount(playerCount + 1);
-
-            // table is full
-            if (usersIds.length === 4) {
-              const myId = useConnectionStore.getState().connectionState.userID;
-              for (let i = 0; i < 4; i++) {
-                if (data[i].playerId === myId)
-                  data[i].ready = true;
-              }
-              await client.save(threadId, "playerId", data);
-
-              // change page and start game 
-              history.push('/play');
+          useConnectionStore.setState({
+            ...useConnectionStore.getState(),
+            connectionState: {
+              ...useConnectionStore.getState().connectionState,
+              signalIDs: usersIds
             }
+          });
+
+          setPlayerCount(playerCount + 1);
+
+          // table is full
+          if (usersIds.length === 4) {
+            const myId = useConnectionStore.getState().connectionState.userID;
+            for (let i = 0; i < 4; i++) {
+              if (data[i].playerId === myId)
+                data[i].ready = true;
+            }
+            await client.save(threadId, "playerId", data);
+
+            // change page and start game 
+            history.push('/play');
           }
         }
-        asyncWrapper();
-      });
-    }
+      }
+      asyncWrapper();
+    });
+
+    setHasJoined(true);
   }
 
   return (

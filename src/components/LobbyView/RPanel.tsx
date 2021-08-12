@@ -12,15 +12,13 @@ import {
 } from '@textile/hub';
 import CreateTableModal from './CreateTableModal';
 import JoinTableModal from './JoinTableModal';
-import { useUserStore } from '../../utils/store';
+import { useUserStore, useConnectionStore } from '../../utils/store';
 import history from '../../history-helper';
 import './LobbyView.css';
 
 const RPanel: FunctionComponent = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
-  const [client, setClient] = useState<Client | undefined>(undefined);
-  const [identity, setIdentity] = useState<Identity | undefined>(undefined);
   const { did } = useUserStore((state) => state.userState);
 
   useEffect(() => {
@@ -54,13 +52,31 @@ const RPanel: FunctionComponent = () => {
           public: didPublic,
         };
 
-        setIdentity(didIdentity);
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            identity: didIdentity
+          }
+        });
       } catch (err) {
         console.error(err);
-        setIdentity(PrivateKey.fromRandom());
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            identity: PrivateKey.fromRandom()
+          }
+        });
       }
     } else {
-      setIdentity(PrivateKey.fromRandom());
+      useConnectionStore.setState({
+        ...useConnectionStore.getState(),
+        connectionState: {
+          ...useConnectionStore.getState().connectionState,
+          identity: PrivateKey.fromRandom()
+        }
+      });
     }
 
     const auth: UserAuth = await createUserAuth(
@@ -68,7 +84,13 @@ const RPanel: FunctionComponent = () => {
       'bylrhy7swvhnh33lg7ykhksw36elbxvvfyynceli',
     );
     const c = await Client.withUserAuth(auth);
-    setClient(c);
+    useConnectionStore.setState({
+      ...useConnectionStore.getState(),
+      connectionState: {
+        ...useConnectionStore.getState().connectionState,
+        client: c
+      }
+    });
     console.log("client init done");
   }
 
@@ -99,8 +121,8 @@ const RPanel: FunctionComponent = () => {
           Join a Table
         </button>
       </div>
-      <CreateTableModal client={client} identity={identity} open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
-      <JoinTableModal client={client} identity={identity} open={joinOpen} hitClose={() => setJoinOpen(!joinOpen)} />
+      <CreateTableModal open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
+      <JoinTableModal open={joinOpen} hitClose={() => setJoinOpen(!joinOpen)} />
     </div>
   );
 };
