@@ -1,11 +1,7 @@
 import React, { useEffect, useContext, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import {
-  compStr,
-  getRandomInt,
-  amCurrentPlayer,
-} from '../../utils/utilFunc';
+import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
 import { findGrouping, hasWon } from './GameFunctions';
 import {
   giveDeck,
@@ -174,11 +170,10 @@ const GameView: FunctionComponent = () => {
 
           // user has won?
           // returns amount of points won (if user won)
-          const wonAmount: number = hasWon(dataStore.yourHand); 
+          const wonAmount: number = hasWon(dataStore.yourHand);
           if (wonAmount !== -1) {
             //exit game...somehow
           }
-            
 
           // render something to tell player to choose card to discard
           // block this function somehow? or move the rest of this functionality into some button?

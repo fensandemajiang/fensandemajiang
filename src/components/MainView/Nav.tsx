@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
-import i18n from 'i18next';
 import { useTranslation } from 'react-i18next';
-const Nav = () => {
+const Nav: FunctionComponent = () => {
   const { t } = useTranslation();
   return (
     <nav className="relative flex flex-wrap items-center justify-between px-2 py-3 mb-3">

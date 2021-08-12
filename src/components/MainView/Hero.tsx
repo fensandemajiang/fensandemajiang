@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { FunctionComponent } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const Hero = () => {
+const Hero: FunctionComponent = () => {
   const history = useHistory();
   const { t } = useTranslation();
   const onClick = () => {

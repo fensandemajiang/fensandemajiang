@@ -52,12 +52,15 @@ const CreateProfileModal: FunctionComponent<CreateProfileModalProps> = ({
         .then(() => updateUserState({ ...userState, profile: basicProfile }));
     }
   };
+  const onClose = function () {
+    // do nothing
+  };
 
   return (
     <>
       <Dialog
         open={isOpen}
-        onClose={(_) => {}}
+        onClose={onClose}
         className="fixed z-10 inset-0 overflow-y-auto lobbyview"
       >
         <div className="flex items-center justify-center min-h-screen z-20">

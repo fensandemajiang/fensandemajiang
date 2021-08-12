@@ -3,7 +3,7 @@ export type LiteralUnion<T extends U, U> = T | (U & {});
 
 export interface DbConnectionPlayer {
   playerId: string;
-  ready: boolean
+  ready: boolean;
 }
 
 export interface ConnectionState {
@@ -27,7 +27,7 @@ export interface GameDataState {
   allPlayerIds: string[];
   yourPlayerId: string;
   currentTurn: string; // id of current player
-  currentPlayerIndex: number; 
+  currentPlayerIndex: number;
   currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck

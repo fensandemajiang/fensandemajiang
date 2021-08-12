@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useRef } from 'react';
+import React, { FunctionComponent } from 'react';
 import Web3Modal from 'web3modal';
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect';
 import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver';
