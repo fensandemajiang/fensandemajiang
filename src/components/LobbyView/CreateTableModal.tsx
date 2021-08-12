@@ -6,82 +6,100 @@ import React, {
   FunctionComponent,
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Filter, Client, ThreadID, Identity } from '@textile/hub';
+import { Filter, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
-function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
-  const cancelButtonRef = useRef(null)
-  const [tableCode, setTableCode] = useState("");
+function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
+  const cancelButtonRef = useRef(null);
+  const [tableCode, setTableCode] = useState('');
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
-  const { client, identity } = useConnectionStore(state => state.connectionState);
+  const [createListener, setCreateListener] = useState(null);
+  const { client, identity } = useConnectionStore(
+    (state) => state.connectionState,
+  );
 
   useEffect(() => {
     async function createTable() {
-      if (props.open) {
-        setTableCode("loading...");
+      if (props.open && playerCount === 0) {
+        setTableCode('loading...');
 
         const tok = await client.getToken(identity);
         // check if table db already exists
         const existingDB = await client.listDBs();
-        if (existingDB.filter(dbInfo => dbInfo?.name === "table" && dbInfo?.id === threadId.toString()).length === 0) {
-          await client.newDB(threadId, "table"); // creates a new db named table
+        if (
+          existingDB.filter(
+            (dbInfo) =>
+              dbInfo?.name === 'table' && dbInfo?.id === threadId.toString(),
+          ).length === 0
+        ) {
+          await client.newDB(threadId, 'table'); // creates a new db named table
         }
 
-        await client.newCollection(threadId, { name: "playerId" }); // create a collection of player ids
-        await client.newCollection(threadId, { name: "connectDetail" }); // creates separate collection for players to place their signal data for p2p
+        await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
+        await client.newCollection(threadId, { name: 'connectDetail' }); // creates separate collection for players to place their signal data for p2p
 
         const dbInfo = await client.getDBInfo(threadId);
         setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
 
-        const userId: string = useUserStore.getState().userState.did?.id ?? "playerx";
-        
+        const userId: string =
+          useUserStore.getState().userState.did?.id ?? 'playerx';
+
         const insertPlayer: DbConnectionPlayer = {
           playerId: userId,
-          ready: false
+          ready: false,
         };
-        await client.create(threadId, "playerId", [insertPlayer]);
+        await client.create(threadId, 'playerId', [insertPlayer]);
         setPlayerCount(1);
 
         const listenFilters: Filter[] = [
-          { collectionName: "playerId" },
-          { actionTypes: ['CREATE'] }
+          { collectionName: 'playerId' },
+          { actionTypes: ['CREATE'] },
         ];
-        client.listen(threadId, listenFilters, (reply, err) => {
+        const listen = client.listen(threadId, listenFilters, (reply, err) => {
           async function asyncWrapper() {
             if (client) {
-              const data: DbConnectionPlayer[] = await client.find(threadId, "playerId", {});
-              const connectionStore = useConnectionStore.getState().connectionState;
-              const usersIds: string[] = data.map((val: DbConnectionPlayer) => val.playerId);
+              const data: DbConnectionPlayer[] = await client.find(
+                threadId,
+                'playerId',
+                {},
+              );
+
+              const usersIds: string[] = data.map(
+                (val: DbConnectionPlayer) => val.playerId,
+              );
 
               useConnectionStore.setState({
                 ...useConnectionStore.getState(),
                 connectionState: {
                   ...useConnectionStore.getState().connectionState,
-                  signalIDs: usersIds
-                }
+                  signalIDs: usersIds,
+                },
               });
 
               setPlayerCount(playerCount + 1);
 
               // table is full
               if (usersIds.length === 4) {
-                const myId = useConnectionStore.getState().connectionState.userID;
+                const myId =
+                  useConnectionStore.getState().connectionState.userID;
                 for (let i = 0; i < 4; i++) {
-                  if (data[i].playerId === myId)
-                    data[i].ready = true;
+                  if (data[i].playerId === myId) data[i].ready = true;
                 }
-                await client.save(threadId, "playerId", data);
+                await client.save(threadId, 'playerId', data);
 
-                // change page and start game 
+                // change page and start game
                 history.push('/play');
               }
             }
           }
           asyncWrapper();
         });
+
+        //@ts-ignore
+        setCreateListener(listen);
       }
 
       useConnectionStore.setState({
@@ -98,28 +116,30 @@ function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
       ...useConnectionStore.getState(),
       connectionState: {
         ...useConnectionStore.getState().connectionState,
-        userID: useUserStore.getState().userState.did?.id ?? ""
-      }
+        userID: useUserStore.getState().userState.did?.id ?? '',
+      },
     });
-
-  }, [props.open]);
+  }, [props.open, client, identity, threadId, playerCount]);
 
   async function close() {
     //check if collections were created, if so delete them
+    props.hitClose();
+    setPlayerCount(0);
     const collections = await client.listCollections(threadId);
 
+    //@ts-ignore
+    if (createListener) createListener.close();
+
     for (let i = 0; i < collections.length; i++) {
-      if (collections[i].name === "playerId") {
-        console.log("delete playerId");
-        await client.deleteCollection(threadId, "playerId");
-      } else if (collections[i].name === "connectDetail") {
-        console.log("delete connectDetail");
-        await client.deleteCollection(threadId, "connectDetail");
+      if (collections[i].name === 'playerId') {
+        console.log('delete playerId');
+        await client.deleteCollection(threadId, 'playerId');
+      } else if (collections[i].name === 'connectDetail') {
+        console.log('delete connectDetail');
+        await client.deleteCollection(threadId, 'connectDetail');
       }
     }
 
-    setPlayerCount(0);
-    props.hitClose();
   }
 
   function copyToClip() {
@@ -225,5 +245,5 @@ function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
       </Dialog>
     </Transition.Root>
   );
-};
+}
 export default CreateTableModal;

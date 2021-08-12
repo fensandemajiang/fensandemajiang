@@ -11,7 +11,6 @@ import {
 import CreateTableModal from './CreateTableModal';
 import JoinTableModal from './JoinTableModal';
 import { useUserStore, useConnectionStore } from '../../utils/store';
-import history from '../../history-helper';
 import './LobbyView.css';
 
 const RPanel: FunctionComponent = () => {
@@ -49,26 +48,26 @@ const RPanel: FunctionComponent = () => {
             ...useConnectionStore.getState(),
             connectionState: {
               ...useConnectionStore.getState().connectionState,
-              identity: didIdentity
-            }
+              identity: didIdentity,
+            },
           });
         } catch (err) {
-        console.error(err);
-        useConnectionStore.setState({
-          ...useConnectionStore.getState(),
-          connectionState: {
-            ...useConnectionStore.getState().connectionState,
-            identity: PrivateKey.fromRandom()
-          }
-        });
+          console.error(err);
+          useConnectionStore.setState({
+            ...useConnectionStore.getState(),
+            connectionState: {
+              ...useConnectionStore.getState().connectionState,
+              identity: PrivateKey.fromRandom(),
+            },
+          });
         }
       } else {
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
           connectionState: {
             ...useConnectionStore.getState().connectionState,
-            identity: PrivateKey.fromRandom()
-          }
+            identity: PrivateKey.fromRandom(),
+          },
         });
       }
 
@@ -81,10 +80,10 @@ const RPanel: FunctionComponent = () => {
         ...useConnectionStore.getState(),
         connectionState: {
           ...useConnectionStore.getState().connectionState,
-          client: c
-        }
+          client: c,
+        },
       });
-      console.log("client init done");
+      console.log('client init done');
     }
     initClient();
   }, [did]);
@@ -115,7 +114,10 @@ const RPanel: FunctionComponent = () => {
           Join a Table
         </button>
       </div>
-      <CreateTableModal open={createOpen} hitClose={() => setCreateOpen(!createOpen)} />
+      <CreateTableModal
+        open={createOpen}
+        hitClose={() => setCreateOpen(!createOpen)}
+      />
       <JoinTableModal open={joinOpen} hitClose={() => setJoinOpen(!joinOpen)} />
     </div>
   );
