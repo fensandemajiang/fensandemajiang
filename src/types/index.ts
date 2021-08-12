@@ -9,7 +9,7 @@ export interface DbConnectDetail {
 
 export interface DbConnectionPlayer {
   playerId: string;
-  ready: boolean
+  ready: boolean;
 }
 
 import type { Client, Identity } from '@textile/hub';
@@ -36,7 +36,7 @@ export interface GameDataState {
   allPlayerIds: string[];
   yourPlayerId: string;
   currentTurn: string; // id of current player
-  currentPlayerIndex: number; 
+  currentPlayerIndex: number;
   currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck

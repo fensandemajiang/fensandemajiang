@@ -2,8 +2,8 @@ import React, { FunctionComponent } from 'react';
 import './LobbyView.css';
 
 type LPanelProps = {
-  name: string;
-  description: string;
+  name?: string;
+  description?: string;
   residenceCountry?: string;
   age?: number;
 };

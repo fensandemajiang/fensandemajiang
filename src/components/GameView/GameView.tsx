@@ -1,11 +1,7 @@
 import React, { useEffect, useContext, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import {
-  compStr,
-  getRandomInt,
-  amCurrentPlayer,
-} from '../../utils/utilFunc';
+import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
 import { findGrouping, hasWon } from './GameFunctions';
 import {
   giveDeck,
@@ -19,6 +15,10 @@ import { PeerContext } from './PeerContextProvidor';
 import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
+import Board from './Board/Board';
+import Actions from './Actions/Actions';
+import Deck from './Deck/Deck';
+import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 
 const GameView: FunctionComponent = () => {
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
@@ -174,11 +174,10 @@ const GameView: FunctionComponent = () => {
 
           // user has won?
           // returns amount of points won (if user won)
-          const wonAmount: number = hasWon(dataStore.yourHand); 
+          const wonAmount: number = hasWon(dataStore.yourHand);
           if (wonAmount !== -1) {
             //exit game...somehow
           }
-            
 
           // render something to tell player to choose card to discard
           // block this function somehow? or move the rest of this functionality into some button?
@@ -319,7 +318,22 @@ const GameView: FunctionComponent = () => {
     }
   }, [gameState, peers]);
 
-  return <div className="mainview">hello world</div>;
+  return (
+    <>
+      <div className="game-view-container">
+        <Sidebar></Sidebar>
+        <div className="game-view-right">
+          <div className="game-view-top">
+            <Board></Board>
+          </div>
+          <div className="game-view-bot">
+            <Deck></Deck>
+            <Actions></Actions>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default GameView;

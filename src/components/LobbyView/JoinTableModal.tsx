@@ -1,23 +1,24 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import {
-  Filter,
-  Public,
-  Identity,
-  createUserAuth,
-  PrivateKey,
-  Client,
-  KeyInfo,
-  UserAuth,
-  ThreadID,
-  publicKeyBytesFromString,
-} from '@textile/hub';
+import React, {
+  Fragment,
+  useRef,
+  useState,
+  useEffect,
+  FunctionComponent,
+} from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Filter, Identity, Client, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
+type JoinTableModalProps = {
+  client: Client | undefined;
+  identity: Identity | undefined;
+  open: boolean;
+  hitClose: () => void;
+};
 
-export default function JoinTableModal(props: { open: boolean, hitClose: () => void }) {
+function JoinTableModal(props: { open: boolean, hitClose: () => void }) {
   const cancelButtonRef = useRef(null)
   const [tableCode, setTableCode] = useState("");
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
@@ -26,18 +27,19 @@ export default function JoinTableModal(props: { open: boolean, hitClose: () => v
   const { client, identity } = useConnectionStore(s => s.connectionState);
 
   useEffect(() => {
-    async function asyncWrapper() { await init(); }
+    async function asyncWrapper() {
+      await init();
+    }
     asyncWrapper();
 
     useConnectionStore.setState({
       ...useConnectionStore.getState(),
       connectionState: {
         ...useConnectionStore.getState().connectionState,
-        userID: useUserStore.getState().userState.did?.id ?? ""
-      }
+        userID: useUserStore.getState().userState.did?.id ?? '',
+      },
     });
-
-  }, [props.open]);
+  }, [open]);
 
   async function init() {
     if (props.open) {
@@ -143,7 +145,10 @@ export default function JoinTableModal(props: { open: boolean, hitClose: () => v
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
-          <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+          <span
+            className="hidden sm:inline-block sm:align-middle sm:h-screen"
+            aria-hidden="true"
+          >
             &#8203;
           </span>
           <Transition.Child
@@ -159,39 +164,49 @@ export default function JoinTableModal(props: { open: boolean, hitClose: () => v
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg leading-6 font-medium text-gray-900"
+                    >
                       Join Table
                     </Dialog.Title>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
                         You are joining a game, please enter the join key:
-
                       </p>
-                      
-                      <div className="flex my-4 shadow rounded">
-                        <input className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" placeholder="Room Key" value={tableCode} onChange={(e) => setTableCode(e.target.value)} />
-                      </div>
-                      { hasJoined ?
-                        (<p className="text-sm text-gray-500">
-                          Once your friends have created a table, they should get a room key, paste it above to join
-                        </p>) :
-                         (<p className="text-sm text-gray-500">
-                          You have joined a table with {playerCount} players.
-                        </p>)
-                      }
 
-                      <div>
-                        
+                      <div className="flex my-4 shadow rounded">
+                        <input
+                          className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          id="username"
+                          placeholder="Room Key"
+                          value={tableCode}
+                          onChange={(e) => setTableCode(e.target.value)}
+                        />
                       </div>
+                      {hasJoined ? (
+                        <p className="text-sm text-gray-500">
+                          Once your friends have created a table, they should
+                          get a room key, paste it above to join
+                        </p>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          You have joined a table with {playerCount} players.
+                        </p>
+                      )}
+
+                      <div></div>
                     </div>
                   </div>
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" 
-                        onClick={joinTable}
-                        className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
-                  Join 
+                <button
+                  type="button"
+                  onClick={joinTable}
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Join
                 </button>
                 <button
                   type="button"
@@ -207,5 +222,6 @@ export default function JoinTableModal(props: { open: boolean, hitClose: () => v
         </div>
       </Dialog>
     </Transition.Root>
-  )
-}
+  );
+};
+export default JoinTableModal;

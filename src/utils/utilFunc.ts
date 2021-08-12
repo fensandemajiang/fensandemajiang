@@ -1,6 +1,3 @@
-import { Action, Suite } from '../types';
-import type { Tile } from '../types';
-
 export function compStr(a: string, b: string): number {
   return a.localeCompare(b, 'en', { numeric: true });
 }

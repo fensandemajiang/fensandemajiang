@@ -1,0 +1,48 @@
+.discarded-tile {
+  height: 25%;
+  width: 30%;
+}
+
+.discarded-tile .small-tile-image,
+.discarded-tile .no-image {
+  width: 100%;
+  height: 80%;
+  border-radius: 1em;
+}
+
+.discarded-tile .small-tile-image {
+  background-color: white;
+}
+
+.discarded-tile .no-image {
+  background-color: #232646;
+}
+
+.tile-right {
+  -webkit-transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
+  -o-transform: rotate(270deg);
+  transform: rotate(270deg);
+}
+
+.tile-left {
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
+.tile-up {
+  height: 40%;
+  width: 20%;
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+
+.tile-up .small-tile-image,
+.tile-up .no-image {
+  width: 60%;
+  height: 100%;
+}

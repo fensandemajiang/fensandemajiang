@@ -5,9 +5,7 @@ import {
   createUserAuth,
   PrivateKey,
   Client,
-  KeyInfo,
   UserAuth,
-  ThreadID,
   publicKeyBytesFromString,
 } from '@textile/hub';
 import CreateTableModal from './CreateTableModal';
@@ -22,44 +20,39 @@ const RPanel: FunctionComponent = () => {
   const { did } = useUserStore((state) => state.userState);
 
   useEffect(() => {
-    async function asyncWrapper() { await initClient(); }
-    asyncWrapper();
-  }, []);
+    async function initClient() {
+      if (did) {
+        try {
+          const didPublic: Public = {
+            verify: (_: Buffer, sig: Buffer): Promise<boolean> => {
+              return did
+                .verifyJWS(sig.toString())
+                .then(
+                  (res) =>
+                    res.didResolutionResult.didDocumentMetadata.error ===
+                    undefined,
+                );
+            },
+            bytes: publicKeyBytesFromString(did.id),
+          };
 
-  // init client
-  async function initClient() {
-    if (did) {
-      try {
-        const didPublic: Public = {
-          verify: (data: Buffer, sig: Buffer): Promise<boolean> => {
-            return did
-              .verifyJWS(sig.toString())
-              .then(
-                (res) =>
-                  res.didResolutionResult.didDocumentMetadata.error === undefined,
-              );
-          },
-          bytes: publicKeyBytesFromString(did.id),
-        };
+          const didIdentity: Identity = {
+            sign: (data: Buffer): Promise<Buffer> => {
+              return did
+                .createJWS(data)
+                .then((out) => Buffer.from(JSON.stringify(out)));
+            },
+            public: didPublic,
+          };
 
-        const didIdentity: Identity = {
-          sign: (data: Buffer): Promise<Buffer> => {
-            return did
-              .createJWS(data)
-              .then((out) => Buffer.from(JSON.stringify(out)));
-          },
-
-          public: didPublic,
-        };
-
-        useConnectionStore.setState({
-          ...useConnectionStore.getState(),
-          connectionState: {
-            ...useConnectionStore.getState().connectionState,
-            identity: didIdentity
-          }
-        });
-      } catch (err) {
+          useConnectionStore.setState({
+            ...useConnectionStore.getState(),
+            connectionState: {
+              ...useConnectionStore.getState().connectionState,
+              identity: didIdentity
+            }
+          });
+        } catch (err) {
         console.error(err);
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
@@ -68,32 +61,32 @@ const RPanel: FunctionComponent = () => {
             identity: PrivateKey.fromRandom()
           }
         });
+        }
+      } else {
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            identity: PrivateKey.fromRandom()
+          }
+        });
       }
-    } else {
+
+      const auth: UserAuth = await createUserAuth(
+        'bw45ykkoetqwida7gzw2wgt5ryy',
+        'bylrhy7swvhnh33lg7ykhksw36elbxvvfyynceli',
+      );
+      const c = await Client.withUserAuth(auth);
       useConnectionStore.setState({
         ...useConnectionStore.getState(),
         connectionState: {
           ...useConnectionStore.getState().connectionState,
-          identity: PrivateKey.fromRandom()
+          client: c
         }
       });
+      console.log("client init done");
     }
-
-    const auth: UserAuth = await createUserAuth(
-      'bw45ykkoetqwida7gzw2wgt5ryy',
-      'bylrhy7swvhnh33lg7ykhksw36elbxvvfyynceli',
-    );
-    const c = await Client.withUserAuth(auth);
-    useConnectionStore.setState({
-      ...useConnectionStore.getState(),
-      connectionState: {
-        ...useConnectionStore.getState().connectionState,
-        client: c
-      }
-    });
-    console.log("client init done");
-  }
-
+  }, [did]);
 
   const createOnClick = () => {
     setCreateOpen(true);

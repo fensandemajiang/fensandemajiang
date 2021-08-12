@@ -1,0 +1,9 @@
+.action-button {
+  display: block;
+  padding: 1vh 1vw;
+  border-radius: 1em;
+  background-color: #fdb813;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  font-size: larger;
+}
