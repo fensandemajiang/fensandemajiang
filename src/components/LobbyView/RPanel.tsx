@@ -86,6 +86,7 @@ const RPanel: FunctionComponent = () => {
       });
       console.log("client init done");
     }
+    initClient();
   }, [did]);
 
   const createOnClick = () => {

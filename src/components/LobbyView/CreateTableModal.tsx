@@ -19,17 +19,6 @@ function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
   const { client, identity } = useConnectionStore(state => state.connectionState);
 
   useEffect(() => {
-    async function asyncWrapper() { await createTable(); }
-    asyncWrapper();
-
-    useConnectionStore.setState({
-      ...useConnectionStore.getState(),
-      connectionState: {
-        ...useConnectionStore.getState().connectionState,
-        userID: useUserStore.getState().userState.did?.id ?? ""
-      }
-    });
-
     async function createTable() {
       if (props.open) {
         setTableCode("loading...");
@@ -94,7 +83,6 @@ function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
           asyncWrapper();
         });
       }
-      createTable();
 
       useConnectionStore.setState({
         ...useConnectionStore.getState(),
@@ -104,7 +92,17 @@ function CreateTableModal(props: { open: boolean, hitClose: () => void }) {
         },
       });
     }
-  }, [props.open, client, identity, playerCount, threadId]);
+    createTable();
+
+    useConnectionStore.setState({
+      ...useConnectionStore.getState(),
+      connectionState: {
+        ...useConnectionStore.getState().connectionState,
+        userID: useUserStore.getState().userState.did?.id ?? ""
+      }
+    });
+
+  }, [props.open]);
 
   async function close() {
     //check if collections were created, if so delete them
