@@ -21,6 +21,7 @@
   width: 50%;
   height: 60%;
   display: flex;
+  position: relative;
   flex-direction: column-reverse;
   justify-content: space-around;
   justify-content: flex-end;

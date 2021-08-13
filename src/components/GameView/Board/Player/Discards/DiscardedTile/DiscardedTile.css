@@ -1,6 +1,7 @@
 .discarded-tile {
   height: 25%;
   width: 30%;
+  /* flex-basis: 25%; */
 }
 
 .discarded-tile .small-tile-image,
@@ -35,6 +36,7 @@
 .tile-up {
   height: 40%;
   width: 20%;
+  /* position: relative; */
   -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);
   -o-transform: rotate(180deg);

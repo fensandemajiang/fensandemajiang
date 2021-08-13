@@ -1,21 +1,5 @@
-.timer-container {
-  position: absolute;
-  height: 4em;
-  margin-top: -2em;
-  margin-left: 2em;
-  border-top-right-radius: 2em;
-  border-bottom-left-radius: 2em;
-  /* background-color: white; */
-  text-align: center;
-  color: #858cc1;
-  border-bottom: 2px #858cc1 solid;
-  border-left: 2px #858cc1 solid;
-  z-index: 100;
-}
-
 .timer {
   margin: 0.25em;
   font-size: 2em;
   font-weight: 800;
-  white-space: nowrap;
 }

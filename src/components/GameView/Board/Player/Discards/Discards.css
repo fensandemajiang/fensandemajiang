@@ -2,16 +2,16 @@
   display: flex;
 }
 
-.discard-right {
+.discard-right, 
+.discard-left {
   width: 85%;
   height: 80%;
   flex-direction: column-reverse;
   flex-wrap: wrap;
+  column-gap: 15%;
 }
 
 .discard-left {
-  width: 85%;
-  height: 80%;
   flex-direction: column;
   flex-wrap: wrap-reverse;
 }
