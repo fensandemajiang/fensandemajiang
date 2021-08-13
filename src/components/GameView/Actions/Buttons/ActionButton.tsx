@@ -4,7 +4,7 @@ import { Button } from '../../../GlobalComponents/Button/Button';
 import './ActionButton.css';
 
 function ActionButton(props: InferProps<typeof ActionButton.propTypes>) {
-  const textArr: string[] = ['Chow', 'Pung', 'Kong', 'Get Tile'];
+  const textArr: string[] = ['Chow', 'Pung', 'Kong'];
   let text = 'null';
 
   if (typeof props.type == 'number') {

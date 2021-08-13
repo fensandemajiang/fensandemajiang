@@ -320,6 +320,22 @@ const GameView: FunctionComponent = () => {
     }
   }, [gameState, peers]);
 
+  function discard(tile, playerID){
+
+  }
+
+  function chow(playerID : string){
+    alert(playerID)
+  }
+
+  function pung(playerID){
+    alert(playerID)
+  }
+
+  function kong(playerID){
+    alert(playerID)
+  }
+
   return (
     <>
       <div className="game-view-container">
@@ -330,7 +346,14 @@ const GameView: FunctionComponent = () => {
           </div>
           <div className="game-view-bot">
             <Deck></Deck>
-            <Actions></Actions>
+            <Actions
+              playerActions={{
+                "chow": chow, 
+                "pung": pung,
+                "kong": kong
+              }}
+            >
+            </Actions>
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import './Discards.css';
 
 function Discards(props: InferProps<typeof Discards.propTypes>) {
   const num_discards = 2;
-  const total = 8;
+  const total = 10;
   const discards = [];
 
   for (let i = 0; i < total; i++) {

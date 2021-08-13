@@ -1,18 +1,19 @@
-import React from 'react';
+import React, {MouseEvent} from 'react';
 import PropTypes, { InferProps } from 'prop-types';
 import ActionButton from './Buttons/ActionButton';
-import Timer from '../Board/Timer/Timer';
+import { useGameDataStore } from '@utils/store';
+import { GameDataStore } from '@utils/store';
 import './Actions.css';
 
 function Actions(props: InferProps<typeof Actions.propTypes>) {
-  // let onClick = (e: MouseEvent<HTMLButtonElement>) => {
-  //     e.preventDefault()
-  //     if(props.onClick != undefined && props.onClick != null){
-  //         props.onClick(props.type)
-  //     } else {
-  //         return null;
-  //     }
-  // }
+
+  const playerID = useGameDataStore().gameDataState.yourPlayerId
+
+  const getAction = (actionName : string) => {
+    if(props.playerActions){
+      return props.playerActions[actionName] ? () => props.playerActions[actionName](playerID) : () => {}
+    }
+  }
 
   return (
     <>
@@ -20,15 +21,15 @@ function Actions(props: InferProps<typeof Actions.propTypes>) {
         <div className="actions">
           <ActionButton
             type={0}
-            otherProps={{ onClick: () => alert('you clicked') }}
+            otherProps={{ "onClick": getAction("chow")}}
           ></ActionButton>
           <ActionButton
             type={1}
-            otherProps={{ onClick: () => alert('you clicked') }}
+            otherProps={{ "onClick": getAction("pung") }}
           ></ActionButton>
           <ActionButton
             type={2}
-            otherProps={{ onClick: () => alert('you clicked') }}
+            otherProps={{ "onClick": getAction("kong") }}
           ></ActionButton>
         </div>
       </div>
@@ -38,6 +39,7 @@ function Actions(props: InferProps<typeof Actions.propTypes>) {
 
 Actions.propTypes = {
   any: PropTypes.any,
-};
+  playerActions: PropTypes.objectOf(PropTypes.func)
+}
 
 export default Actions;
