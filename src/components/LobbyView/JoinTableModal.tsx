@@ -25,7 +25,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
   //const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
-  const [createListener, setCreateListener] = useState(undefined);
+  const [createListener, setCreateListener] = useState<any>(undefined);
   const { client, identity } = useConnectionStore((s) => s.connectionState);
 
   useEffect(() => {

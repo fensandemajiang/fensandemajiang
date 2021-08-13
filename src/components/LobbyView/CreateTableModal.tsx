@@ -24,7 +24,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
   const [tableCode, setTableCode] = useState('');
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
-  const [createListener, setCreateListener] = useState(null);
+  const [createListener, setCreateListener] = useState<any>(null);
   const { client, identity } = useConnectionStore(
     (state) => state.connectionState,
   );
@@ -60,7 +60,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           { collectionName: 'playerId' },
           { actionTypes: ['CREATE', 'DELETE'] },
         ];
-        const listen = client.listen(threadId, listenFilters, (reply, err) => {
+        const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
           async function asyncWrapper() {
             if (client) {
               const data: DbConnectionPlayer[] = await client.find(
