@@ -10,6 +10,7 @@ import {
 } from '@textile/hub';
 import CreateTableModal from './CreateTableModal';
 import JoinTableModal from './JoinTableModal';
+import DBSecrets from './dbSecrets';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import './LobbyView.css';
 
@@ -72,8 +73,8 @@ const RPanel: FunctionComponent = () => {
       }
 
       const auth: UserAuth = await createUserAuth(
-        'bw45ykkoetqwida7gzw2wgt5ryy',
-        'bylrhy7swvhnh33lg7ykhksw36elbxvvfyynceli',
+        DBSecrets.key,
+        DBSecrets.secret,
       );
       const c = await Client.withUserAuth(auth);
       useConnectionStore.setState({

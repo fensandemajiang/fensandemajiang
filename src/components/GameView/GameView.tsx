@@ -19,6 +19,7 @@ import Board from './Board/Board';
 import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
+import GameOverModal from './GameOverModal';
 
 const GameView: FunctionComponent = () => {
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
@@ -158,6 +159,7 @@ const GameView: FunctionComponent = () => {
             const drawnCard: Tile = newDeck[newDeck.length - 1]; // TODO: check deck is empty and if so, end the game
             newDeck = newDeck.slice(0, newDeck.length - 1); // remove last element
             newHand.push(drawnCard);
+            // display new hand
 
             // do we even need to update store here? probably not necessary so will remove for now
             /*

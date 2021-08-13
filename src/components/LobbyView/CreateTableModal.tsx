@@ -16,7 +16,10 @@ type CreateTableModalProps = {
   hitClose: () => void;
 };
 
-const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { open: boolean; hitClose: () => void }) => {
+const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
+  open: boolean;
+  hitClose: () => void;
+}) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
@@ -33,21 +36,14 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
 
         const tok = await client.getToken(identity);
         // check if table db already exists
-        const existingDB = await client.listDBs();
-        if (
-          existingDB.filter(
-            (dbInfo) =>
-              dbInfo?.name === 'table' && dbInfo?.id === threadId.toString(),
-          ).length === 0
-        ) {
-          await client.newDB(threadId, 'table'); // creates a new db named table
-        }
-
+        await client.newDB(threadId, 'table');
         await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
         await client.newCollection(threadId, { name: 'connectDetail' }); // creates separate collection for players to place their signal data for p2p
 
-        const dbInfo = await client.getDBInfo(threadId);
-        setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
+        //const dbInfo = await client.getDBInfo(threadId);
+        //setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
+        //console.log(threadId.toString());
+        setTableCode(threadId.toString());
 
         const userId: string =
           useUserStore.getState().userState.did?.id ?? 'playerx';
@@ -55,7 +51,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
         const insertPlayer: DbConnectionPlayer = {
           playerId: userId,
           ready: false,
-          _id: ''
+          _id: '',
         };
         await client.create(threadId, 'playerId', [insertPlayer]);
         setPlayerCount(1);
@@ -104,7 +100,6 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
           asyncWrapper();
         });
 
-        //@ts-ignore
         setCreateListener(listen);
       }
 
@@ -133,15 +128,18 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
     setPlayerCount(0);
     const collections = await client.listCollections(threadId);
 
-    //@ts-ignore
     if (createListener) createListener.close();
 
     for (let i = 0; i < collections.length; i++) {
       if (collections[i].name === 'playerId') {
         console.log('delete playerId');
 
-        const allEntries: DbConnectionPlayer[] = await client.find(threadId, 'playerId', {});
-        const allIds = allEntries.map(e => e._id);
+        const allEntries: DbConnectionPlayer[] = await client.find(
+          threadId,
+          'playerId',
+          {},
+        );
+        const allIds = allEntries.map((e) => e._id);
         await client.delete(threadId, 'playerId', allIds);
         await client.deleteCollection(threadId, 'playerId');
       } else if (collections[i].name === 'connectDetail') {
@@ -150,6 +148,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
       }
     }
 
+    await client.deleteDB(threadId);
   }
 
   function copyToClip() {
@@ -162,7 +161,6 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
         as="div"
         static
         className="fixed z-10 inset-0 overflow-y-auto"
-        initialFocus={cancelButtonRef}
         open={props.open}
         onClose={props.hitClose}
       >
@@ -255,5 +253,5 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { ope
       </Dialog>
     </Transition.Root>
   );
-}
+};
 export default CreateTableModal;

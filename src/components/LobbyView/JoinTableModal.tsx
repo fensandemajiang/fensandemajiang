@@ -6,7 +6,7 @@ import React, {
   FunctionComponent,
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Filter, Identity, Client, ThreadID } from '@textile/hub';
+import { Filter, Identity, Client, ThreadID, DBInfo } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
@@ -16,10 +16,13 @@ type JoinTableModalProps = {
   hitClose: () => void;
 };
 
-const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: boolean; hitClose: () => void }) => {
+const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
+  open: boolean;
+  hitClose: () => void;
+}) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
-  const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
+  //const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
   const [createListener, setCreateListener] = useState(undefined);
@@ -51,28 +54,53 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: b
     setPlayerCount(0);
 
     if (hasJoined) {
-      // @ts-ignore
+      let threadId = ThreadID.fromRandom();
+
+      try {
+        threadId = ThreadID.fromString(tableCode);
+        const playerIds = await client.find(threadId, 'playerId', {});
+      } catch (err) {
+        console.log('invalid threadId');
+        return;
+      }
+
       createListener.close();
 
       // delete yourself from db
       await client.getToken(identity);
-      const playerIdData: DbConnectionPlayer[] = await client.find(threadId, 'playerId', {});
+      const playerIdData: DbConnectionPlayer[] = await client.find(
+        threadId,
+        'playerId',
+        {},
+      );
       const userId = useConnectionStore.getState().connectionState.userID;
-      const idToDelete = playerIdData.filter(d => d._id === userId).map(d => d._id);
-      await client.delete(threadId, 'playerId', idToDelete);
+      console.log(playerIdData);
+      const idToDelete = playerIdData
+        .filter((d) => d.playerId === userId)
+        .map((d) => d._id)[0];
+      console.log('deleting', idToDelete);
+      await client.delete(threadId, 'playerId', [idToDelete]);
       setHasJoined(false);
     }
   }
 
   async function joinTable() {
-    await client.joinFromInfo(JSON.parse(tableCode));
+    let threadId = ThreadID.fromRandom();
+
+    try {
+      threadId = ThreadID.fromString(tableCode);
+      const playerIds = await client.find(threadId, 'playerId', {});
+    } catch (err) {
+      console.log('invalid threadId');
+      return;
+    }
 
     const userId: string =
       useUserStore.getState().userState.did?.id ?? 'playerx';
     const insertPlayer: DbConnectionPlayer = {
       playerId: userId,
       ready: false,
-      _id: ''
+      _id: '',
     };
     await client.create(threadId, 'playerId', [insertPlayer]);
 
@@ -98,48 +126,54 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: b
       { collectionName: 'playerId' },
       { actionTypes: ['CREATE', 'DELETE'] },
     ];
-    const listen = client.listen(threadId, listenFilters, (reply, err) => {
+    const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
       async function asyncWrapper() {
         if (client) {
-          const data: DbConnectionPlayer[] = await client.find(
-            threadId,
-            'playerId',
-            {},
-          );
-          const usersIds: string[] = data.map(
-            (val: DbConnectionPlayer) => val.playerId,
-          );
+          try {
+            const data: DbConnectionPlayer[] = await client.find(
+              threadId,
+              'playerId',
+              {},
+            );
+            const usersIds: string[] = data.map(
+              (val: DbConnectionPlayer) => val.playerId,
+            );
 
-          useConnectionStore.setState({
-            ...useConnectionStore.getState(),
-            connectionState: {
-              ...useConnectionStore.getState().connectionState,
-              signalIDs: usersIds,
-            },
-          });
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                signalIDs: usersIds,
+              },
+            });
 
-          setPlayerCount(usersIds.length);
+            setPlayerCount(usersIds.length);
 
-          if (usersIds.length === 0) { // table was deleted
-            alert("Table was closed by owner");
-            setHasJoined(false);
-            setTableCode("");
-          } else if (usersIds.length === 4) { // table is full
-            const myId = useConnectionStore.getState().connectionState.userID;
-            for (let i = 0; i < 4; i++) {
-              if (data[i].playerId === myId) data[i].ready = true;
+            if (usersIds.length === 0) {
+              // table was deleted
+              alert('Table was closed by owner');
+              setHasJoined(false);
+              setTableCode('');
+            } else if (usersIds.length === 4) {
+              // table is full
+              const myId = useConnectionStore.getState().connectionState.userID;
+              for (let i = 0; i < 4; i++) {
+                if (data[i].playerId === myId) data[i].ready = true;
+              }
+              await client.save(threadId, 'playerId', data);
+
+              // change page and start game
+              history.push('/play');
             }
-            await client.save(threadId, 'playerId', data);
-
-            // change page and start game
-            history.push('/play');
+          } catch (err) {
+            setHasJoined(false);
+            setTableCode('');
           }
         }
       }
       asyncWrapper();
     });
 
-    // @ts-ignore
     setCreateListener(listen);
 
     setHasJoined(true);
@@ -208,7 +242,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: b
                           onChange={(e) => setTableCode(e.target.value)}
                         />
                       </div>
-                      {hasJoined ? (
+                      {!hasJoined ? (
                         <p className="text-sm text-gray-500">
                           Once your friends have created a table, they should
                           get a room key, paste it above to join
@@ -247,5 +281,5 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: b
       </Dialog>
     </Transition.Root>
   );
-}
+};
 export default JoinTableModal;
