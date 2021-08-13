@@ -6,14 +6,6 @@ import MoreTile from './MoreTile/MoreTile';
 import './Board.css';
 
 function Board(props: InferProps<typeof Board.propTypes>) {
-  // let onClick = (e: MouseEvent<HTMLButtonElement>) => {
-  //     e.preventDefault()
-  //     if(props.onClick != undefined && props.onClick != null){
-  //         props.onClick(props.type)
-  //     } else {
-  //         return null;
-  //     }
-  // }
 
   return (
     <>

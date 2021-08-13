@@ -5,8 +5,9 @@ import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver';
 import Ceramic from '@ceramicnetwork/http-client';
 import { IDX } from '@ceramicstudio/idx';
 import { DID } from 'dids';
+import { Caip10Link } from '@ceramicnetwork/stream-caip10-link';
 import { useUserStore } from '../../utils/store';
-import type { BasicProfile } from '../../types';
+import type { BasicProfile, CryptoAccounts } from '../../types';
 import CreateProfileModal from './CreateProfileModal';
 import './LobbyView.css';
 
@@ -49,13 +50,47 @@ const Login: FunctionComponent = () => {
       ? idxProfile
       : undefined;
 
+    const cryptoAccounts: CryptoAccounts = await linkEthereumAccount(
+      authProvider,
+      ceramic,
+      idx,
+    );
+
     updateUserState({
       loggedIn: true,
+      cryptoAccounts: cryptoAccounts,
       profile: basicProfile,
       did: did,
       ceramic: ceramic,
       idx: idx,
     });
+  };
+  const linkEthereumAccount = async (
+    authProvider: EthereumAuthProvider,
+    ceramic: Ceramic,
+    idx: IDX,
+  ) => {
+    if (!ceramic.did) {
+      throw Error('No DID set in Ceramic');
+    }
+    const accountId = await authProvider.accountId();
+    const idxCryptoAccounts: CryptoAccounts | null = await idx.get(
+      'cryptoAccounts',
+      ceramic.did.id,
+    );
+    if (idxCryptoAccounts === null) {
+      // Write account link
+      const accountLink = await Caip10Link.fromAccount(ceramic, accountId);
+      await accountLink.setDid(ceramic.did.id, authProvider);
+      const streamUrl = accountLink.id.toUrl();
+      const cryptoAccounts: CryptoAccounts = {
+        [accountId.toString()]: streamUrl,
+      };
+      await idx.set('cryptoAccounts', cryptoAccounts);
+      return cryptoAccounts;
+    } else {
+      return idxCryptoAccounts;
+    }
   };
 
   const loginOnClick = () => {

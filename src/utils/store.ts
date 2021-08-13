@@ -107,6 +107,7 @@ export type UserStore = {
 };
 const initialUserState: UserState = {
   loggedIn: false,
+  cryptoAccounts: undefined,
   profile: undefined,
   did: undefined,
   ceramic: undefined,

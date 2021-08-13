@@ -56,6 +56,10 @@ export interface ImageSources {
   alternatives?: ImageMetadata[];
 }
 
+export interface CryptoAccounts {
+  readonly [accountId: string]: string;
+}
+
 export interface BasicProfile {
   name?: string;
   description?: string;
@@ -76,6 +80,7 @@ import type Ceramic from '@ceramicnetwork/http-client';
 import type { DID } from 'dids';
 export interface UserState {
   loggedIn: boolean;
+  cryptoAccounts?: CryptoAccounts;
   profile?: BasicProfile;
   did?: DID;
   ceramic?: Ceramic;

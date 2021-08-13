@@ -5,19 +5,19 @@ import './DiscardedTile.css';
 function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
   const images: string[] = [''];
 
-  let img;
-  if (typeof props.type == 'number') {
-    img = <img src={images[props.type]} className="small-tile-image"></img>;
-  } else {
-    img = <div className="no-image"></div>;
-  }
-
   let orientation = 'tile-right';
 
   if (props.orientation == 'left') {
     orientation = 'tile-left';
   } else if (props.orientation == 'up') {
     orientation = 'tile-up';
+  }
+
+  let img;
+  if (typeof props.type == 'number') {
+    img = <img src={images[props.type]} className={"small-tile-image "}></img>;
+  } else {
+    img = <div className={"no-image "}></div>;
   }
 
   return (
