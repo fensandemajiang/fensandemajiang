@@ -41,6 +41,7 @@ export interface GameDataState {
   currentState: GameState;
   roundNumber: number;
   playerWithDeck: string; // empty string or null if no player has deck
+  previousIpfsCid: string;
 }
 
 export interface ImageMetadata {
@@ -106,6 +107,7 @@ export enum Action {
   GiveHand,
   UpdateGameState,
   UpdateCurrentPlayerIndex,
+  UpdateIpfsCid,
 }
 
 export interface PlayerAction {
@@ -117,6 +119,7 @@ export interface PlayerAction {
     playerTo?: string;
     gameState?: string;
     playerIndex?: number;
+    ipfsCid?: string;
   };
 }
 

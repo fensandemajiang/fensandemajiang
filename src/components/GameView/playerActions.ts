@@ -73,6 +73,11 @@ export function processReceivedData(
         };
       }
       break;
+    case Action.UpdateIpfsCid:
+      if (dataBody.ipfsCid) {
+        return { ...gameDataStore, previousIpfsCid: dataBody.ipfsCid };
+      }
+      break;
   }
 
   console.error('Action not processed properly');
@@ -112,8 +117,20 @@ export function updateGameState(
       gameState: gameState,
     },
   };
-
   sendToEveryone(peers, JSON.stringify(updateGameStateAction));
+}
+
+export function updateIpfsCid(
+  peers: { [userId: string]: SimplePeer.Instance },
+  ipfsCid: string,
+): void {
+  const updateIpfsCidAction: PlayerAction = {
+    action: Action.UpdateIpfsCid,
+    body: {
+      ipfsCid: ipfsCid,
+    },
+  };
+  sendToEveryone(peers, JSON.stringify(updateIpfsCidAction));
 }
 
 export function sendHand(
