@@ -20,6 +20,7 @@ export interface ConnectionState {
   userConnectionState: UserConnectionState[];
   client: Client;
   identity: Identity;
+  threadId: string;
 }
 export enum UserConnectionState {
   Connected,

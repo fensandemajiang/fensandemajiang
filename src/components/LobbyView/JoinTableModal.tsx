@@ -22,7 +22,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
 }) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
-  //const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
   const [createListener, setCreateListener] = useState<any>(undefined);
@@ -59,6 +58,14 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
       try {
         threadId = ThreadID.fromString(tableCode);
         const playerIds = await client.find(threadId, 'playerId', {});
+
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            threadId: threadId.toString(),
+          },
+        });
       } catch (err) {
         console.log('invalid threadId');
         return;
@@ -90,6 +97,14 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
     try {
       threadId = ThreadID.fromString(tableCode);
       const playerIds = await client.find(threadId, 'playerId', {});
+
+      useConnectionStore.setState({
+        ...useConnectionStore.getState(),
+        connectionState: {
+          ...useConnectionStore.getState().connectionState,
+          threadId: threadId.toString(),
+        },
+      });
     } catch (err) {
       console.log('invalid threadId');
       return;
@@ -122,12 +137,18 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
 
     setPlayerCount(playersAtTable.length);
 
+    if (playersAtTable.length === 4) {
+      history.push('/play');
+    }
+
     const listenFilters: Filter[] = [
       { collectionName: 'playerId' },
       { actionTypes: ['CREATE', 'DELETE'] },
     ];
     const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
       async function asyncWrapper() {
+        console.log('hi');
+
         if (client) {
           try {
             const data: DbConnectionPlayer[] = await client.find(
@@ -146,8 +167,10 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
                 signalIDs: usersIds,
               },
             });
+            console.log(usersIds);
 
             setPlayerCount(usersIds.length);
+            console.log(usersIds.length);
 
             if (usersIds.length === 0) {
               // table was deleted
@@ -155,13 +178,8 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
               setHasJoined(false);
               setTableCode('');
             } else if (usersIds.length === 4) {
+              console.log('go');
               // table is full
-              const myId = useConnectionStore.getState().connectionState.userID;
-              for (let i = 0; i < 4; i++) {
-                if (data[i].playerId === myId) data[i].ready = true;
-              }
-              await client.save(threadId, 'playerId', data);
-
               // change page and start game
               history.push('/play');
             }
