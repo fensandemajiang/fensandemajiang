@@ -30,8 +30,6 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
   useEffect(() => {
     async function createTable() {
       if (props.open && playerCount === 0) {
-        //const client = useConnectionStore.getState().connectionState.client;
-        //const identity = useConnectionStore.getState().connectionState.identity;
         setTableCode('loading...');
 
         const tok = await client.getToken(identity);
@@ -65,39 +63,42 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           { collectionName: 'playerId' },
           { actionTypes: ['CREATE', 'DELETE'] },
         ];
-        const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
-          async function asyncWrapper() {
-            if (client) {
-              const data: DbConnectionPlayer[] = await client.find(
-                threadId,
-                'playerId',
-                {},
-              );
+        const listen: any = client.listen(
+          threadId,
+          listenFilters,
+          (reply, err) => {
+            async function asyncWrapper() {
+              if (client) {
+                const data: DbConnectionPlayer[] = await client.find(
+                  threadId,
+                  'playerId',
+                  {},
+                );
 
-              const usersIds: string[] = data.map(
-                (val: DbConnectionPlayer) => val.playerId,
-              );
+                const usersIds: string[] = data.map(
+                  (val: DbConnectionPlayer) => val.playerId,
+                );
 
-              useConnectionStore.setState({
-                ...useConnectionStore.getState(),
-                connectionState: {
-                  ...useConnectionStore.getState().connectionState,
-                  signalIDs: usersIds,
-                },
-              });
-              console.log(usersIds);
+                useConnectionStore.setState({
+                  ...useConnectionStore.getState(),
+                  connectionState: {
+                    ...useConnectionStore.getState().connectionState,
+                    signalIDs: usersIds,
+                  },
+                });
+                console.log(usersIds);
+                setPlayerCount(usersIds.length);
 
-              setPlayerCount(usersIds.length);
-
-              // table is full
-              if (usersIds.length === 4) {
-                // change page and start game
-                history.push('/play');
+                // table is full
+                if (usersIds.length === 4) {
+                  // change page and start game
+                  history.push('/play');
+                }
               }
+              asyncWrapper();
             }
           }
-          asyncWrapper();
-        });
+        );
 
         setCreateListener(listen);
       }

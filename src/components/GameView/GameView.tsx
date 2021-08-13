@@ -320,20 +320,20 @@ const GameView: FunctionComponent = () => {
     }
   }, [gameState, peers]);
 
-  function discard(tile: Tile, playerID: string){
-
+  function discard(tile: Tile, playerID: string) {
+    // placeholder
   }
 
-  function chow(playerID : string){
-    alert(playerID)
+  function chow(playerID: string) {
+    alert(playerID);
   }
 
-  function pung(playerID: string){
-    alert(playerID)
+  function pung(playerID: string) {
+    alert(playerID);
   }
 
-  function kong(playerID: string){
-    alert(playerID)
+  function kong(playerID: string) {
+    alert(playerID);
   }
 
   return (
@@ -348,9 +348,9 @@ const GameView: FunctionComponent = () => {
             <Deck></Deck>
             <Actions
               playerActions={{
-                "chow": chow, 
-                "pung": pung,
-                "kong": kong
+                chow: chow,
+                pung: pung,
+                kong: kong,
               }}
             />
           </div>
