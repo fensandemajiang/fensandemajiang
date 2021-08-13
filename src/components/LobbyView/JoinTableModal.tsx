@@ -63,8 +63,8 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
           ...useConnectionStore.getState(),
           connectionState: {
             ...useConnectionStore.getState().connectionState,
-            threadId: threadId.toString()
-          }
+            threadId: threadId.toString(),
+          },
         });
       } catch (err) {
         console.log('invalid threadId');
@@ -102,8 +102,8 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
         ...useConnectionStore.getState(),
         connectionState: {
           ...useConnectionStore.getState().connectionState,
-          threadId: threadId.toString()
-        }
+          threadId: threadId.toString(),
+        },
       });
     } catch (err) {
       console.log('invalid threadId');
@@ -147,7 +147,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
     ];
     const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
       async function asyncWrapper() {
-        console.log("hi");
+        console.log('hi');
 
         if (client) {
           try {
@@ -178,7 +178,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
               setHasJoined(false);
               setTableCode('');
             } else if (usersIds.length === 4) {
-              console.log("go");
+              console.log('go');
               // table is full
               // change page and start game
               history.push('/play');

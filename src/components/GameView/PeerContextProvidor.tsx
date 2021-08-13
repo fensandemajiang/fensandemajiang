@@ -33,7 +33,7 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
       try {
         await client.getToken(identity);
       } catch (err) {
-        console.log("could not gen token");
+        console.log('could not gen token');
       }
     }
     init();
@@ -73,7 +73,9 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
         // send data to db for user with current id
         // might be able batch inserts into the db to increase efficiency
         async function asyncWrapper() {
-          const threadId = ThreadID.fromString(useConnectionStore.getState().connectionState.threadId);
+          const threadId = ThreadID.fromString(
+            useConnectionStore.getState().connectionState.threadId,
+          );
           // add the entry to the db
           const connectDetail: DbConnectDetail = {
             from: userID,
@@ -110,12 +112,14 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
       const id = signalIDs[idInd];
       // wait until corresponding entry appears in db
       // check every second
-      if (signalIDs[idInd] !== userID) { // wait for response, if it's not yourself
+      if (signalIDs[idInd] !== userID) {
+        // wait for response, if it's not yourself
         checkArr.push(
           window.setInterval(() => {
             async function asyncWrapper() {
               console.log('ping for response', id);
-              const thread = useConnectionStore.getState().connectionState.threadId;
+              const thread =
+                useConnectionStore.getState().connectionState.threadId;
               const threadId = ThreadID.fromString(thread);
 
               const query: Query = new Where('from')
@@ -128,7 +132,7 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
                 query,
               );
 
-              console.log("found", foundData);
+              console.log('found', foundData);
 
               if (foundData.length > 0) {
                 const partnerSignalDataObj: DbConnectDetail = foundData[0];

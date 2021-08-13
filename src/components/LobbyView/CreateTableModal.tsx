@@ -25,7 +25,9 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [createListener, setCreateListener] = useState<any>(null);
-  const { client, identity } = useConnectionStore(state => state.connectionState);
+  const { client, identity } = useConnectionStore(
+    (state) => state.connectionState,
+  );
 
   useEffect(() => {
     async function createTable() {
@@ -42,8 +44,8 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           ...useConnectionStore.getState(),
           connectionState: {
             ...useConnectionStore.getState().connectionState,
-            threadId: threadId.toString()
-          }
+            threadId: threadId.toString(),
+          },
         });
 
         setTableCode(threadId.toString());
@@ -97,7 +99,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
               }
               asyncWrapper();
             }
-          }
+          },
         );
 
         setCreateListener(listen);
