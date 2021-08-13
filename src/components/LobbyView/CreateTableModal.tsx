@@ -11,7 +11,12 @@ import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
-function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
+type CreateTableModalProps = {
+  open: boolean;
+  hitClose: () => void;
+};
+
+const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: { open: boolean; hitClose: () => void }) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
@@ -50,13 +55,14 @@ function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
         const insertPlayer: DbConnectionPlayer = {
           playerId: userId,
           ready: false,
+          _id: ''
         };
         await client.create(threadId, 'playerId', [insertPlayer]);
         setPlayerCount(1);
 
         const listenFilters: Filter[] = [
           { collectionName: 'playerId' },
-          { actionTypes: ['CREATE'] },
+          { actionTypes: ['CREATE', 'DELETE'] },
         ];
         const listen = client.listen(threadId, listenFilters, (reply, err) => {
           async function asyncWrapper() {
@@ -79,7 +85,7 @@ function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
                 },
               });
 
-              setPlayerCount(playerCount + 1);
+              setPlayerCount(usersIds.length);
 
               // table is full
               if (usersIds.length === 4) {
@@ -133,6 +139,10 @@ function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
     for (let i = 0; i < collections.length; i++) {
       if (collections[i].name === 'playerId') {
         console.log('delete playerId');
+
+        const allEntries: DbConnectionPlayer[] = await client.find(threadId, 'playerId', {});
+        const allIds = allEntries.map(e => e._id);
+        await client.delete(threadId, 'playerId', allIds);
         await client.deleteCollection(threadId, 'playerId');
       } else if (collections[i].name === 'connectDetail') {
         console.log('delete connectDetail');
@@ -185,7 +195,7 @@ function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
@@ -202,7 +212,7 @@ function CreateTableModal(props: { open: boolean; hitClose: () => void }) {
 
                       <div className="flex my-4 shadow rounded">
                         <div
-                          className="appearance-none border w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                          className="appearance-none border w-full py-2 px-3 break-all text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                           id="username"
                         >
                           {' '}

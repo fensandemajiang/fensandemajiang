@@ -16,12 +16,13 @@ type JoinTableModalProps = {
   hitClose: () => void;
 };
 
-function JoinTableModal(props: { open: boolean; hitClose: () => void }): FunctionComponent<JoinTableModalProps> {
+const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: { open: boolean; hitClose: () => void }) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
+  const [createListener, setCreateListener] = useState(undefined);
   const { client, identity } = useConnectionStore((s) => s.connectionState);
 
   useEffect(() => {
@@ -45,11 +46,22 @@ function JoinTableModal(props: { open: boolean; hitClose: () => void }): Functio
     //we didn't create table
     //the person who created the table should be responsible for the db
     //so we don't delete anything
+    props.hitClose();
     setTableCode('');
     setPlayerCount(0);
 
-    setHasJoined(false);
-    props.hitClose();
+    if (hasJoined) {
+      // @ts-ignore
+      createListener.close();
+
+      // delete yourself from db
+      await client.getToken(identity);
+      const playerIdData: DbConnectionPlayer[] = await client.find(threadId, 'playerId', {});
+      const userId = useConnectionStore.getState().connectionState.userID;
+      const idToDelete = playerIdData.filter(d => d._id === userId).map(d => d._id);
+      await client.delete(threadId, 'playerId', idToDelete);
+      setHasJoined(false);
+    }
   }
 
   async function joinTable() {
@@ -60,6 +72,7 @@ function JoinTableModal(props: { open: boolean; hitClose: () => void }): Functio
     const insertPlayer: DbConnectionPlayer = {
       playerId: userId,
       ready: false,
+      _id: ''
     };
     await client.create(threadId, 'playerId', [insertPlayer]);
 
@@ -83,9 +96,9 @@ function JoinTableModal(props: { open: boolean; hitClose: () => void }): Functio
 
     const listenFilters: Filter[] = [
       { collectionName: 'playerId' },
-      { actionTypes: ['CREATE'] },
+      { actionTypes: ['CREATE', 'DELETE'] },
     ];
-    client.listen(threadId, listenFilters, (reply, err) => {
+    const listen = client.listen(threadId, listenFilters, (reply, err) => {
       async function asyncWrapper() {
         if (client) {
           const data: DbConnectionPlayer[] = await client.find(
@@ -105,10 +118,13 @@ function JoinTableModal(props: { open: boolean; hitClose: () => void }): Functio
             },
           });
 
-          setPlayerCount(playerCount + 1);
+          setPlayerCount(usersIds.length);
 
-          // table is full
-          if (usersIds.length === 4) {
+          if (usersIds.length === 0) { // table was deleted
+            alert("Table was closed by owner");
+            setHasJoined(false);
+            setTableCode("");
+          } else if (usersIds.length === 4) { // table is full
             const myId = useConnectionStore.getState().connectionState.userID;
             for (let i = 0; i < 4; i++) {
               if (data[i].playerId === myId) data[i].ready = true;
@@ -122,6 +138,9 @@ function JoinTableModal(props: { open: boolean; hitClose: () => void }): Functio
       }
       asyncWrapper();
     });
+
+    // @ts-ignore
+    setCreateListener(listen);
 
     setHasJoined(true);
   }

@@ -10,6 +10,7 @@ export interface DbConnectDetail {
 export interface DbConnectionPlayer {
   playerId: string;
   ready: boolean;
+  _id: string;
 }
 
 import type { Client, Identity } from '@textile/hub';
