@@ -6,7 +6,6 @@ import MoreTile from './MoreTile/MoreTile';
 import './Board.css';
 
 function Board(props: InferProps<typeof Board.propTypes>) {
-
   return (
     <>
       <div className="board-container">

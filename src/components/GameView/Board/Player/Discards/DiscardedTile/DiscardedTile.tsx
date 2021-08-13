@@ -15,9 +15,9 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
 
   let img;
   if (typeof props.type == 'number') {
-    img = <img src={images[props.type]} className={"small-tile-image "}></img>;
+    img = <img src={images[props.type]} className={'small-tile-image '}></img>;
   } else {
-    img = <div className={"no-image "}></div>;
+    img = <div className={'no-image '}></div>;
   }
 
   return (

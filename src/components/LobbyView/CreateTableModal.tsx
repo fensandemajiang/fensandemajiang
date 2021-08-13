@@ -60,45 +60,49 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           { collectionName: 'playerId' },
           { actionTypes: ['CREATE', 'DELETE'] },
         ];
-        const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
-          async function asyncWrapper() {
-            if (client) {
-              const data: DbConnectionPlayer[] = await client.find(
-                threadId,
-                'playerId',
-                {},
-              );
+        const listen: any = client.listen(
+          threadId,
+          listenFilters,
+          (reply, err) => {
+            async function asyncWrapper() {
+              if (client) {
+                const data: DbConnectionPlayer[] = await client.find(
+                  threadId,
+                  'playerId',
+                  {},
+                );
 
-              const usersIds: string[] = data.map(
-                (val: DbConnectionPlayer) => val.playerId,
-              );
+                const usersIds: string[] = data.map(
+                  (val: DbConnectionPlayer) => val.playerId,
+                );
 
-              useConnectionStore.setState({
-                ...useConnectionStore.getState(),
-                connectionState: {
-                  ...useConnectionStore.getState().connectionState,
-                  signalIDs: usersIds,
-                },
-              });
+                useConnectionStore.setState({
+                  ...useConnectionStore.getState(),
+                  connectionState: {
+                    ...useConnectionStore.getState().connectionState,
+                    signalIDs: usersIds,
+                  },
+                });
 
-              setPlayerCount(usersIds.length);
+                setPlayerCount(usersIds.length);
 
-              // table is full
-              if (usersIds.length === 4) {
-                const myId =
-                  useConnectionStore.getState().connectionState.userID;
-                for (let i = 0; i < 4; i++) {
-                  if (data[i].playerId === myId) data[i].ready = true;
+                // table is full
+                if (usersIds.length === 4) {
+                  const myId =
+                    useConnectionStore.getState().connectionState.userID;
+                  for (let i = 0; i < 4; i++) {
+                    if (data[i].playerId === myId) data[i].ready = true;
+                  }
+                  await client.save(threadId, 'playerId', data);
+
+                  // change page and start game
+                  history.push('/play');
                 }
-                await client.save(threadId, 'playerId', data);
-
-                // change page and start game
-                history.push('/play');
               }
             }
-          }
-          asyncWrapper();
-        });
+            asyncWrapper();
+          },
+        );
 
         setCreateListener(listen);
       }
