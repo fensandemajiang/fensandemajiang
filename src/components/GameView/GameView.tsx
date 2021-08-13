@@ -320,7 +320,7 @@ const GameView: FunctionComponent = () => {
     }
   }, [gameState, peers]);
 
-  function discard(tile, playerID){
+  function discard(tile: Tile, playerID: string){
 
   }
 
@@ -328,11 +328,11 @@ const GameView: FunctionComponent = () => {
     alert(playerID)
   }
 
-  function pung(playerID){
+  function pung(playerID: string){
     alert(playerID)
   }
 
-  function kong(playerID){
+  function kong(playerID: string){
     alert(playerID)
   }
 
@@ -352,8 +352,7 @@ const GameView: FunctionComponent = () => {
                 "pung": pung,
                 "kong": kong
               }}
-            >
-            </Actions>
+            />
           </div>
         </div>
       </div>

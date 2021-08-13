@@ -5,12 +5,12 @@ import { useGameDataStore } from '@utils/store';
 import { GameDataStore } from '@utils/store';
 import './Actions.css';
 
-function Actions(props: InferProps<typeof Actions.propTypes>) {
+function Actions(props: { playerActions: any }) {
 
-  const playerID = useGameDataStore().gameDataState.yourPlayerId
+  const playerID: string = useGameDataStore().gameDataState.yourPlayerId
 
   const getAction = (actionName : string) => {
-    if(props.playerActions){
+    if(props && props.playerActions){
       return props.playerActions[actionName] ? () => props.playerActions[actionName](playerID) : () => {}
     }
   }
