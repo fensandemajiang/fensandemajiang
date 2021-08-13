@@ -15,6 +15,11 @@ import { PeerContext } from './PeerContextProvidor';
 import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
+import Board from './Board/Board';
+import Actions from './Actions/Actions';
+import Deck from './Deck/Deck';
+import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
+import GameOverModal from './GameOverModal';
 
 const GameView: FunctionComponent = () => {
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
@@ -154,6 +159,7 @@ const GameView: FunctionComponent = () => {
             const drawnCard: Tile = newDeck[newDeck.length - 1]; // TODO: check deck is empty and if so, end the game
             newDeck = newDeck.slice(0, newDeck.length - 1); // remove last element
             newHand.push(drawnCard);
+            // display new hand
 
             // do we even need to update store here? probably not necessary so will remove for now
             /*
@@ -314,7 +320,45 @@ const GameView: FunctionComponent = () => {
     }
   }, [gameState, peers]);
 
-  return <div className="mainview">hello world</div>;
+  function discard(tile, playerID){
+
+  }
+
+  function chow(playerID : string){
+    alert(playerID)
+  }
+
+  function pung(playerID){
+    alert(playerID)
+  }
+
+  function kong(playerID){
+    alert(playerID)
+  }
+
+  return (
+    <>
+      <div className="game-view-container">
+        <Sidebar></Sidebar>
+        <div className="game-view-right">
+          <div className="game-view-top">
+            <Board></Board>
+          </div>
+          <div className="game-view-bot">
+            <Deck></Deck>
+            <Actions
+              playerActions={{
+                "chow": chow, 
+                "pung": pung,
+                "kong": kong
+              }}
+            >
+            </Actions>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 };
 
 export default GameView;

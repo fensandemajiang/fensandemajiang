@@ -1,9 +1,15 @@
-import React, { createContext, ReactChild, ReactElement } from 'react';
+import React, {
+  useState,
+  createContext,
+  ReactChild,
+  ReactElement,
+} from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { processReceivedData } from './playerActions';
-import { UserConnectionState } from '../../types';
-import type { ConnectionState } from '../../types';
+//import { UserConnectionState } from '../../types';
+import { Identity, ThreadID, Query, Where } from '@textile/hub';
+import type { ConnectionState, DbConnectDetail } from '../../types';
 
 type Props = {
   children?: ReactChild | ReactChild[];
@@ -18,33 +24,22 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
     useConnectionStore.getState().connectionState;
   const signalIDs: string[] = connState.signalIDs;
   const userID: string = connState.userID;
+  const client = connState.client;
+  const identity = connState.identity;
+  const [hasInit, setHasInit] = useState(false);
 
-  const setConnectionState = (
-    state: UserConnectionState,
-    ind: number,
-  ): void => {
-    const newUserConnectionState = [
-      ...useConnectionStore.getState().connectionState.userConnectionState,
-    ];
-    newUserConnectionState[ind] = state;
-
-    useConnectionStore.setState({
-      ...useConnectionStore.getState(),
-      connectionState: {
-        ...useConnectionStore.getState().connectionState,
-        userConnectionState: newUserConnectionState,
-      },
-    });
-  };
-
+  // TODO FIX THIS GARBAGE
+  // There's a pretty big flaw with this, that will occur when react strict mode is enabled.
+  // Every time PeerContext gets rendered, it will create a new set of peers
+  // However, the old set of peers will not get destructed (since the timers below are still running, and thus still pointing to it)
+  // this causes a memory leak, and an issue where there will be duplicate peers
   const peers: { [userId: string]: SimplePeer.Instance } = {};
-  // create signals first before receiving to reduce waiting time
-  // create and send relevant signals
-  for (let idInd = 0; idInd < signalIDs.length; idInd++) {
-    const id = signalIDs[idInd];
-    const currUserConnectionState =
-      useConnectionStore.getState().connectionState.userConnectionState[idInd];
-    if (currUserConnectionState === UserConnectionState.NotConnected) {
+  if (!hasInit) {
+    console.log('render meeeeeeeeee');
+    // create signals first before receiving to reduce waiting time
+    // create and send relevant signals
+    for (let idInd = 0; idInd < signalIDs.length; idInd++) {
+      const id = signalIDs[idInd];
       if (userID < id) {
         // we init
         console.log('init: sending to', id);
@@ -52,7 +47,6 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
           initiator: true,
           trickle: false,
         });
-        setConnectionState(UserConnectionState.AwaitingResponse, idInd);
       } else if (userID > id) {
         // partner inits
         console.log('init: receiving from', id);
@@ -60,12 +54,32 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
           initiator: false,
           trickle: false,
         });
-        setConnectionState(UserConnectionState.AwaitingOffer, idInd);
+      } else {
+        continue;
       }
 
       peers[id].on('signal', (data) => {
         // send data to db for user with current id
         // might be able batch inserts into the db to increase efficiency
+        async function asyncWrapper() {
+          await client.getToken(identity); // auth
+          const dbList = await client.listDBs(); // get list of all db, we need the thread id of the table db
+          const [tableDb] = dbList.filter((db) => db.name === 'table');
+          // this should always be true cause we just filtered above, this if statement is to make ts happy
+          if (tableDb.name) {
+            const threadId = ThreadID.fromString(tableDb.name);
+            // add the entry to the db
+            const connectDetail: DbConnectDetail = {
+              from: userID,
+              to: id,
+              data: JSON.stringify(data),
+            };
+            await client.create(threadId, 'connectDetail', [connectDetail]);
+          }
+        }
+
+        console.log('adding to db', userID, id);
+        asyncWrapper();
         console.log(data);
       });
 
@@ -81,37 +95,48 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
           gameDataState: newDataStore,
         });
       });
+      //}
     }
-  }
 
-  // respond to signals
-  const checkArr: number[] = []; // store intervals
-  for (let idInd = 0; idInd < signalIDs.length; idInd++) {
-    const id = signalIDs[idInd];
-    const currUserConnectionState =
-      useConnectionStore.getState().connectionState.userConnectionState[idInd];
-    if (
-      userID > id &&
-      currUserConnectionState !== UserConnectionState.Connected
-    ) {
+    // respond to signals
+    const checkArr: number[] = []; // store intervals
+    for (let idInd = 0; idInd < signalIDs.length; idInd++) {
+      const id = signalIDs[idInd];
       // wait until corresponding entry appears in db
-
       // check every second
       checkArr.push(
         window.setInterval(() => {
-          setConnectionState(UserConnectionState.Connected, idInd);
-          console.log('ping for response', id);
-          /*
-          if (false) {
-            // entry in db
-            const partnerSignalData = ''; // get value from db
-            peers[signalIDs[idInd]].signal(JSON.parse(partnerSignalData)); // send response acknowledging connection to opp
-            clearInterval(checkArr[idInd]);
+          async function asyncWrapper() {
+            console.log('ping for response', id);
+            await client.getToken(identity); // auth
+            const dbList = await client.listDBs(); // get list of all db, we need the thread id of the table db
+            const [tableDb] = dbList.filter((db) => db.name === 'table');
+            // this should always be true cause we just filtered above, this if statement is to make ts happy
+            if (tableDb.name) {
+              const threadId = ThreadID.fromString(tableDb.id);
+              const query: Query = new Where('from')
+                .eq(id)
+                .and('to')
+                .eq(userID);
+              const foundData: DbConnectDetail[] = await client.find(
+                threadId,
+                'connectDetail',
+                query,
+              );
+
+              if (foundData.length > 0) {
+                const partnerSignalDataObj: DbConnectDetail = foundData[0];
+                const partnerSignalData: string = partnerSignalDataObj.data;
+                peers[signalIDs[idInd]].signal(JSON.parse(partnerSignalData)); // send response acknowledging connection to opp
+                clearInterval(checkArr[idInd]);
+              }
+            }
           }
-          */
+          asyncWrapper();
         }, 1000),
       );
     }
+    setHasInit(true);
   }
 
   return <PeerContext.Provider value={peers}>{children}</PeerContext.Provider>;

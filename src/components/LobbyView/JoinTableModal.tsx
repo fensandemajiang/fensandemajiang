@@ -6,35 +6,35 @@ import React, {
   FunctionComponent,
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Filter, Identity, Client, ThreadID } from '@textile/hub';
+import { Filter, Identity, Client, ThreadID, DBInfo } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 
 type JoinTableModalProps = {
-  client: Client | undefined;
-  identity: Identity | undefined;
   open: boolean;
   hitClose: () => void;
 };
 
-const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
-  client,
-  identity,
-  open,
-  hitClose,
-}: JoinTableModalProps) => {
+const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
+  open: boolean;
+  hitClose: () => void;
+}) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
-  const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
+  //const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
+  const [createListener, setCreateListener] = useState(undefined);
+  const { client, identity } = useConnectionStore((s) => s.connectionState);
 
   useEffect(() => {
-    async function asyncWrapper() {
-      await init();
+    async function init() {
+      if (props.open) {
+        await client.getToken(identity);
+      }
     }
-    asyncWrapper();
+    init();
 
     useConnectionStore.setState({
       ...useConnectionStore.getState(),
@@ -43,86 +43,98 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
         userID: useUserStore.getState().userState.did?.id ?? '',
       },
     });
-  }, [open]);
-
-  async function init() {
-    if (client && identity) {
-      await client.getToken(identity);
-    }
-  }
+  }, [props.open, client, identity]);
 
   async function close() {
-    //check if collections were created, if so delete them
+    //we didn't create table
+    //the person who created the table should be responsible for the db
+    //so we don't delete anything
+    props.hitClose();
+    setTableCode('');
+    setPlayerCount(0);
 
-    /*
-    const client = client;
-    if (client) {
-      const collections = await client.listCollections(threadId);
+    if (hasJoined) {
+      let threadId = ThreadID.fromRandom();
 
-      for (let i = 0; i < collections.length; i++) {
-        if (collections[i].name === "playerId") {
-          console.log("delete playerId");
-          await client.deleteCollection(threadId, "playerId");
-        } else if (collections[i].name === "connectDetail") {
-          console.log("delete connectDetail");
-          await client.deleteCollection(threadId, "connectDetail");
-        }
+      try {
+        threadId = ThreadID.fromString(tableCode);
+        const playerIds = await client.find(threadId, 'playerId', {});
+      } catch (err) {
+        console.log('invalid threadId');
+        return;
       }
 
-    }
-*/
-    if (client) {
-      setTableCode('');
-      setPlayerCount(0);
-    }
+      createListener.close();
 
-    hitClose();
-  }
-
-  async function joinTable() {
-    if (client && identity) {
-      await client.joinFromInfo(JSON.parse(tableCode));
-
-      const userId: string =
-        useUserStore.getState().userState.did?.id ?? 'playerx';
-      const insertPlayer: DbConnectionPlayer = {
-        playerId: userId,
-        ready: false,
-      };
-      await client.create(threadId, 'playerId', [insertPlayer]);
-
-      const data: DbConnectionPlayer[] = await client.find(
+      // delete yourself from db
+      await client.getToken(identity);
+      const playerIdData: DbConnectionPlayer[] = await client.find(
         threadId,
         'playerId',
         {},
       );
-      const playersAtTable: string[] = data.map(
-        (p: DbConnectionPlayer) => p.playerId,
-      );
-      useConnectionStore.setState({
-        ...useConnectionStore.getState(),
-        connectionState: {
-          ...useConnectionStore.getState().connectionState,
-          signalIDs: playersAtTable,
-        },
-      });
+      const userId = useConnectionStore.getState().connectionState.userID;
+      console.log(playerIdData);
+      const idToDelete = playerIdData
+        .filter((d) => d.playerId === userId)
+        .map((d) => d._id)[0];
+      console.log('deleting', idToDelete);
+      await client.delete(threadId, 'playerId', [idToDelete]);
+      setHasJoined(false);
+    }
+  }
 
-      setPlayerCount(playersAtTable.length);
+  async function joinTable() {
+    let threadId = ThreadID.fromRandom();
 
-      const listenFilters: Filter[] = [
-        { collectionName: 'playerId' },
-        { actionTypes: ['CREATE'] },
-      ];
-      client.listen(threadId, listenFilters, (reply, err) => {
-        async function asyncWrapper() {
-          if (client) {
+    try {
+      threadId = ThreadID.fromString(tableCode);
+      const playerIds = await client.find(threadId, 'playerId', {});
+    } catch (err) {
+      console.log('invalid threadId');
+      return;
+    }
+
+    const userId: string =
+      useUserStore.getState().userState.did?.id ?? 'playerx';
+    const insertPlayer: DbConnectionPlayer = {
+      playerId: userId,
+      ready: false,
+      _id: '',
+    };
+    await client.create(threadId, 'playerId', [insertPlayer]);
+
+    const data: DbConnectionPlayer[] = await client.find(
+      threadId,
+      'playerId',
+      {},
+    );
+    const playersAtTable: string[] = data.map(
+      (p: DbConnectionPlayer) => p.playerId,
+    );
+    useConnectionStore.setState({
+      ...useConnectionStore.getState(),
+      connectionState: {
+        ...useConnectionStore.getState().connectionState,
+        signalIDs: playersAtTable,
+      },
+    });
+
+    setPlayerCount(playersAtTable.length);
+
+    const listenFilters: Filter[] = [
+      { collectionName: 'playerId' },
+      { actionTypes: ['CREATE', 'DELETE'] },
+    ];
+    const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
+      async function asyncWrapper() {
+        if (client) {
+          try {
             const data: DbConnectionPlayer[] = await client.find(
               threadId,
               'playerId',
               {},
             );
-            const connectionStore =
-              useConnectionStore.getState().connectionState;
             const usersIds: string[] = data.map(
               (val: DbConnectionPlayer) => val.playerId,
             );
@@ -135,10 +147,15 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
               },
             });
 
-            setPlayerCount(playerCount + 1);
+            setPlayerCount(usersIds.length);
 
-            // table is full
-            if (usersIds.length === 4) {
+            if (usersIds.length === 0) {
+              // table was deleted
+              alert('Table was closed by owner');
+              setHasJoined(false);
+              setTableCode('');
+            } else if (usersIds.length === 4) {
+              // table is full
               const myId = useConnectionStore.getState().connectionState.userID;
               for (let i = 0; i < 4; i++) {
                 if (data[i].playerId === myId) data[i].ready = true;
@@ -148,22 +165,29 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
               // change page and start game
               history.push('/play');
             }
+          } catch (err) {
+            setHasJoined(false);
+            setTableCode('');
           }
         }
-        asyncWrapper();
-      });
-    }
+      }
+      asyncWrapper();
+    });
+
+    setCreateListener(listen);
+
+    setHasJoined(true);
   }
 
   return (
-    <Transition.Root show={open} as={Fragment}>
+    <Transition.Root show={props.open} as={Fragment}>
       <Dialog
         as="div"
         static
         className="fixed z-10 inset-0 overflow-y-auto"
         initialFocus={cancelButtonRef}
-        open={open}
-        onClose={hitClose}
+        open={props.open}
+        onClose={props.hitClose}
       >
         <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
           <Transition.Child
@@ -218,7 +242,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = ({
                           onChange={(e) => setTableCode(e.target.value)}
                         />
                       </div>
-                      {hasJoined ? (
+                      {!hasJoined ? (
                         <p className="text-sm text-gray-500">
                           Once your friends have created a table, they should
                           get a room key, paste it above to join

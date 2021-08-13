@@ -1,0 +1,33 @@
+.discards {
+  display: flex;
+}
+
+.discard-right, 
+.discard-left {
+  width: 85%;
+  height: 80%;
+  flex-direction: column-reverse;
+  flex-wrap: wrap;
+  column-gap: 20px;
+  padding-right: 5%;
+  margin-right: 3%;
+}
+
+.discard-left {
+  flex-direction: column;
+  flex-wrap: wrap-reverse;
+  padding-left: 5%;
+  margin-left: 3%;
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.discard-up {
+  width: 55%;
+  height: 65%;
+  flex-direction: row-reverse;
+  flex-wrap: wrap-reverse;
+  justify-content: flex-end;
+  gap: 5%;
+  padding-top: 1%;
+}

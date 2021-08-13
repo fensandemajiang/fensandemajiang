@@ -1,15 +1,25 @@
 /** https://github.com/Microsoft/TypeScript/issues/29729 */
 export type LiteralUnion<T extends U, U> = T | (U & {});
 
+export interface DbConnectDetail {
+  to: string;
+  from: string;
+  data: string;
+}
+
 export interface DbConnectionPlayer {
   playerId: string;
   ready: boolean;
+  _id: string;
 }
 
+import type { Client, Identity } from '@textile/hub';
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
   userConnectionState: UserConnectionState[];
+  client: Client;
+  identity: Identity;
 }
 export enum UserConnectionState {
   Connected,

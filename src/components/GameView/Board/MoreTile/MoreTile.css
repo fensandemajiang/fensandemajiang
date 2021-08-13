@@ -1,0 +1,8 @@
+.more-tile-container {
+  height: 20%;
+  width: 20%;
+  background-color: white;
+  position: absolute;
+  left: 40%;
+  bottom: 20%;
+}

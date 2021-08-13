@@ -1,0 +1,14 @@
+.deck-container {
+  height: 85%;
+  width: 85%;
+}
+
+.deck {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 1em;
+  height: 100%;
+  width: 100%;
+}
