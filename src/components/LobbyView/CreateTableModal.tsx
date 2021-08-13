@@ -25,13 +25,13 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
   const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [createListener, setCreateListener] = useState<any>(null);
-  const { client, identity } = useConnectionStore(
-    (state) => state.connectionState,
-  );
+  const { client, identity } = useConnectionStore(state => state.connectionState);
 
   useEffect(() => {
     async function createTable() {
       if (props.open && playerCount === 0) {
+        //const client = useConnectionStore.getState().connectionState.client;
+        //const identity = useConnectionStore.getState().connectionState.identity;
         setTableCode('loading...');
 
         const tok = await client.getToken(identity);
@@ -40,9 +40,14 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
         await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
         await client.newCollection(threadId, { name: 'connectDetail' }); // creates separate collection for players to place their signal data for p2p
 
-        //const dbInfo = await client.getDBInfo(threadId);
-        //setTableCode(JSON.stringify(dbInfo)); // maybe we should hash this?
-        //console.log(threadId.toString());
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            threadId: threadId.toString()
+          }
+        });
+
         setTableCode(threadId.toString());
 
         const userId: string =
@@ -80,18 +85,12 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
                   signalIDs: usersIds,
                 },
               });
+              console.log(usersIds);
 
               setPlayerCount(usersIds.length);
 
               // table is full
               if (usersIds.length === 4) {
-                const myId =
-                  useConnectionStore.getState().connectionState.userID;
-                for (let i = 0; i < 4; i++) {
-                  if (data[i].playerId === myId) data[i].ready = true;
-                }
-                await client.save(threadId, 'playerId', data);
-
                 // change page and start game
                 history.push('/play');
               }
@@ -102,14 +101,6 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
 
         setCreateListener(listen);
       }
-
-      useConnectionStore.setState({
-        ...useConnectionStore.getState(),
-        connectionState: {
-          ...useConnectionStore.getState().connectionState,
-          userID: useUserStore.getState().userState.did?.id ?? '',
-        },
-      });
     }
     createTable();
 
@@ -120,10 +111,11 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
         userID: useUserStore.getState().userState.did?.id ?? '',
       },
     });
-  }, [props.open, client, identity, threadId, playerCount]);
+  }, [props.open, threadId, playerCount]);
 
   async function close() {
     //check if collections were created, if so delete them
+    //const client = useConnectionStore.getState().connectionState.client;
     props.hitClose();
     setPlayerCount(0);
     const collections = await client.listCollections(threadId);

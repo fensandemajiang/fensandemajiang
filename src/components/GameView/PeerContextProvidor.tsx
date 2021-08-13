@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
   createContext,
   ReactChild,
   ReactElement,
@@ -7,7 +8,6 @@ import React, {
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { processReceivedData } from './playerActions';
-//import { UserConnectionState } from '../../types';
 import { Identity, ThreadID, Query, Where } from '@textile/hub';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
@@ -27,6 +27,17 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
   const client = connState.client;
   const identity = connState.identity;
   const [hasInit, setHasInit] = useState(false);
+
+  useEffect(() => {
+    async function init() {
+      try {
+        await client.getToken(identity);
+      } catch (err) {
+        console.log("could not gen token");
+      }
+    }
+    init();
+  }, []);
 
   // TODO FIX THIS GARBAGE
   // There's a pretty big flaw with this, that will occur when react strict mode is enabled.
@@ -62,20 +73,15 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
         // send data to db for user with current id
         // might be able batch inserts into the db to increase efficiency
         async function asyncWrapper() {
-          await client.getToken(identity); // auth
-          const dbList = await client.listDBs(); // get list of all db, we need the thread id of the table db
-          const [tableDb] = dbList.filter((db) => db.name === 'table');
-          // this should always be true cause we just filtered above, this if statement is to make ts happy
-          if (tableDb.name) {
-            const threadId = ThreadID.fromString(tableDb.name);
-            // add the entry to the db
-            const connectDetail: DbConnectDetail = {
-              from: userID,
-              to: id,
-              data: JSON.stringify(data),
-            };
-            await client.create(threadId, 'connectDetail', [connectDetail]);
-          }
+          const threadId = ThreadID.fromString(useConnectionStore.getState().connectionState.threadId);
+          // add the entry to the db
+          const connectDetail: DbConnectDetail = {
+            from: userID,
+            to: id,
+            data: JSON.stringify(data),
+          };
+          await client.create(threadId, 'connectDetail', [connectDetail]);
+          //}
         }
 
         console.log('adding to db', userID, id);
@@ -104,16 +110,14 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
       const id = signalIDs[idInd];
       // wait until corresponding entry appears in db
       // check every second
-      checkArr.push(
-        window.setInterval(() => {
-          async function asyncWrapper() {
-            console.log('ping for response', id);
-            await client.getToken(identity); // auth
-            const dbList = await client.listDBs(); // get list of all db, we need the thread id of the table db
-            const [tableDb] = dbList.filter((db) => db.name === 'table');
-            // this should always be true cause we just filtered above, this if statement is to make ts happy
-            if (tableDb.name) {
-              const threadId = ThreadID.fromString(tableDb.id);
+      if (signalIDs[idInd] !== userID) { // wait for response, if it's not yourself
+        checkArr.push(
+          window.setInterval(() => {
+            async function asyncWrapper() {
+              console.log('ping for response', id);
+              const thread = useConnectionStore.getState().connectionState.threadId;
+              const threadId = ThreadID.fromString(thread);
+
               const query: Query = new Where('from')
                 .eq(id)
                 .and('to')
@@ -124,6 +128,8 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
                 query,
               );
 
+              console.log("found", foundData);
+
               if (foundData.length > 0) {
                 const partnerSignalDataObj: DbConnectDetail = foundData[0];
                 const partnerSignalData: string = partnerSignalDataObj.data;
@@ -131,10 +137,10 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
                 clearInterval(checkArr[idInd]);
               }
             }
-          }
-          asyncWrapper();
-        }, 1000),
-      );
+            asyncWrapper();
+          }, 1000),
+        );
+      }
     }
     setHasInit(true);
   }
