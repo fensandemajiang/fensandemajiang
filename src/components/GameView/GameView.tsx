@@ -6,7 +6,7 @@ import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
-import type { PlayerAction } from '../../types';
+import { PlayerAction, ActionType } from '../../types';
 
 const GameView: FunctionComponent = () => {
   const connectionStore = useConnectionStore(
@@ -20,7 +20,12 @@ const GameView: FunctionComponent = () => {
       console.log(tileType, tileIndex);
     }
     // placeholder
-    const stateTransition: PlayerAction = {};
+    const stateTransition: PlayerAction = {
+      action: ActionType.PlaceTile,
+      body: {
+        
+      }
+    };
     updateGameDataStateAndLog(
       gameDataState,
       stateTransition,
