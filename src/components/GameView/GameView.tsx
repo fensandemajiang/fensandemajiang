@@ -85,8 +85,8 @@ const GameView: FunctionComponent = () => {
     // edge case I thought of a few days ago, but that I can't remember anymore. I guess this is what you
     // get when you hackathon stuff together.
     if (
-      gameState.currentState === GameState.ShuffleDeck &&
-      gameState.playerWithDeck !== ''
+      gameState.currentState === GameState.ShuffleDeck
+      //&& gameState.playerWithDeck !== ''
     ) {
       let newCurrentPlayerInd = gameState.currentPlayerIndex + 1;
       let newCurrentPlayerId = gameState.allPlayerIds[newCurrentPlayerInd];
@@ -112,7 +112,7 @@ const GameView: FunctionComponent = () => {
           giveDeck(peers, newDeck, '');
 
           // game state is updated, game begins
-          updateGameState(peers, GameState.DrawPlayCard);
+          // updateGameState(peers, GameState.DrawPlayCard);
         } else {
           // give deck to next player
           giveDeck(peers, newDeck, newCurrentPlayerId);

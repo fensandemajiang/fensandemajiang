@@ -1,4 +1,4 @@
-import { Action, Suite } from '../../types';
+import { ActionType, Suite } from '../../types';
 import type { Tile } from '../../types';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
@@ -15,12 +15,12 @@ export function tileEqual(tile1: Tile, tile2: Tile): boolean {
 // assumes the newTile is already in hand
 export function findGrouping(
   hand: Tile[],
-  action: Action,
+  action: ActionType,
   newTile: Tile,
 ): number[][] {
   const out: number[][] = [];
   if (
-    action === Action.Chi &&
+    action === ActionType.Chi &&
     newTile.suite in [Suite.Tiao, Suite.Wan, Suite.Tong]
   ) {
     const buckets: { [key: number]: number[] } = {};
@@ -45,7 +45,7 @@ export function findGrouping(
 
     if (buckets[tVal + 1] && buckets[tVal + 2])
       out.push([buckets[tVal][0], buckets[tVal + 1][0], buckets[tVal + 2][0]]);
-  } else if (action === Action.Gang || action === Action.Peng) {
+  } else if (action === ActionType.Gang || action === ActionType.Peng) {
     const inner = [];
     for (let i = 0; i < hand.length; i++) {
       if (tileEqual(hand[i], newTile)) {
