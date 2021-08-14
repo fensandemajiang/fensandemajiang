@@ -31,6 +31,9 @@ export enum UserConnectionState {
   AwaitingOffer,
   AwaitingResponse,
 }
+export interface Score {
+  [userId: string]: number;
+}
 
 export interface GameDataState {
   deck: Tile[];
@@ -46,6 +49,7 @@ export interface GameDataState {
   roundNumber: number;
   //playerWithDeck: string; // empty string or null if no player has deck
   previousIpfsCid: string;
+  score: Score;
 }
 
 export interface ImageMetadata {

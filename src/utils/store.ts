@@ -93,6 +93,7 @@ const initialGameDataState: GameDataState = {
   currentState: GameState.ShuffleDeck,
   roundNumber: 0,
   previousIpfsCid: '',
+  score: {},
 };
 
 export const useGameDataStore = create<GameDataStore>(
