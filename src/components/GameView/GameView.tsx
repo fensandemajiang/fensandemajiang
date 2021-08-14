@@ -1,9 +1,9 @@
 import React, { useEffect, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
 import { compStr, getRandomInt } from '../../utils/utilFunc';
-import { updateGameDataState } from './gameState';
-import { giveDeck, updateGameState, sendHand } from './playerActions';
-import { GameState } from '../../types';
+// import { updateGameDataState } from './gameState';
+// import { giveDeck, updateGameState, sendHand } from './playerActions';
+// import { GameState } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
 import Board from './Board/Board';
@@ -12,6 +12,7 @@ import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 
 const GameView: FunctionComponent = () => {
+  /*
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
   const gameState: GameState = useGameDataStore(
     (state) => state.gameDataState.currentState,
@@ -139,6 +140,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataState(dataStore, gameState, peers);
   }, [gameState]);
 
+  */
   function discard(tileType: number, tileIndex: number) {
     const discard = confirm('discard this tile?');
     if (discard) {

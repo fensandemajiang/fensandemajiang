@@ -92,7 +92,6 @@ const initialGameDataState: GameDataState = {
   currentPlayerIndex: 0,
   currentState: GameState.ShuffleDeck,
   roundNumber: 0,
-  playerWithDeck: '',
   previousIpfsCid: '',
 };
 

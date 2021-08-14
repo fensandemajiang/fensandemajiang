@@ -1,4 +1,4 @@
-import { Action, GameState } from '../../types';
+import { ActionType, GameState } from '../../types';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import type { PlayerAction, Tile, GameDataState } from '../../types';
 
@@ -10,7 +10,7 @@ export function processReceivedData(
 
   switch (receivedData.action) {
     /* this action is probably not needed anymore but keeping this around for now until i'm certain about it
-    case Action.DrawTile:
+    case ActionType.DrawTile:
       if (dataBody.tile) {
         // update store accordingly in zustand
         
@@ -18,7 +18,7 @@ export function processReceivedData(
       return gameDataStore;
       break;
     */
-    case Action.PlaceTile:
+    case ActionType.PlaceTile:
       if (dataBody.tile) {
         const discards = gameDataStore.discards;
         const currPlayer = gameDataStore.currentTurn;
@@ -35,22 +35,25 @@ export function processReceivedData(
         };
       }
       break;
-    case Action.Chi:
+    case ActionType.Chi:
       return gameDataStore;
       break;
-    case Action.Peng:
+    case ActionType.Peng:
       return gameDataStore;
       break;
-    case Action.Gang:
+    case ActionType.Gang:
       return gameDataStore;
       break;
-    case Action.ShowFlower:
+    /*
+    case ActionType.ShowFlower:
       return gameDataStore;
       break;
-    case Action.ReplaceFlower:
+      */
+    case ActionType.ReplaceFlower:
       return gameDataStore;
       break;
-    case Action.GiveDeck:
+    /*
+    case ActionType.GiveDeck:
       if (dataBody.deck && dataBody.playerTo) {
         const newDeckOwner = dataBody.playerTo;
         const newDeck = dataBody.deck;
@@ -58,11 +61,11 @@ export function processReceivedData(
         return {
           ...gameDataStore,
           deck: newDeck,
-          playerWithDeck: newDeckOwner,
+          // playerWithDeck: newDeckOwner,
         };
       }
       break;
-    case Action.GiveHand:
+    case ActionType.GiveHand:
       if (dataBody.deck && dataBody.playerTo) {
         //const toPlayer = dataBody.playerTo; // do we even need playerTo here? i guess we could do another check to see we are the correct recipient...
         const hand = dataBody.deck;
@@ -73,14 +76,15 @@ export function processReceivedData(
         };
       }
       break;
-    case Action.UpdateIpfsCid:
+    case ActionType.UpdateIpfsCid:
       if (dataBody.ipfsCid) {
         return { ...gameDataStore, previousIpfsCid: dataBody.ipfsCid };
       }
       break;
+      */
   }
 
-  console.error('Action not processed properly');
+  console.error('ActionType not processed properly');
   return gameDataStore;
 }
 
@@ -93,44 +97,45 @@ function sendToEveryone(
   }
 }
 
+/*
 export function updateCurrentPlayerIndex(
   peers: { [userId: string]: SimplePeer.Instance },
   currPlayerInd: number,
 ): void {
-  const updateCurrentPlayerIndexAction: PlayerAction = {
-    action: Action.UpdateCurrentPlayerIndex,
+  const updateCurrentPlayerIndexActionType: PlayerAction = {
+    action: ActionType.UpdateCurrentPlayerIndex,
     body: {
       playerIndex: currPlayerInd,
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(updateCurrentPlayerIndexAction));
+  sendToEveryone(peers, JSON.stringify(updateCurrentPlayerIndexActionType));
 }
 
 export function updateGameState(
   peers: { [userId: string]: SimplePeer.Instance },
   gameState: GameState,
 ): void {
-  const updateGameStateAction: PlayerAction = {
-    action: Action.UpdateGameState,
+  const updateGameStateActionType: PlayerAction = {
+    action: ActionType.UpdateGameState,
     body: {
       gameState: gameState,
     },
   };
-  sendToEveryone(peers, JSON.stringify(updateGameStateAction));
+  sendToEveryone(peers, JSON.stringify(updateGameStateActionType));
 }
 
 export function updateIpfsCid(
   peers: { [userId: string]: SimplePeer.Instance },
   ipfsCid: string,
 ): void {
-  const updateIpfsCidAction: PlayerAction = {
-    action: Action.UpdateIpfsCid,
+  const updateIpfsCidActionType: PlayerAction = {
+    action: ActionType.UpdateIpfsCid,
     body: {
       ipfsCid: ipfsCid,
     },
   };
-  sendToEveryone(peers, JSON.stringify(updateIpfsCidAction));
+  sendToEveryone(peers, JSON.stringify(updateIpfsCidActionType));
 }
 
 export function sendHand(
@@ -138,15 +143,15 @@ export function sendHand(
   hand: Tile[],
   toPlayer: string,
 ): void {
-  const giveHandAction: PlayerAction = {
-    action: Action.GiveHand,
+  const giveHandActionType: PlayerAction = {
+    action: ActionType.GiveHand,
     body: {
       deck: hand,
       playerTo: toPlayer, // do we even need playerTo here?
     },
   };
 
-  peers[toPlayer].send(JSON.stringify(giveHandAction));
+  peers[toPlayer].send(JSON.stringify(giveHandActionType));
 }
 
 export function giveDeck(
@@ -154,16 +159,17 @@ export function giveDeck(
   deck: Tile[],
   toPlayer: string,
 ): void {
-  const giveDeckAction: PlayerAction = {
-    action: Action.GiveDeck,
+  const giveDeckActionType: PlayerAction = {
+    action: ActionType.GiveDeck,
     body: {
       deck: deck,
       playerTo: toPlayer,
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(giveDeckAction));
+  sendToEveryone(peers, JSON.stringify(giveDeckActionType));
 }
+*/
 
 /* we don't need to let everyone else know about the card we drew
 export function sendDrawTile(
@@ -171,14 +177,14 @@ export function sendDrawTile(
   tile: Tile,
   wasFlower?: boolean,
 ): void {
-  const drawAction: PlayerAction = {
-    action: wasFlower ? Action.ReplaceFlower : Action.DrawTile,
+  const drawActionType: PlayerAction = {
+    action: wasFlower ? ActionType.ReplaceFlower : ActionType.DrawTile,
     body: {
       tile: tile,
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(drawAction));
+  sendToEveryone(peers, JSON.stringify(drawActionType));
 }
 */
 
@@ -186,24 +192,24 @@ export function sendPlaceTile(
   peers: { [userId: string]: SimplePeer.Instance },
   tile: Tile,
 ): void {
-  const placeAction: PlayerAction = {
-    action: Action.PlaceTile,
+  const placeActionType: PlayerAction = {
+    action: ActionType.PlaceTile,
     body: {
       tile: tile,
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(placeAction));
+  sendToEveryone(peers, JSON.stringify(placeActionType));
 }
 
 export function sendConsumeTile(
   peers: { [userId: string]: SimplePeer.Instance },
-  actionType: Action,
+  actionType: ActionType,
   fromPlayer: string,
   toPlayer: string,
   tile: Tile,
 ): void {
-  const consumeAction: PlayerAction = {
+  const consumeActionType: PlayerAction = {
     action: actionType,
     body: {
       tile: tile,
@@ -212,19 +218,21 @@ export function sendConsumeTile(
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(consumeAction));
+  sendToEveryone(peers, JSON.stringify(consumeActionType));
 }
 
+/*
 export function sendShowFlower(
   peers: { [userId: string]: SimplePeer.Instance },
   tile: Tile,
 ): void {
-  const showFlowerAction: PlayerAction = {
-    action: Action.ShowFlower,
+  const showFlowerActionType: PlayerAction = {
+    action: ActionType.ShowFlower,
     body: {
       tile: tile,
     },
   };
 
-  sendToEveryone(peers, JSON.stringify(showFlowerAction));
+  sendToEveryone(peers, JSON.stringify(showFlowerActionType));
 }
+*/
