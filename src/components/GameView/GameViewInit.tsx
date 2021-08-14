@@ -3,7 +3,7 @@ import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
 import { processReceivedData } from './playerActions';
-import { Identity, ThreadID, Query, Where } from '@textile/hub';
+import { Identity, Update, ThreadID, Filter, Query, Where } from '@textile/hub';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
@@ -16,14 +16,42 @@ const GameViewInit: FunctionComponent = () => {
     const userID: string = connState.userID;
     const client = connState.client;
     const identity = connState.identity;
+    const threadIdString = useConnectionStore.getState().connectionState.threadId;
+    const threadId = ThreadID.fromString(threadIdString);
     async function init() {
       console.log("render meeee");
+      console.log("did", userID);
 
       try {
         await client.getToken(identity);
       } catch (err) {
         console.log('could not get token');
       }
+
+      const listenFilters: Filter[] = [
+        { collectionName: 'connectDetail' },
+        { actionTypes: ['CREATE'] }
+      ];
+      await client.listen(threadId, listenFilters, (update?: Update<DbConnectDetail>) => {
+        async function asyncWrapper() {
+          if (!update || !update.instance) return;
+          /*
+          console.log("------------------");
+          console.log(update.instance._id);
+          console.log(update.instance.data);
+          console.log(update.instance.from);
+          console.log(update.instance.to);
+          console.log("--------------");
+          */
+
+          const inst: DbConnectDetail = update.instance;
+          if (inst.to === userID) {
+            console.log("processing req from", inst.from);
+            peers[inst.from].signal(JSON.parse(inst.data));
+          }
+        }
+        asyncWrapper();
+      });
 
       const peers: { [userId: string]: SimplePeer.Instance } = {};
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
@@ -50,21 +78,18 @@ const GameViewInit: FunctionComponent = () => {
           // send data to db for user with current id
           // might be able batch inserts into the db to increase efficiency
           async function asyncWrapper() {
-            const threadId = ThreadID.fromString(
-              useConnectionStore.getState().connectionState.threadId,
-            );
+            console.log('sending req to', id);
             // add the entry to the db
             const connectDetail: DbConnectDetail = {
               from: userID,
               to: id,
               data: JSON.stringify(data),
+              _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
+            console.log(data);
           }
-
-          console.log('adding to db', userID, id);
           asyncWrapper();
-          console.log(data);
         });
 
         peers[id].on('data', (data) => {
@@ -79,47 +104,6 @@ const GameViewInit: FunctionComponent = () => {
             gameDataState: newDataStore,
           });
         });
-      }
-
-      // respond to signals
-      const checkArr: number[] = []; // store intervals
-      for (let idInd = 0; idInd < signalIDs.length; idInd++) {
-        const id = signalIDs[idInd];
-        // wait until corresponding entry appears in db
-        // check every second
-        if (signalIDs[idInd] !== userID) {
-          // wait for response, if it's not yourself
-          checkArr.push(
-            window.setInterval(() => {
-              async function asyncWrapper() {
-                console.log('ping for response', id);
-                const thread =
-                  useConnectionStore.getState().connectionState.threadId;
-                const threadId = ThreadID.fromString(thread);
-
-                const query: Query = new Where('from')
-                  .eq(id)
-                  .and('to')
-                  .eq(userID);
-                const foundData: DbConnectDetail[] = await client.find(
-                  threadId,
-                  'connectDetail',
-                  query,
-                );
-
-                console.log('found', foundData);
-
-                if (foundData.length > 0) {
-                  const partnerSignalDataObj: DbConnectDetail = foundData[0];
-                  const partnerSignalData: string = partnerSignalDataObj.data;
-                  peers[signalIDs[idInd]].signal(JSON.parse(partnerSignalData)); // send response acknowledging connection to opp
-                  clearInterval(checkArr[idInd]);
-                }
-              }
-              asyncWrapper();
-            }, 1000),
-          );
-        }
       }
 
       useConnectionStore.setState({

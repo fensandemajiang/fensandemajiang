@@ -5,6 +5,7 @@ export interface DbConnectDetail {
   to: string;
   from: string;
   data: string;
+  _id: string;
 }
 
 export interface DbConnectionPlayer {
