@@ -129,6 +129,8 @@ export interface PlayerAction {
     tile?: Tile;
     deck?: Tile[];
     discards?: { [userId: string]: Tile[] };
+    triple?: Tile[]; // used for chi and peng
+    quad?: Tile[]; // used for gang
     playerFrom?: string;
     playerTo?: string;
     gameState?: string;
