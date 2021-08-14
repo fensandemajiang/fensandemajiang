@@ -1,11 +1,15 @@
-import React, { FunctionComponent } from 'react';
+import React, { useEffect, FunctionComponent } from 'react';
 import './GameView.css';
 import Board from './Board/Board';
 import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
+import { useConnectionStore } from '../../utils/store';
 
 const GameView: FunctionComponent = () => {
+  const connectionStore = useConnectionStore(state => state.connectionState.userConnectedCount);
+  
+
   function discard(tileType: number, tileIndex: number) {
     const discard = confirm('discard this tile?');
     if (discard) {
