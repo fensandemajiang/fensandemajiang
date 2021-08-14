@@ -59,7 +59,11 @@ const GameView: FunctionComponent = () => {
 
       newDeck = randomizeDeck(useGameDataStore.getState().gameDataState.deck);
       const nextPlayer: string = currentPlayerId;
-      giveDeck(useConnectionStore.getState().connectionState.peers, newDeck, nextPlayer);
+      giveDeck(
+        useConnectionStore.getState().connectionState.peers,
+        newDeck,
+        nextPlayer,
+      );
     }
 
     // update deck
