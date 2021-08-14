@@ -118,7 +118,9 @@ function chi(
     0,
     currentPlayerDiscards.length - 1,
   );
-  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const newDiscards: { [userId: string]: Tile[] } = {
+    ...gameDataState.discards,
+  };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
   const newDisplay: Tile[] = [...stateTransition.body.triple];
@@ -187,7 +189,9 @@ function peng(
     0,
     currentPlayerDiscards.length - 1,
   );
-  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const newDiscards: { [userId: string]: Tile[] } = {
+    ...gameDataState.discards,
+  };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
   const newDisplay: Tile[] = [...stateTransition.body.triple];
@@ -256,7 +260,9 @@ function gang(
     0,
     currentPlayerDiscards.length - 1,
   );
-  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const newDiscards: { [userId: string]: Tile[] } = {
+    ...gameDataState.discards,
+  };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
   const newDisplay: Tile[] = [...stateTransition.body.quad];
@@ -413,7 +419,7 @@ function initGame(
   }
 }
 
-function SetPlayerId(
+function setPlayerId(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
@@ -502,7 +508,7 @@ export function updateGameDataState(
     case ActionType.Hu:
       return hu(currentGameDataState, stateTransition, peers);
     case ActionType.SetPlayerId:
-      return SetPlayerId(currentGameDataState, stateTransition, peers);
+      return setPlayerId(currentGameDataState, stateTransition, peers);
     default:
       return currentGameDataState;
   }
