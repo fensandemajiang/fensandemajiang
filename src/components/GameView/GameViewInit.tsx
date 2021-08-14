@@ -57,7 +57,7 @@ const GameViewInit: FunctionComponent = () => {
           console.log('init: sending to', id);
           peers[id] = new SimplePeer({
             initiator: true,
-            trickle: true,
+            trickle: false,
             config: {
               iceServers: [
               {
@@ -78,7 +78,7 @@ const GameViewInit: FunctionComponent = () => {
           console.log('init: receiving from', id);
           peers[id] = new SimplePeer({
             initiator: false,
-            trickle: true,
+            trickle: false,
             config: {
               iceServers: [
               {
