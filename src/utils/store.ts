@@ -15,7 +15,7 @@ const initialConnectionDataState: ConnectionState = {
   client: new Client(),
   identity: PrivateKey.fromRandom(),
   threadId: '',
-  peers: {}
+  peers: {},
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(

@@ -16,11 +16,12 @@ const GameViewInit: FunctionComponent = () => {
     const userID: string = connState.userID;
     const client = connState.client;
     const identity = connState.identity;
-    const threadIdString = useConnectionStore.getState().connectionState.threadId;
+    const threadIdString =
+      useConnectionStore.getState().connectionState.threadId;
     const threadId = ThreadID.fromString(threadIdString);
     async function init() {
-      console.log("render meeee");
-      console.log("did", userID);
+      console.log('render meeee');
+      console.log('did', userID);
 
       try {
         await client.getToken(identity);
@@ -31,24 +32,20 @@ const GameViewInit: FunctionComponent = () => {
       const peers: { [userId: string]: SimplePeer.Instance } = {};
       const listenFilters: Filter[] = [
         { collectionName: 'connectDetail' },
-        { actionTypes: ['CREATE'] }
+        { actionTypes: ['CREATE'] },
       ];
-      await client.listen(threadId, listenFilters, (update?: Update<DbConnectDetail>) => {
-        if (!update || !update.instance) return;
+      await client.listen(
+        threadId,
+        listenFilters,
+        (update?: Update<DbConnectDetail>) => {
+          if (!update || !update.instance) return;
 
-        const inst: DbConnectDetail = update.instance;
-        if (inst.to === userID) {
-          console.log("processing req from", inst.from);
-          console.log("------------------");
-          console.log(update.instance._id);
-          console.log(update.instance.data);
-          console.log(update.instance.from);
-          console.log(update.instance.to);
-          console.log("--------------");
-          peers[inst.from].signal(JSON.parse(inst.data));
-          console.log("finish processing req from", inst.from)
-        }
-      });
+          const inst: DbConnectDetail = update.instance;
+          if (inst.to === userID) {
+            peers[inst.from].signal(JSON.parse(inst.data));
+          }
+        },
+      );
 
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
         const id = signalIDs[idInd];
@@ -60,18 +57,18 @@ const GameViewInit: FunctionComponent = () => {
             trickle: false,
             config: {
               iceServers: [
-              {
-                urls: "stun:numb.viagenie.ca",
-                username: "sultan1640@gmail.com",
-                credential: "98376683"
-              },
-              {
-                urls: "turn:numb.viagenie.ca",
-                username: "sultan1640@gmail.com",
-                credential: "98376683"
-              }
-              ]
-            }
+                {
+                  urls: 'stun:numb.viagenie.ca',
+                  username: 'sultan1640@gmail.com',
+                  credential: '98376683',
+                },
+                {
+                  urls: 'turn:numb.viagenie.ca',
+                  username: 'sultan1640@gmail.com',
+                  credential: '98376683',
+                },
+              ],
+            },
           });
         } else if (userID > id) {
           // partner inits
@@ -81,18 +78,18 @@ const GameViewInit: FunctionComponent = () => {
             trickle: false,
             config: {
               iceServers: [
-              {
-                urls: "stun:numb.viagenie.ca",
-                username: "sultan1640@gmail.com",
-                credential: "98376683"
-              },
-              {
-                urls: "turn:numb.viagenie.ca",
-                username: "sultan1640@gmail.com",
-                credential: "98376683"
-              }
-              ]
-            }
+                {
+                  urls: 'stun:numb.viagenie.ca',
+                  username: 'sultan1640@gmail.com',
+                  credential: '98376683',
+                },
+                {
+                  urls: 'turn:numb.viagenie.ca',
+                  username: 'sultan1640@gmail.com',
+                  credential: '98376683',
+                },
+              ],
+            },
           });
         } else {
           continue;
@@ -111,7 +108,6 @@ const GameViewInit: FunctionComponent = () => {
               _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
-            console.log(data);
           }
           asyncWrapper();
         });
@@ -128,14 +124,14 @@ const GameViewInit: FunctionComponent = () => {
             gameDataState: newDataStore,
           });
         });
-      
-        peers[id].on("connect", () => {
-          console.log("connected with", id);
+
+        peers[id].on('connect', () => {
+          console.log('connected with', id);
         });
 
-        peers[id].on("error", (err) => {
-          console.log("err", err.name);
-          console.log("err", err.message);
+        peers[id].on('error', (err) => {
+          console.log('err', err.name);
+          console.log('err', err.message);
         });
       }
 
@@ -143,29 +139,16 @@ const GameViewInit: FunctionComponent = () => {
         ...useConnectionStore.getState(),
         connectionState: {
           ...useConnectionStore.getState().connectionState,
-          peers: peers
-        }
+          peers: peers,
+        },
       });
     }
     init();
   }, []);
 
-  function click() {
-    const s = useConnectionStore.getState().connectionState.signalIDs;
-    for (let i = 0; i < s.length; i++) {
-      const u = s[i];
-      if (u !== useConnectionStore.getState().connectionState.userID) {
-  //      peers[u].write("hi");
-      }
-    }
-  }
-
   return (
     <div>
-      {/*<GameView />*/}
-      hello world
-      <br/>
-      <button className="bg-blue-500" onClick={click}> send </button>
+      <GameView />
     </div>
   );
 };

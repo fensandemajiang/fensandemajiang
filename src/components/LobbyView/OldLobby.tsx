@@ -22,7 +22,7 @@ const LobbyView: FunctionComponent = () => {
         ...useConnectionStore.getState().connectionState,
         userID: userId,
         signalIDs: [opp1, opp2, opp3],
-        
+
         userConnectionState: [
           UserConnectionState.NotConnected,
           UserConnectionState.NotConnected,

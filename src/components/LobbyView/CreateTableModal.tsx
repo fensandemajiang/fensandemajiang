@@ -99,7 +99,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
               }
             }
             asyncWrapper();
-          }
+          },
         );
 
         setCreateListener(listen);
