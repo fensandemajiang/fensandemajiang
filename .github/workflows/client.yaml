@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['12']
+        node: ['14']
     name: Testing fensandemajiang's client with node ${{ matrix.node }}
     steps:
       - uses: actions/checkout@v2
@@ -37,6 +37,8 @@ jobs:
 
       - name: Build
         run: yarn run build
+        env:
+          VITE_WEB3_STORAGE_API_TOKEN: ${{ secrets.VITE_WEB3_STORAGE_API_TOKEN }}
 
       - name: Pushes to another repository
         env:
