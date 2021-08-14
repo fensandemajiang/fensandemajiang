@@ -5,7 +5,7 @@ import "./Bets.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol"
 
 contract BetPayout {
-    _payOutForTable(bytes32 _tableId, Interface.Table _table) private {
+    function _payOutForTable(bytes32 _tableId, Interface.Table _table) private {
             Bet[] storage bets = tableBets[_tableId];
             uint totalBets = 0;
             uint[] memory payouts = new uint[](bets.length);
@@ -19,5 +19,9 @@ contract BetPayout {
                 uint amount = amount = bets[i].amount;
                 totalBets = totalBets.add(amount);
             }
+
+            
     }
+
+
 }
