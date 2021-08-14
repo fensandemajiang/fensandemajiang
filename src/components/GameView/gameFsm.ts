@@ -1,4 +1,6 @@
-import { GameDataState, ActionType, PlayerAction } from '../../types';
+import { GameDataState, ActionType, PlayerAction, Tile } from '../../types';
+import { compStr } from '../../utils/utilFunc';
+import { randomizeDeck } from './GameFunctions';
 
 function drawTile(
   gameDataState: GameDataState,
@@ -53,7 +55,30 @@ function SetPlayerId(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
-  return gameDataState;
+  const { signalIds, userId, peers } = stateTransition.body;
+  if (signalIds === undefined || userId === undefined || peers === undefined) {
+    throw Error('Signal IDs are undefined');
+  }
+  const playerIds = signalIds;
+  const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
+  let currentPlayerId: string = sortedPlayerIds[0];
+  let currentPlayerIndex = 0;
+  let newDeck: Tile[] = gameDataState.deck;
+  if (currentPlayerId === userId) {
+    // we're sending the deck to the next player
+    currentPlayerId = sortedPlayerIds[1];
+    currentPlayerIndex = 1;
+
+    newDeck = randomizeDeck(gameDataState.deck);
+  }
+  return {
+    ...gameDataState,
+    allPlayerIds: sortedPlayerIds,
+    yourPlayerId: userId,
+    currentTurn: currentPlayerId,
+    currentPlayerIndex: currentPlayerIndex,
+    deck: newDeck,
+  };
 }
 
 function hu(

@@ -1,5 +1,6 @@
 import { ActionType, Suite } from '../../types';
 import type { Tile } from '../../types';
+import { getRandomInt } from '../../utils/utilFunc';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
   return (
@@ -195,4 +196,16 @@ export function hasWon(hand: Tile[]): number {
     else return 6;
   } else if (thirteenOrphan(sortHand) || allPairs(sortHand)) return 88;
   else return -1;
+}
+export function randomizeDeck(deck: Tile[]): Tile[] {
+  const newDeck = [...deck];
+
+  for (let t1 = 0; t1 < 143; t1++) {
+    // this approach could technically swap a tile with itself,
+    // but that's going to be rare enough that I don't think it'll be important to worry about
+    const t2 = getRandomInt(0, 143); // 144 total tiles in the deck
+    [newDeck[t1], newDeck[t2]] = [newDeck[t2], newDeck[t1]]; //swap
+  }
+
+  return newDeck;
 }
