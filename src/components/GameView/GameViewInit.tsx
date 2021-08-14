@@ -1,4 +1,4 @@
-import React, { useEffect, useState, FunctionComponent } from 'react';
+import React, { useEffect, FunctionComponent } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
@@ -7,8 +7,6 @@ import { Identity, Update, ThreadID, Filter, Query, Where } from '@textile/hub';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
-  const [hasInit, setHasInit] = useState(false);
-
   useEffect(() => {
     const connState: ConnectionState =
       useConnectionStore.getState().connectionState;

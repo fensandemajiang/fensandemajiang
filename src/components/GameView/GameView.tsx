@@ -11,7 +11,6 @@ import {
   updateCurrentPlayerIndex,
   sendConsumeTile,
 } from './playerActions';
-import { PeerContext } from './PeerContextProvidor';
 import { GameState, Action } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
@@ -26,8 +25,6 @@ const GameView: FunctionComponent = () => {
   const gameState: GameState = useGameDataStore(
     (state) => state.gameDataState.currentState,
   );
-  const peers: { [userId: string]: SimplePeer.Instance } =
-    useContext(PeerContext);
 
   function randomizeDeck(deck: Tile[]): Tile[] {
     const newDeck = [...deck];
@@ -62,7 +59,7 @@ const GameView: FunctionComponent = () => {
 
       newDeck = randomizeDeck(useGameDataStore.getState().gameDataState.deck);
       const nextPlayer: string = currentPlayerId;
-      giveDeck(peers, newDeck, nextPlayer);
+      giveDeck(useConnectionStore.getState().connectionState.peers, newDeck, nextPlayer);
     }
 
     // update deck
@@ -77,13 +74,14 @@ const GameView: FunctionComponent = () => {
         deck: newDeck,
       },
     });
-  }, [peers]); // should we include this here? peers shouldn't really ever be updated during the game so it shouldn't really matter if it's here or not. I'm just putting it here so that the linter will stop complaining. Though it would probably be safer if it wasn't. So that a random update to peers won't accidentally break everything.
+  }, []); // should we include this here? peers shouldn't really ever be updated during the game so it shouldn't really matter if it's here or not. I'm just putting it here so that the linter will stop complaining. Though it would probably be safer if it wasn't. So that a random update to peers won't accidentally break everything.
 
   // randomize deck
   useEffect(() => {
     // if someone else sends an action, and deck gets updated through the listener defined in PeerContextProvidor
     // and we are in shuffleDeck state and we are the recipient, then we shuffle the deck as well
     const gameState = useGameDataStore.getState().gameDataState;
+    const peers = useConnectionStore.getState().connectionState.peers;
 
     // check the game state, this deck randomization stuff will only run during the shuffleDeck phase
     // also check that deck is not currently in centre. Don't think this second check is *really* necessary
@@ -135,14 +133,15 @@ const GameView: FunctionComponent = () => {
         },
       });
     }
-  }, [deck, peers]);
+  }, [deck]);
 
   // the main game function
   // every time game state is updated, all the everything should occur (e.g. Visual updates)
   useEffect(() => {
+    const peers = useConnectionStore.getState().connectionState.peers;
     const dataStore = useGameDataStore.getState().gameDataState;
     updateGameDataState(dataStore, gameState, peers);
-  }, [gameState, peers]);
+  }, [gameState]);
 
   function discard(tile: Tile, playerID: string) {
     // placeholder
