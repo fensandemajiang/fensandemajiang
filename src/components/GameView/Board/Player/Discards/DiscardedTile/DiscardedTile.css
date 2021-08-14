@@ -1,7 +1,7 @@
 .discarded-tile {
   width: 30%;
   position: relative;
-  padding-bottom:35%;
+  padding-bottom: 35%;
 }
 
 .discarded-tile .small-tile-image,
@@ -35,8 +35,8 @@
 }
 
 .tile-up {
-  width: 14%;
-  padding-bottom: 5%;
+  width: 11%;
+  padding-bottom: 10%;
   position: relative;
   -webkit-transform: rotate(180deg);
   -moz-transform: rotate(180deg);
@@ -46,5 +46,5 @@
 
 .tile-up .small-tile-image,
 .tile-up .no-image {
-  height: 100%;
+  height: 90%;
 }

@@ -148,7 +148,11 @@ const GameView: FunctionComponent = () => {
     updateGameDataState(dataStore, gameState, peers);
   }, [gameState]);
 
-  function discard(tile: Tile, playerID: string) {
+  function discard(tileType: number, tileIndex: number) {
+    let discard = confirm("discard this tile?")
+    if( discard ){
+      console.log(tileType, tileIndex)
+    }
     // placeholder
   }
 
@@ -173,7 +177,7 @@ const GameView: FunctionComponent = () => {
             <Board></Board>
           </div>
           <div className="game-view-bot">
-            <Deck></Deck>
+            <Deck discard={discard}></Deck>
             <Actions
               playerActions={{
                 chow: chow,

@@ -150,9 +150,7 @@ const GameViewInit: FunctionComponent = () => {
   }, []);
 
   return (
-    <div>
-      <GameView />
-    </div>
+    <GameView />
   );
 };
 

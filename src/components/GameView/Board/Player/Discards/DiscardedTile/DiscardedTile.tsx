@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes, { InferProps } from 'prop-types';
+import Tile from '@components/GlobalComponents/Tile/Tile';
 import './DiscardedTile.css';
 
 function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
@@ -15,7 +16,7 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
 
   let img;
   if (typeof props.type == 'number') {
-    img = <img src={images[props.type]} className={'small-tile-image '}></img>;
+    img = <Tile className={'small-tile-image'}></Tile>;
   } else {
     img = <div className={'no-image '}></div>;
   }
