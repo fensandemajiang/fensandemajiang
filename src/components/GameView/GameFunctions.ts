@@ -1,6 +1,7 @@
 import { ActionType, Suite } from '../../types';
 import type { Tile } from '../../types';
 import { getRandomInt } from '../../utils/utilFunc';
+import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
   return (
@@ -208,4 +209,19 @@ export function randomizeDeck(deck: Tile[]): Tile[] {
   }
 
   return newDeck;
+}
+export function sendToEveryone(
+  peers: { [userId: string]: SimplePeer.Instance },
+  data: string,
+): void {
+  for (const id in peers) {
+    peers[id].send(data);
+  }
+}
+export function sendToPlayer(
+  peers: { [userId: string]: SimplePeer.Instance },
+  data: string,
+  peerId: string,
+): void {
+  peers[peerId].send(data);
 }

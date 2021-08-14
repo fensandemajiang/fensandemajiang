@@ -2,7 +2,7 @@ import React, { useEffect, FunctionComponent } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
-import { processReceivedData } from './playerActions';
+import { updateGameDataState } from './gameFsm';
 import { Update, ThreadID, Filter } from '@textile/hub';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
@@ -117,9 +117,10 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          const newDataStore = processReceivedData(
+          const newDataStore = updateGameDataState(
             useGameDataStore.getState().gameDataState,
             JSON.parse(data),
+            peers,
           );
           useGameDataStore.setState({
             ...useGameDataStore.getState(),

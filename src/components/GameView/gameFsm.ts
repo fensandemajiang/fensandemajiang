@@ -6,39 +6,43 @@ import {
   Peers,
 } from '../../types';
 import { compStr } from '../../utils/utilFunc';
-import { tileEqual, calculateScore, randomizeDeck } from './GameFunctions';
-import { sendToEveryone, sendToPlayer } from './playerActions';
+import {
+  tileEqual,
+  calculateScore,
+  randomizeDeck,
+  sendToEveryone,
+} from './GameFunctions';
 
 function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
-  peers: Peers
+  peers: Peers,
 ): GameDataState {
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
   if (stateTransition.body?.isSending) {
     const lastTile: Tile = deck[deck.length - 1];
-    const newHand: Tile[] = [ ...gameDataState.yourHand, lastTile ];
+    const newHand: Tile[] = [...gameDataState.yourHand, lastTile];
 
     // send to peers
     const toSendStateTransition: PlayerAction = {
       ...stateTransition,
       body: {
         ...stateTransition.body,
-        isSending: false
-      }
+        isSending: false,
+      },
     };
     sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
       deck: newDeck,
-      yourHand: newHand
+      yourHand: newHand,
     };
   } else {
     return {
       ...gameDataState,
-      deck: newDeck
+      deck: newDeck,
     };
   }
 }
@@ -46,10 +50,13 @@ function drawTile(
 function placeTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
-  peers: Peers
+  peers: Peers,
 ): GameDataState {
-  if (stateTransition.body.tile === undefined || stateTransition.body.playerTo === undefined)  {
-    throw Error("tile undefined or playerTo undefined");
+  if (
+    stateTransition.body.tile === undefined ||
+    stateTransition.body.playerTo === undefined
+  ) {
+    throw Error('tile undefined or playerTo undefined');
   }
 
   const discardedTile: Tile = stateTransition.body.tile;
@@ -73,8 +80,8 @@ function placeTile(
       ...stateTransition,
       body: {
         ...stateTransition.body,
-        isSending: false
-      }
+        isSending: false,
+      },
     };
     sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
@@ -86,38 +93,50 @@ function placeTile(
   } else {
     return {
       ...gameDataState,
-      discards: newDiscards
-    }
+      discards: newDiscards,
+    };
   }
 }
 
 function chi(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
-  peers: Peers
+  peers: Peers,
 ): GameDataState {
-  if (stateTransition.body.triple === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
-    throw Error("triple, playerTo, or playerFrom is undefined");
+  if (
+    stateTransition.body.triple === undefined ||
+    stateTransition.body.playerTo === undefined ||
+    stateTransition.body.playerFrom === undefined
+  ) {
+    throw Error('triple, playerTo, or playerFrom is undefined');
   }
 
   const currentPlayerId: string = stateTransition.body.playerFrom;
   const currentPlayerDiscards: Tile[] = gameDataState.discards[currentPlayerId];
   const chiTile: Tile = currentPlayerDiscards[currentPlayerDiscards.length - 1];
-  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(0, currentPlayerDiscards.length - 1);
-  let newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(
+    0,
+    currentPlayerDiscards.length - 1,
+  );
+  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
-  const newDisplay: Tile[] = [ ...stateTransition.body.triple ];
-  const yourNewDisplays: Tile[][] = [ ...gameDataState.shownTiles[stateTransition.body.playerTo], newDisplay ]
-  const newShownTiles: { [userId: string]: Tile[][] } = { ...gameDataState.shownTiles };
+  const newDisplay: Tile[] = [...stateTransition.body.triple];
+  const yourNewDisplays: Tile[][] = [
+    ...gameDataState.shownTiles[stateTransition.body.playerTo],
+    newDisplay,
+  ];
+  const newShownTiles: { [userId: string]: Tile[][] } = {
+    ...gameDataState.shownTiles,
+  };
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
   if (stateTransition.body.isSending) {
-    let newHand: Tile[] = [ ...gameDataState.yourHand ];
+    const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body?.triple?.length; i++) {
       const tripleTile = stateTransition.body?.triple[i];
       if (!tileEqual(tripleTile, chiTile)) {
-        const tripleInd = newHand.findIndex(t => tileEqual(t, tripleTile));
+        const tripleInd = newHand.findIndex((t) => tileEqual(t, tripleTile));
         newHand.splice(tripleInd, 1);
       }
     }
@@ -127,8 +146,8 @@ function chi(
       ...stateTransition,
       body: {
         ...stateTransition.body,
-        isSending: false
-      }
+        isSending: false,
+      },
     };
     sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
@@ -142,8 +161,8 @@ function chi(
     return {
       ...gameDataState,
       discards: newDiscards,
-      shownTiles: newShownTiles
-    }
+      shownTiles: newShownTiles,
+    };
   }
 }
 
@@ -152,28 +171,41 @@ function peng(
   stateTransition: PlayerAction,
   peers: Peers,
 ): GameDataState {
-  if (stateTransition.body.triple === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
-    throw Error("triple, playerTo, or playerFrom is undefined");
+  if (
+    stateTransition.body.triple === undefined ||
+    stateTransition.body.playerTo === undefined ||
+    stateTransition.body.playerFrom === undefined
+  ) {
+    throw Error('triple, playerTo, or playerFrom is undefined');
   }
 
   const currentPlayerId: string = stateTransition.body.playerFrom;
   const currentPlayerDiscards: Tile[] = gameDataState.discards[currentPlayerId];
-  const pengTile: Tile = currentPlayerDiscards[currentPlayerDiscards.length - 1];
-  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(0, currentPlayerDiscards.length - 1);
-  let newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const pengTile: Tile =
+    currentPlayerDiscards[currentPlayerDiscards.length - 1];
+  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(
+    0,
+    currentPlayerDiscards.length - 1,
+  );
+  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
-  const newDisplay: Tile[] = [ ...stateTransition.body.triple ];
-  const yourNewDisplays: Tile[][] = [ ...gameDataState.shownTiles[stateTransition.body.playerTo], newDisplay ]
-  const newShownTiles: { [userId: string]: Tile[][] } = { ...gameDataState.shownTiles };
+  const newDisplay: Tile[] = [...stateTransition.body.triple];
+  const yourNewDisplays: Tile[][] = [
+    ...gameDataState.shownTiles[stateTransition.body.playerTo],
+    newDisplay,
+  ];
+  const newShownTiles: { [userId: string]: Tile[][] } = {
+    ...gameDataState.shownTiles,
+  };
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
   if (stateTransition.body.isSending) {
-    let newHand: Tile[] = [ ...gameDataState.yourHand ];
+    const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body?.triple?.length; i++) {
       const tripleTile = stateTransition.body?.triple[i];
       if (!tileEqual(tripleTile, pengTile)) {
-        const tripleInd = newHand.findIndex(t => tileEqual(t, tripleTile));
+        const tripleInd = newHand.findIndex((t) => tileEqual(t, tripleTile));
         newHand.splice(tripleInd, 1);
       }
     }
@@ -183,8 +215,8 @@ function peng(
       ...stateTransition,
       body: {
         ...stateTransition.body,
-        isSending: false
-      }
+        isSending: false,
+      },
     };
     sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
@@ -198,30 +230,43 @@ function peng(
     return {
       ...gameDataState,
       discards: newDiscards,
-      shownTiles: newShownTiles
-    }
+      shownTiles: newShownTiles,
+    };
   }
 }
 
 function gang(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
-  peers: Peers
+  peers: Peers,
 ): GameDataState {
-  if (stateTransition.body.quad === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
-    throw Error("triple, playerTo, or playerFrom is undefined");
+  if (
+    stateTransition.body.quad === undefined ||
+    stateTransition.body.playerTo === undefined ||
+    stateTransition.body.playerFrom === undefined
+  ) {
+    throw Error('triple, playerTo, or playerFrom is undefined');
   }
 
   const currentPlayerId: string = stateTransition.body.playerFrom;
   const currentPlayerDiscards: Tile[] = gameDataState.discards[currentPlayerId];
-  const pengTile: Tile = currentPlayerDiscards[currentPlayerDiscards.length - 1];
-  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(0, currentPlayerDiscards.length - 1);
-  let newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  const pengTile: Tile =
+    currentPlayerDiscards[currentPlayerDiscards.length - 1];
+  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(
+    0,
+    currentPlayerDiscards.length - 1,
+  );
+  const newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
   newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
 
-  const newDisplay: Tile[] = [ ...stateTransition.body.quad ];
-  const yourNewDisplays: Tile[][] = [ ...gameDataState.shownTiles[stateTransition.body.playerTo], newDisplay ]
-  const newShownTiles: { [userId: string]: Tile[][] } = { ...gameDataState.shownTiles };
+  const newDisplay: Tile[] = [...stateTransition.body.quad];
+  const yourNewDisplays: Tile[][] = [
+    ...gameDataState.shownTiles[stateTransition.body.playerTo],
+    newDisplay,
+  ];
+  const newShownTiles: { [userId: string]: Tile[][] } = {
+    ...gameDataState.shownTiles,
+  };
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
   // draw card from deck for gang
@@ -229,11 +274,11 @@ function gang(
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
 
   if (stateTransition.body.isSending) {
-    let newHand: Tile[] = [ ...gameDataState.yourHand ];
+    const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body.quad.length; i++) {
       const quadTile = stateTransition.body.quad[i];
       if (!tileEqual(quadTile, pengTile)) {
-        const quadInd = newHand.findIndex(t => tileEqual(t, quadTile));
+        const quadInd = newHand.findIndex((t) => tileEqual(t, quadTile));
         newHand.splice(quadInd, 1);
       }
     }
@@ -247,8 +292,8 @@ function gang(
       ...stateTransition,
       body: {
         ...stateTransition.body,
-        isSending: false
-      }
+        isSending: false,
+      },
     };
     sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
@@ -265,7 +310,7 @@ function gang(
       discards: newDiscards,
       shownTiles: newShownTiles,
       deck: newDeck,
-    }
+    };
   }
 }
 
@@ -441,7 +486,7 @@ export function updateGameDataState(
 ): GameDataState {
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(currentGameDataState, stateTransition, peers,);
+      return drawTile(currentGameDataState, stateTransition, peers);
     case ActionType.PlaceTile:
       return placeTile(currentGameDataState, stateTransition, peers);
     case ActionType.Chi:
