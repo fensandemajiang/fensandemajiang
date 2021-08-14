@@ -12,6 +12,7 @@ import { sendToEveryone, sendToPlayer } from './playerActions';
 function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers
 ): GameDataState {
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
@@ -20,6 +21,14 @@ function drawTile(
     const newHand: Tile[] = [ ...gameDataState.yourHand, lastTile ];
 
     // send to peers
+    const toSendStateTransition: PlayerAction = {
+      ...stateTransition,
+      body: {
+        ...stateTransition.body,
+        isSending: false
+      }
+    };
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
@@ -37,6 +46,7 @@ function drawTile(
 function placeTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers
 ): GameDataState {
   if (stateTransition.body.tile === undefined || stateTransition.body.playerTo === undefined)  {
     throw Error("tile undefined or playerTo undefined");
@@ -59,6 +69,14 @@ function placeTile(
     newHand.splice(tileInd, 1);
 
     // send to peers
+    const toSendStateTransition: PlayerAction = {
+      ...stateTransition,
+      body: {
+        ...stateTransition.body,
+        isSending: false
+      }
+    };
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
@@ -76,6 +94,7 @@ function placeTile(
 function chi(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers
 ): GameDataState {
   if (stateTransition.body.triple === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
     throw Error("triple, playerTo, or playerFrom is undefined");
@@ -104,6 +123,14 @@ function chi(
     }
 
     // send to peers
+    const toSendStateTransition: PlayerAction = {
+      ...stateTransition,
+      body: {
+        ...stateTransition.body,
+        isSending: false
+      }
+    };
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
@@ -123,6 +150,7 @@ function chi(
 function peng(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
   if (stateTransition.body.triple === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
     throw Error("triple, playerTo, or playerFrom is undefined");
@@ -151,6 +179,14 @@ function peng(
     }
 
     // send to peers
+    const toSendStateTransition: PlayerAction = {
+      ...stateTransition,
+      body: {
+        ...stateTransition.body,
+        isSending: false
+      }
+    };
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
@@ -170,6 +206,7 @@ function peng(
 function gang(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers
 ): GameDataState {
   if (stateTransition.body.quad === undefined || stateTransition.body.playerTo === undefined || stateTransition.body.playerFrom === undefined) {
     throw Error("triple, playerTo, or playerFrom is undefined");
@@ -206,6 +243,14 @@ function gang(
     newHand.push(lastTile);
 
     // send to peers
+    const toSendStateTransition: PlayerAction = {
+      ...stateTransition,
+      body: {
+        ...stateTransition.body,
+        isSending: false
+      }
+    };
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
 
     return {
       ...gameDataState,
@@ -350,15 +395,15 @@ export function updateGameDataState(
 ): GameDataState {
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(currentGameDataState, stateTransition);
+      return drawTile(currentGameDataState, stateTransition, peers,);
     case ActionType.PlaceTile:
-      return placeTile(currentGameDataState, stateTransition);
+      return placeTile(currentGameDataState, stateTransition, peers);
     case ActionType.Chi:
-      return chi(currentGameDataState, stateTransition);
+      return chi(currentGameDataState, stateTransition, peers);
     case ActionType.Peng:
-      return peng(currentGameDataState, stateTransition);
+      return peng(currentGameDataState, stateTransition, peers);
     case ActionType.Gang:
-      return gang(currentGameDataState, stateTransition);
+      return gang(currentGameDataState, stateTransition, peers);
     case ActionType.ReplaceFlower:
       return replaceFlower(currentGameDataState, stateTransition);
     case ActionType.InitGame:
