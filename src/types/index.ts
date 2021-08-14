@@ -128,6 +128,8 @@ export interface PlayerAction {
   body: {
     tile?: Tile;
     deck?: Tile[];
+    triple?: Tile[]; // used for chi and peng
+    quad?: Tile[]; // used for gang
     playerFrom?: string;
     playerTo?: string;
     gameState?: string;
