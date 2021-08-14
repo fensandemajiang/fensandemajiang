@@ -19,7 +19,7 @@ import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
-  userConnectedCount: number
+  userConnectedCount: number;
   client: Client;
   identity: Identity;
   threadId: string;
@@ -27,7 +27,7 @@ export interface ConnectionState {
 }
 export enum UserConnectionState {
   Connected,
-  NotConnected
+  NotConnected,
 }
 export interface Score {
   [userId: string]: number;

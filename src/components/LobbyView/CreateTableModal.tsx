@@ -9,7 +9,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Filter, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
-import { DbConnectionPlayer, UserConnectionState } from '../../types';
+import type { DbConnectionPlayer } from '../../types';
 import type { grpc } from '@improbable-eng/grpc-web';
 
 type CreateTableModalProps = {
@@ -109,7 +109,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
       connectionState: {
         ...useConnectionStore.getState().connectionState,
         userID: useUserStore.getState().userState.did?.id ?? '',
-        userConnectedCount: 0
+        userConnectedCount: 0,
       },
     });
   }, [props.open, threadId, playerCount, client, identity]);

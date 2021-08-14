@@ -9,8 +9,10 @@ import { updateGameDataStateAndLog } from './gameFsm';
 import type { PlayerAction } from '../../types';
 
 const GameView: FunctionComponent = () => {
-  const connectionStore = useConnectionStore(state => state.connectionState.userConnectedCount);
-  const gameDataState = useGameDataStore(state => state.gameDataState);
+  const connectionStore = useConnectionStore(
+    (state) => state.connectionState.userConnectedCount,
+  );
+  const gameDataState = useGameDataStore((state) => state.gameDataState);
 
   function discard(tileType: number, tileIndex: number) {
     const discard = confirm('discard this tile?');
@@ -18,13 +20,13 @@ const GameView: FunctionComponent = () => {
       console.log(tileType, tileIndex);
     }
     // placeholder
-    const stateTransition: PlayerAction = {
-      
-    };
-    updateGameDataStateAndLog(gameDataState, 
-                              stateTransition, 
-                              useConnectionStore.getState().connectionState.peers,
-                              useConnectionStore.getState().connectionState.threadId);
+    const stateTransition: PlayerAction = {};
+    updateGameDataStateAndLog(
+      gameDataState,
+      stateTransition,
+      useConnectionStore.getState().connectionState.peers,
+      useConnectionStore.getState().connectionState.threadId,
+    );
   }
 
   function chow(playerID: string) {

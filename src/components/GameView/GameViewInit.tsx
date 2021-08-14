@@ -140,8 +140,10 @@ const GameViewInit: FunctionComponent = () => {
             ...useConnectionStore.getState(),
             connectionState: {
               ...useConnectionStore.getState().connectionState,
-              userConnectedCount: useConnectionStore.getState().connectionState.userConnectedCount + 1
-            }
+              userConnectedCount:
+                useConnectionStore.getState().connectionState
+                  .userConnectedCount + 1,
+            },
           });
         });
 

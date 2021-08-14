@@ -40,13 +40,13 @@ function drawTile(
       ...gameDataState,
       deck: newDeck,
       yourHand: newHand,
-      currentState: GameState.PlayCard
+      currentState: GameState.PlayCard,
     };
   } else {
     return {
       ...gameDataState,
       deck: newDeck,
-      currentState: GameState.PlayCard
+      currentState: GameState.PlayCard,
     };
   }
 }
@@ -93,7 +93,7 @@ function placeTile(
       ...gameDataState,
       discards: newDiscards,
       yourHand: newHand,
-      currentState: GameState.PengGang
+      currentState: GameState.PengGang,
     };
   } else {
     return {
@@ -140,7 +140,9 @@ function chi(
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
   const newCurrentTurn = stateTransition.body.playerTo;
-  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(
+    (playerId) => playerId === newCurrentTurn,
+  );
   const newRoundNumber = gameDataState.roundNumber + 1;
 
   if (stateTransition.body.isSending) {
@@ -171,7 +173,7 @@ function chi(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   } else {
     return {
@@ -181,7 +183,7 @@ function chi(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   }
 }
@@ -223,7 +225,9 @@ function peng(
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
   const newCurrentTurn = stateTransition.body.playerTo;
-  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(
+    (playerId) => playerId === newCurrentTurn,
+  );
   const newRoundNumber = gameDataState.roundNumber + 1;
 
   if (stateTransition.body.isSending) {
@@ -254,7 +258,7 @@ function peng(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   } else {
     return {
@@ -264,7 +268,7 @@ function peng(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   }
 }
@@ -310,7 +314,9 @@ function gang(
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
 
   const newCurrentTurn = stateTransition.body.playerTo;
-  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(
+    (playerId) => playerId === newCurrentTurn,
+  );
   const newRoundNumber = gameDataState.roundNumber + 1;
 
   if (stateTransition.body.isSending) {
@@ -346,7 +352,7 @@ function gang(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   } else {
     return {
@@ -357,7 +363,7 @@ function gang(
       currentState: GameState.PlayCard,
       currentTurn: newCurrentTurn,
       currentPlayerIndex: newCurrentPlayerInd,
-      roundNumber: newRoundNumber 
+      roundNumber: newRoundNumber,
     };
   }
 }

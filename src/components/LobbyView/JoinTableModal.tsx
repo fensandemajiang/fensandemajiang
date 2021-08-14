@@ -133,7 +133,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
       connectionState: {
         ...useConnectionStore.getState().connectionState,
         signalIDs: playersAtTable,
-        userConnectedCount: 0
+        userConnectedCount: 0,
       },
     });
 
