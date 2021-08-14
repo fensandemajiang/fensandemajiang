@@ -50,7 +50,20 @@ function chi(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
-  return gameDataState;
+  const currentPlayerId: string = gameDataState.allPlayerIds[gameDataState.currentPlayerIndex];
+  const currentPlayerDiscards: Tile[] = gameDataState.discards[currentPlayerId];
+  const chiTile: Tile = currentPlayerDiscards[currentPlayerDiscards.length - 1];
+  const newCurrentPlayerDiscards: Tile[] = currentPlayerDiscards.slice(0, currentPlayerDiscards.length - 1);
+  let newDiscards: { [userId: string]: Tile[] } = { ...gameDataState.discards };
+  newDiscards[currentPlayerId] = newCurrentPlayerDiscards;
+
+  const newHand: Tile[] = [ ...gameDataState.yourHand, chiTile ];
+
+  return {
+    ...gameDataState,
+    discards: newDiscards,
+    yourHand: newHand
+  };
 }
 
 function peng(
