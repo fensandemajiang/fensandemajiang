@@ -23,8 +23,7 @@ const GameViewInit: FunctionComponent = () => {
       useConnectionStore.getState().connectionState.threadId;
     const threadId = ThreadID.fromString(threadIdString);
     async function init() {
-      console.log('render meeee');
-      console.log('did', userID);
+      console.log('initializing peers');
 
       try {
         await client.getToken(identity);
