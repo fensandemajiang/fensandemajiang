@@ -6,10 +6,11 @@ import React, {
   FunctionComponent,
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Filter, Identity, Client, ThreadID, DBInfo } from '@textile/hub';
+import { Filter, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
+import type { grpc } from '@improbable-eng/grpc-web';
 
 type JoinTableModalProps = {
   open: boolean;
@@ -24,7 +25,9 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
   const [tableCode, setTableCode] = useState('');
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [hasJoined, setHasJoined] = useState<boolean>(false);
-  const [createListener, setCreateListener] = useState<any>(undefined);
+  const [createListener, setCreateListener] = useState<grpc.Request | null>(
+    null,
+  );
   const { client, identity } = useConnectionStore((s) => s.connectionState);
 
   useEffect(() => {
@@ -57,7 +60,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
 
       try {
         threadId = ThreadID.fromString(tableCode);
-        const playerIds = await client.find(threadId, 'playerId', {});
 
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
@@ -71,7 +73,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
         return;
       }
 
-      createListener.close();
+      createListener?.close();
 
       // delete yourself from db
       await client.getToken(identity);
@@ -96,7 +98,6 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
 
     try {
       threadId = ThreadID.fromString(tableCode);
-      const playerIds = await client.find(threadId, 'playerId', {});
 
       useConnectionStore.setState({
         ...useConnectionStore.getState(),
@@ -145,7 +146,7 @@ const JoinTableModal: FunctionComponent<JoinTableModalProps> = (props: {
       { collectionName: 'playerId' },
       { actionTypes: ['CREATE', 'DELETE'] },
     ];
-    const listen: any = client.listen(threadId, listenFilters, (reply, err) => {
+    const listen = client.listen(threadId, listenFilters, (reply, err) => {
       async function asyncWrapper() {
         console.log('hi');
 

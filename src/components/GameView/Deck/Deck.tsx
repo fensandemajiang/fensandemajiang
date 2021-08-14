@@ -9,12 +9,7 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
   const tiles = [];
 
   for (let i = 0; i < size; i++) {
-    tiles.push(
-      <DeckTile 
-        discard={props.discard}
-        index={i}
-      ></DeckTile>
-    );
+    tiles.push(<DeckTile discard={props.discard} index={i}></DeckTile>);
   }
 
   return (
@@ -28,7 +23,7 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
 
 Deck.propTypes = {
   any: PropTypes.any,
-  discard: PropTypes.func
+  discard: PropTypes.func,
 };
 
 export default Deck;

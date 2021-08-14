@@ -3,16 +3,16 @@ import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
 import { processReceivedData } from './playerActions';
-import { Identity, Update, ThreadID, Filter, Query, Where } from '@textile/hub';
+import { Update, ThreadID, Filter } from '@textile/hub';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
   useEffect(() => {
     if (useConnectionStore.getState().connectionState.threadId.length === 0) {
-      console.log("empty thread id found, defaulting to dev");
+      console.log('empty thread id found, defaulting to dev');
       return;
     }
-    
+
     const connState: ConnectionState =
       useConnectionStore.getState().connectionState;
     const signalIDs: string[] = connState.signalIDs;
@@ -149,9 +149,7 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
-  return (
-    <GameView />
-  );
+  return <GameView />;
 };
 
 export default GameViewInit;

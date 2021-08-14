@@ -18,15 +18,12 @@ export function findGrouping(
   action: Action,
   newTile: Tile,
 ): number[][] {
-  const tileSuite = newTile.suite;
-
   const out: number[][] = [];
   if (
     action === Action.Chi &&
     newTile.suite in [Suite.Tiao, Suite.Wan, Suite.Tong]
   ) {
     const buckets: { [key: number]: number[] } = {};
-    const filteredHand = hand.filter((t) => t.suite === newTile.suite);
 
     for (let ind = 0; ind < hand.length; ind++) {
       const t: Tile = hand[ind];

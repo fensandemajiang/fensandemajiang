@@ -5,7 +5,7 @@ import './Tile.css';
 function Tile(props: InferProps<typeof Tile.propTypes>) {
   return (
     <>
-      <img 
+      <img
         className={'tile ' + (props.className ? props.className : '')}
         onClick={props.onClick ? props.onClick : undefined}
       ></img>
@@ -15,7 +15,7 @@ function Tile(props: InferProps<typeof Tile.propTypes>) {
 
 Tile.propTypes = {
   className: PropTypes.string,
-  onClick: PropTypes.func
+  onClick: PropTypes.func,
 };
 
 export default Tile;

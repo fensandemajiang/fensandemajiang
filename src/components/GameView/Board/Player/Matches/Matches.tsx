@@ -13,7 +13,6 @@ function Matches(props: InferProps<typeof Matches.propTypes>) {
     className = 'match-container-up';
   }
 
-
   return (
     <>
       <div className={className}>
