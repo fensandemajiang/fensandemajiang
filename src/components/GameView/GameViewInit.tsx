@@ -136,6 +136,13 @@ const GameViewInit: FunctionComponent = () => {
 
         peers[id].on('connect', () => {
           console.log('connected with', id);
+          useConnectionStore.setState({
+            ...useConnectionStore.getState(),
+            connectionState: {
+              ...useConnectionStore.getState().connectionState,
+              userConnectedCount: useConnectionStore.getState().connectionState.userConnectedCount + 1
+            }
+          });
         });
 
         peers[id].on('error', (err) => {

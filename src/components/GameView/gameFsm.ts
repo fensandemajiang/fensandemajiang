@@ -4,6 +4,7 @@ import {
   PlayerAction,
   Tile,
   Peers,
+  GameState,
 } from '../../types';
 import { compStr } from '../../utils/utilFunc';
 import {
@@ -39,11 +40,13 @@ function drawTile(
       ...gameDataState,
       deck: newDeck,
       yourHand: newHand,
+      currentState: GameState.PlayCard
     };
   } else {
     return {
       ...gameDataState,
       deck: newDeck,
+      currentState: GameState.PlayCard
     };
   }
 }
@@ -90,11 +93,13 @@ function placeTile(
       ...gameDataState,
       discards: newDiscards,
       yourHand: newHand,
+      currentState: GameState.PengGang
     };
   } else {
     return {
       ...gameDataState,
       discards: newDiscards,
+      currentState: GameState.PengGang,
     };
   }
 }
@@ -134,6 +139,10 @@ function chi(
   };
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
+  const newCurrentTurn = stateTransition.body.playerTo;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newRoundNumber = gameDataState.roundNumber + 1;
+
   if (stateTransition.body.isSending) {
     const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body?.triple?.length; i++) {
@@ -159,12 +168,20 @@ function chi(
       discards: newDiscards,
       shownTiles: newShownTiles,
       yourHand: newHand,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   } else {
     return {
       ...gameDataState,
       discards: newDiscards,
       shownTiles: newShownTiles,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   }
 }
@@ -205,6 +222,10 @@ function peng(
   };
   newShownTiles[stateTransition.body.playerTo] = yourNewDisplays;
 
+  const newCurrentTurn = stateTransition.body.playerTo;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newRoundNumber = gameDataState.roundNumber + 1;
+
   if (stateTransition.body.isSending) {
     const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body?.triple?.length; i++) {
@@ -230,12 +251,20 @@ function peng(
       discards: newDiscards,
       shownTiles: newShownTiles,
       yourHand: newHand,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   } else {
     return {
       ...gameDataState,
       discards: newDiscards,
       shownTiles: newShownTiles,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   }
 }
@@ -280,6 +309,10 @@ function gang(
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
 
+  const newCurrentTurn = stateTransition.body.playerTo;
+  const newCurrentPlayerInd = gameDataState.allPlayerIds.findIndex(playerId => playerId === newCurrentTurn) ;
+  const newRoundNumber = gameDataState.roundNumber + 1;
+
   if (stateTransition.body.isSending) {
     const newHand: Tile[] = [...gameDataState.yourHand];
     for (let i = 0; i < stateTransition.body.quad.length; i++) {
@@ -310,6 +343,10 @@ function gang(
       shownTiles: newShownTiles,
       yourHand: newHand,
       deck: newDeck,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   } else {
     return {
@@ -317,6 +354,10 @@ function gang(
       discards: newDiscards,
       shownTiles: newShownTiles,
       deck: newDeck,
+      currentState: GameState.PlayCard,
+      currentTurn: newCurrentTurn,
+      currentPlayerIndex: newCurrentPlayerInd,
+      roundNumber: newRoundNumber 
     };
   }
 }
@@ -541,6 +582,7 @@ function updateGameDataState(
       return currentGameDataState;
   }
 }
+
 export async function updateGameDataStateAndLog(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,

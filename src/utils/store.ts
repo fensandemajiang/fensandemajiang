@@ -11,7 +11,7 @@ export type ConnectionDataStore = {
 const initialConnectionDataState: ConnectionState = {
   signalIDs: [],
   userID: '',
-  userConnectionState: [],
+  userConnectedCount: 0,
   client: new Client(),
   identity: PrivateKey.fromRandom(),
   threadId: '',
