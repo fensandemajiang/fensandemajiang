@@ -97,9 +97,9 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
                   history.push('/play');
                 }
               }
-              asyncWrapper();
             }
-          },
+            asyncWrapper();
+          }
         );
 
         setCreateListener(listen);

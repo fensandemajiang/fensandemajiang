@@ -83,7 +83,6 @@ export default function PeerContextProvider({ children }: Props): ReactElement {
             data: JSON.stringify(data),
           };
           await client.create(threadId, 'connectDetail', [connectDetail]);
-          //}
         }
 
         console.log('adding to db', userID, id);
