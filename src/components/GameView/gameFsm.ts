@@ -12,6 +12,7 @@ import {
   randomizeDeck,
   sendToEveryone,
 } from './GameFunctions';
+import { logStateInIpfs } from './ipfs';
 
 function drawTile(
   gameDataState: GameDataState,
@@ -485,7 +486,7 @@ function hu(
   }
 }
 
-export function updateGameDataState(
+function updateGameDataState(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
@@ -512,4 +513,22 @@ export function updateGameDataState(
     default:
       return currentGameDataState;
   }
+}
+export async function updateGameDataStateAndLog(
+  currentGameDataState: GameDataState,
+  stateTransition: PlayerAction,
+  peers: Peers,
+  gameId: string,
+): Promise<GameDataState> {
+  const nextState = updateGameDataState(
+    currentGameDataState,
+    stateTransition,
+    peers,
+  );
+  try {
+    await logStateInIpfs(currentGameDataState, stateTransition, gameId);
+  } catch (err) {
+    console.error(err);
+  }
+  return nextState;
 }

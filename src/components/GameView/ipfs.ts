@@ -1,4 +1,3 @@
-import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { Web3Storage } from 'web3.storage';
 // import { updateIpfsCid } from './playerActions';
 import type { PlayerAction, GameDataState } from '../../types';
@@ -20,15 +19,12 @@ function createFileFromState(
 ) {
   const obj = { gameDataState: gameDataState, playerAction: playerAction };
   const blob = new Blob([JSON.stringify(obj)], { type: 'application/json' });
-  return new File(
-    [blob],
-    `fensandemajiang_log_${gameId}_${new Date().getTime().toString()}.json`,
-  );
+  const filename = `fensandemajiang_log_player_${
+    gameDataState.yourPlayerId
+  }_game_${gameId}_${new Date().getTime().toString()}.json`;
+  return new File([blob], filename);
 }
 export async function logStateInIpfs(
-  peers: {
-    [userId: string]: SimplePeer.Instance;
-  },
   gameDataState: GameDataState,
   playerAction: PlayerAction,
   gameId: string,
@@ -41,6 +37,6 @@ export async function logStateInIpfs(
     return '';
   }
   const cid = await storageClient.put([file]);
-  // updateIpfsCid(peers, cid);
+  console.log(`LOGGING ${file.name} @ https://dweb.link/ipfs/${cid}`);
   return cid;
 }
