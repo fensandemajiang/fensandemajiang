@@ -29,10 +29,10 @@ function placeTile(
       ...discards[gameDataState.yourPlayerId],
       discardedTile,
     ];
-    let newDiscards: { [userId: string]: Tile[] } = { ...discards };
+    const newDiscards: { [userId: string]: Tile[] } = { ...discards };
     newDiscards[gameDataState.yourPlayerId] = myDiscards;
 
-    let newHand: Tile[] = [...gameDataState.yourHand];
+    const newHand: Tile[] = [...gameDataState.yourHand];
     const tileInd: number = newHand.findIndex((t) =>
       tileEqual(t, discardedTile),
     );
