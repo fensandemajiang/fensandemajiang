@@ -6,14 +6,14 @@ function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
-  const deck: Tile[] =  gameDataState.deck;
+  const deck: Tile[] = gameDataState.deck;
   const lastTile: Tile = deck[deck.length - 1];
   const hand: Tile[] = gameDataState.yourHand;
 
   return {
     ...gameDataState,
     deck: deck.slice(0, deck.length - 1),
-    yourHand: [ ...hand, lastTile ]
+    yourHand: [...hand, lastTile],
   };
 }
 
@@ -25,18 +25,23 @@ function placeTile(
     const discardedTile: Tile = stateTransition.body.tile;
 
     const discards: { [userId: string]: Tile[] } = gameDataState.discards;
-    const myDiscards: Tile[] = [ ...discards[gameDataState.yourPlayerId], discardedTile];
-    let newDiscards: { [userId: string]: Tile[] } = { ...discards };
+    const myDiscards: Tile[] = [
+      ...discards[gameDataState.yourPlayerId],
+      discardedTile,
+    ];
+    const newDiscards: { [userId: string]: Tile[] } = { ...discards };
     newDiscards[gameDataState.yourPlayerId] = myDiscards;
 
-    let newHand: Tile[] = [ ...gameDataState.yourHand ];
-    const tileInd: number = newHand.findIndex(t => tileEqual(t, discardedTile));
+    const newHand: Tile[] = [...gameDataState.yourHand];
+    const tileInd: number = newHand.findIndex((t) =>
+      tileEqual(t, discardedTile),
+    );
     newHand.splice(tileInd, 1);
 
     return {
-      ...gameDataState,  
+      ...gameDataState,
       discards: newDiscards,
-      yourHand: newHand
+      yourHand: newHand,
     };
   } else return gameDataState;
 }
