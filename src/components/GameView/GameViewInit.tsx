@@ -128,6 +128,15 @@ const GameViewInit: FunctionComponent = () => {
             gameDataState: newDataStore,
           });
         });
+      
+        peers[id].on("connect", () => {
+          console.log("connected with", id);
+        });
+
+        peers[id].on("error", (err) => {
+          console.log("err", err.name);
+          console.log("err", err.message);
+        });
       }
 
       useConnectionStore.setState({
