@@ -137,8 +137,9 @@ export interface PlayerAction {
     ipfsCid?: string;
     signalIds?: string[];
     userId?: string;
-    peers?: Peers;
     isSending?: boolean;
+    hands?: { [playerId: string]: Tile[] };
+    score?: Score;
   };
 }
 

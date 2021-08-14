@@ -1,6 +1,13 @@
-import { GameDataState, ActionType, PlayerAction, Tile } from '../../types';
+import {
+  GameDataState,
+  ActionType,
+  PlayerAction,
+  Tile,
+  Peers,
+} from '../../types';
 import { compStr } from '../../utils/utilFunc';
 import { tileEqual, calculateScore, randomizeDeck } from './GameFunctions';
+import { sendToEveryone, sendToPlayer } from './playerActions';
 
 function drawTile(
   gameDataState: GameDataState,
@@ -227,29 +234,66 @@ function replaceFlower(
 function initGame(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
-  return gameDataState;
+  const { isSending } = stateTransition.body;
+  if (isSending === undefined) {
+    throw Error('isSending is undefined.');
+  }
+  if (isSending === true) {
+    const { allPlayerIds, deck, yourPlayerId } = gameDataState;
+    let newDeck = deck;
+    newDeck = randomizeDeck([...deck]);
+
+    const hands: { [playerId: string]: Tile[] } = {};
+    for (const playerId in allPlayerIds) {
+      const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
+      newDeck = newDeck.slice(0, newDeck.length - 13);
+      hands[playerId] = hand;
+    }
+    const newStateTransition = {
+      ...stateTransition,
+      isSending: false,
+      hands: hands,
+      deck: newDeck,
+    };
+    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    return {
+      ...gameDataState,
+      deck: newDeck,
+      yourHand: hands[yourPlayerId],
+    };
+  } else {
+    const { hands, deck } = stateTransition.body;
+    if (hands === undefined || deck === undefined) {
+      throw Error('hands or deck is undefined.');
+    }
+    const { yourPlayerId } = gameDataState;
+    return {
+      ...gameDataState,
+      deck: deck,
+      yourHand: hands[yourPlayerId],
+    };
+  }
 }
 
 function SetPlayerId(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
-  const { signalIds, userId, peers } = stateTransition.body;
+  const { signalIds, userId } = stateTransition.body;
   if (signalIds === undefined || userId === undefined || peers === undefined) {
-    throw Error('Signal IDs are undefined');
+    throw Error('SignalIds, userId or peers is undefined');
   }
   const playerIds = signalIds;
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
   let currentPlayerId: string = sortedPlayerIds[0];
   let currentPlayerIndex = 0;
-  let newDeck: Tile[] = gameDataState.deck;
   if (currentPlayerId === userId) {
     // we're sending the deck to the next player
     currentPlayerId = sortedPlayerIds[1];
     currentPlayerIndex = 1;
-
-    newDeck = randomizeDeck(gameDataState.deck);
   }
   return {
     ...gameDataState,
@@ -257,28 +301,52 @@ function SetPlayerId(
     yourPlayerId: userId,
     currentTurn: currentPlayerId,
     currentPlayerIndex: currentPlayerIndex,
-    deck: newDeck,
   };
 }
 
 function hu(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
+  const { isSending } = stateTransition.body;
+  if (isSending === undefined) {
+    throw Error('isSending is undefined.');
+  }
   const { yourPlayerId, yourHand, score } = gameDataState;
+  let newScore = score;
   if (!(yourPlayerId in score)) {
     const newScore = { ...score, [yourPlayerId]: calculateScore(yourHand) };
+    const newStateTransition = {
+      ...stateTransition,
+      body: {
+        score: newScore,
+      },
+    };
+    sendToEveryone(peers, JSON.stringify(newStateTransition));
+  }
+  if (isSending === true) {
+    return {
+      ...gameDataState,
+      score: newScore,
+    };
+  } else {
+    const { score } = stateTransition.body;
+    if (score === undefined) {
+      throw Error('score is undefined.');
+    }
+    newScore = { ...newScore, ...score };
     return {
       ...gameDataState,
       score: newScore,
     };
   }
-  return gameDataState;
 }
 
 export function updateGameDataState(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
   switch (stateTransition.action) {
     case ActionType.DrawTile:
@@ -294,11 +362,11 @@ export function updateGameDataState(
     case ActionType.ReplaceFlower:
       return replaceFlower(currentGameDataState, stateTransition);
     case ActionType.InitGame:
-      return initGame(currentGameDataState, stateTransition);
+      return initGame(currentGameDataState, stateTransition, peers);
     case ActionType.Hu:
-      return hu(currentGameDataState, stateTransition);
+      return hu(currentGameDataState, stateTransition, peers);
     case ActionType.SetPlayerId:
-      return SetPlayerId(currentGameDataState, stateTransition);
+      return SetPlayerId(currentGameDataState, stateTransition, peers);
     default:
       return currentGameDataState;
   }
