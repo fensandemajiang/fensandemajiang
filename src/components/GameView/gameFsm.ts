@@ -405,6 +405,7 @@ function initGame(
       ...gameDataState,
       deck: newDeck,
       yourHand: hands[yourPlayerId],
+      currentState: GameState.DrawCard,
     };
   } else {
     const { hands, deck } = stateTransition.body;
@@ -416,6 +417,7 @@ function initGame(
       ...gameDataState,
       deck: deck,
       yourHand: hands[yourPlayerId],
+      currentState: GameState.DrawCard,
     };
   }
 }
@@ -444,6 +446,7 @@ function setPlayerId(
     yourPlayerId: userId,
     currentTurn: currentPlayerId,
     currentPlayerIndex: currentPlayerIndex,
+    currentState: GameState.ShuffleDeck,
   };
 }
 
@@ -485,6 +488,26 @@ function hu(
     };
   }
 }
+function noDeclare(
+  gameDataState: GameDataState,
+  stateTransition: PlayerAction,
+  peers: Peers,
+  isChi: boolean,
+): GameDataState {
+  const { isSending } = stateTransition.body;
+  if (isSending === undefined) {
+    throw Error('isSending is undefined.');
+  }
+  if (isSending === true) {
+    const newStateTransition = {
+      ...stateTransition,
+      body: { isSending: false },
+    };
+    sendToEveryone(peers, JSON.stringify(stateTransition));
+  }
+  const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
+  return { ...gameDataState, currentState: nextState };
+}
 
 function updateGameDataState(
   currentGameDataState: GameDataState,
@@ -510,6 +533,10 @@ function updateGameDataState(
       return hu(currentGameDataState, stateTransition, peers);
     case ActionType.SetPlayerId:
       return setPlayerId(currentGameDataState, stateTransition, peers);
+    case ActionType.NoChi:
+      return noDeclare(currentGameDataState, stateTransition, peers, true);
+    case ActionType.NoPengGang:
+      return noDeclare(currentGameDataState, stateTransition, peers, false);
     default:
       return currentGameDataState;
   }
