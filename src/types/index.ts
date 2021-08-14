@@ -128,6 +128,7 @@ export interface PlayerAction {
   body: {
     tile?: Tile;
     deck?: Tile[];
+    discards?: { [userId: string]: Tile[] };
     playerFrom?: string;
     playerTo?: string;
     gameState?: string;

@@ -77,8 +77,51 @@ function gang(
 function replaceFlower(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
+  peers: Peers,
 ): GameDataState {
-  return gameDataState;
+  const { isSending } = stateTransition.body;
+  if (isSending === undefined) {
+    throw Error('isSending is undefined.');
+  }
+  if (isSending === true) {
+    const { tile } = stateTransition.body;
+    if (tile === undefined) {
+      throw Error('tile is undefined.');
+    }
+    const { yourHand, deck, discards, yourPlayerId } = gameDataState;
+    const handIdx = yourHand.findIndex((t) => tileEqual(t, tile));
+    const newHand = [
+      ...yourHand.slice(0, handIdx),
+      ...yourHand.slice(handIdx + 1),
+      deck[0],
+    ];
+
+    const deckIdx = deck.findIndex((t) => tileEqual(t, tile));
+    const newDeck = [...deck.slice(1, deckIdx), ...deck.slice(deckIdx + 1)];
+
+    const newDiscards = {
+      ...discards,
+      [yourPlayerId]: [...discards[yourPlayerId], tile],
+    };
+
+    const newStateTransition = {
+      ...stateTransition,
+      body: { isSending: false, deck: newDeck, discards: newDiscards },
+    };
+    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    return {
+      ...gameDataState,
+      discards: newDiscards,
+      deck: newDeck,
+      yourHand: newHand,
+    };
+  } else {
+    const { deck, discards } = stateTransition.body;
+    if (deck === undefined || discards === undefined) {
+      throw Error('deck or discards is undefined.');
+    }
+    return { ...gameDataState, discards: discards, deck: deck };
+  }
 }
 
 function initGame(
@@ -103,9 +146,12 @@ function initGame(
     }
     const newStateTransition = {
       ...stateTransition,
-      isSending: false,
-      hands: hands,
-      deck: newDeck,
+      body: {
+        ...stateTransition.body,
+        isSending: false,
+        hands: hands,
+        deck: newDeck,
+      },
     };
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
@@ -210,7 +256,7 @@ export function updateGameDataState(
     case ActionType.Gang:
       return gang(currentGameDataState, stateTransition);
     case ActionType.ReplaceFlower:
-      return replaceFlower(currentGameDataState, stateTransition);
+      return replaceFlower(currentGameDataState, stateTransition, peers);
     case ActionType.InitGame:
       return initGame(currentGameDataState, stateTransition, peers);
     case ActionType.Hu:
