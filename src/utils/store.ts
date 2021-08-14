@@ -90,7 +90,7 @@ const initialGameDataState: GameDataState = {
   yourPlayerId: '',
   currentTurn: '', //userId of current player
   currentPlayerIndex: 0,
-  currentState: GameState.ShuffleDeck,
+  currentState: GameState.Start,
   roundNumber: 0,
   previousIpfsCid: '',
   score: {},

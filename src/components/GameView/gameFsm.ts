@@ -553,7 +553,15 @@ function noDeclare(
     sendToEveryone(peers, JSON.stringify(stateTransition));
   }
   const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
-  return { ...gameDataState, currentState: nextState };
+  const newCurrentPlayerInd: number =
+    (gameDataState.currentPlayerIndex + (isChi ? 1 : 0)) % 4;
+  const newCurrentTurn: string = gameDataState.currentTurn[newCurrentPlayerInd];
+  return {
+    ...gameDataState,
+    currentState: nextState,
+    currentPlayerIndex: newCurrentPlayerInd,
+    currentTurn: newCurrentTurn,
+  };
 }
 
 function updateGameDataState(

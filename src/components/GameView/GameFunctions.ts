@@ -13,6 +13,17 @@ export function tileEqual(tile1: Tile, tile2: Tile): boolean {
   );
 }
 
+export function mostRecentDiscard(
+  discards: { [userId: string]: Tile[] },
+  currentPlayer: string,
+): Tile {
+  return discards[currentPlayer][discards[currentPlayer].length - 1];
+}
+
+export function amFirstPlayer(allPlayerIds: string[], yourPlayerId: string) {
+  return allPlayerIds.findIndex((id) => id === yourPlayerId) === 0;
+}
+
 // returns indexes of triple
 // assumes the newTile is already in hand
 export function findGrouping(
