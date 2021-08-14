@@ -115,6 +115,9 @@ export enum ActionType {
   NoPengGang,
   SetPlayerId,
 }
+export interface Peers {
+  [userId: string]: SimplePeer.Instance;
+}
 
 export interface PlayerAction {
   action: ActionType;
@@ -126,6 +129,10 @@ export interface PlayerAction {
     gameState?: string;
     playerIndex?: number;
     ipfsCid?: string;
+    signalIds?: string[];
+    userId?: string;
+    peers?: Peers;
+    isSending?: boolean;
   };
 }
 
