@@ -88,13 +88,20 @@ export function processReceivedData(
   return gameDataStore;
 }
 
-function sendToEveryone(
+export function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
 ): void {
   for (const id in peers) {
     peers[id].send(data);
   }
+}
+export function sendToPlayer(
+  peers: { [userId: string]: SimplePeer.Instance },
+  data: string,
+  peerId: string,
+): void {
+  peers[peerId].send(data);
 }
 
 /*
@@ -138,21 +145,6 @@ export function updateIpfsCid(
   sendToEveryone(peers, JSON.stringify(updateIpfsCidActionType));
 }
 
-export function sendHand(
-  peers: { [userId: string]: SimplePeer.Instance },
-  hand: Tile[],
-  toPlayer: string,
-): void {
-  const giveHandActionType: PlayerAction = {
-    action: ActionType.GiveHand,
-    body: {
-      deck: hand,
-      playerTo: toPlayer, // do we even need playerTo here?
-    },
-  };
-
-  peers[toPlayer].send(JSON.stringify(giveHandActionType));
-}
 
 export function giveDeck(
   peers: { [userId: string]: SimplePeer.Instance },
@@ -234,5 +226,19 @@ export function sendShowFlower(
   };
 
   sendToEveryone(peers, JSON.stringify(showFlowerActionType));
+}
+export function sendHand(
+  peers: { [userId: string]: SimplePeer.Instance },
+  stateTransition: PlayerAction,
+): void {
+  const giveHandActionType: PlayerAction = {
+    action: ActionType.InitGame,
+    body: {
+      deck: hand,
+      playerTo: toPlayer, // do we even need playerTo here?
+    },
+  };
+
+  peers[toPlayer].send(JSON.stringify(giveHandActionType));
 }
 */
