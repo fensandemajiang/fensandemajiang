@@ -1,17 +1,43 @@
-import { GameDataState, ActionType, PlayerAction } from '../../types';
+import { tileEqual } from './GameFunctions';
+import { GameDataState, ActionType, PlayerAction, Tile } from '../../types';
 
 function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
-  return gameDataState;
+  const deck: Tile[] =  gameDataState.deck;
+  const lastTile: Tile = deck[deck.length - 1];
+  const hand: Tile[] = gameDataState.yourHand;
+
+  return {
+    ...gameDataState,
+    deck: deck.slice(0, deck.length - 1),
+    yourHand: [ ...hand, lastTile ]
+  };
 }
 
 function placeTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
-  return gameDataState;
+  if (stateTransition.body?.tile) {
+    const discardedTile: Tile = stateTransition.body.tile;
+
+    const discards: { [userId: string]: Tile[] } = gameDataState.discards;
+    const myDiscards: Tile[] = [ ...discards[gameDataState.yourPlayerId], discardedTile];
+    let newDiscards: { [userId: string]: Tile[] } = { ...discards };
+    newDiscards[gameDataState.yourPlayerId] = myDiscards;
+
+    let newHand: Tile[] = [ ...gameDataState.yourHand ];
+    const tileInd: number = newHand.findIndex(t => tileEqual(t, discardedTile));
+    newHand.splice(tileInd, 1);
+
+    return {
+      ...gameDataState,  
+      discards: newDiscards,
+      yourHand: newHand
+    };
+  } else return gameDataState;
 }
 
 function chi(
