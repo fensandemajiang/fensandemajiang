@@ -1,6 +1,6 @@
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { Web3Storage } from 'web3.storage';
-import { updateIpfsCid } from './playerActions';
+// import { updateIpfsCid } from './playerActions';
 import type { PlayerAction, GameDataState } from '../../types';
 function getAccessToken(): string {
   if (import.meta.env.VITE_WEB3_STORAGE_API_TOKEN) {
@@ -41,6 +41,6 @@ export async function logStateInIpfs(
     return '';
   }
   const cid = await storageClient.put([file]);
-  updateIpfsCid(peers, cid);
+  // updateIpfsCid(peers, cid);
   return cid;
 }
