@@ -1,0 +1,19 @@
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  /* padding-top: 70%; */
+}
+
+.overlay-active {
+  display: block;
+}
+
+.overlay .overlay-button{
+    border-radius: 0.5em;
+    font-weight: 600;
+    font-size: larger;
+}

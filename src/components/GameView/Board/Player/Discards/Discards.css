@@ -24,10 +24,9 @@
 
 .discard-up {
   width: 55%;
-  height: 65%;
+  height: 55%;
   flex-direction: row-reverse;
   flex-wrap: wrap-reverse;
   justify-content: flex-end;
-  gap: 5%;
-  padding-top: 1%;
+  column-gap: 3%;
 }

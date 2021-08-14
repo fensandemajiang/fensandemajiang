@@ -1,21 +1,19 @@
 import { GameDataState, GameState, Action, Tile } from '../../types';
-import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
+import { amCurrentPlayer } from '../../utils/utilFunc';
 import { findGrouping, hasWon } from './GameFunctions';
-import { useGameDataStore, useConnectionStore } from '../../utils/store';
+import { useGameDataStore } from '../../utils/store';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import {
   giveDeck,
   updateGameState,
-  sendHand,
   sendPlaceTile,
   updateCurrentPlayerIndex,
-  sendConsumeTile,
 } from './playerActions';
 export const updateGameDataState = (
   gameDataState: GameDataState,
   gameState: GameState,
   peers: { [userId: string]: SimplePeer.Instance },
-) => {
+): void => {
   switch (gameState) {
     case GameState.DrawPlayCard:
       if (
@@ -131,9 +129,9 @@ export const updateGameDataState = (
         );
         const selectedChiGroupIndex = 0; // this is the index of the group the user selected
         const valSortedChiGroup: number[] = group[selectedChiGroupIndex];
-        const indSortedChiGroup: number[] = valSortedChiGroup.sort().reverse();
 
         /*
+          const findSortedChiGroup: number[] = valSortedChiGroup.sort().reverse();
           if (userConsumesTile) {
             // if we consume the tile
             var newHand: Tile[] = [
@@ -156,9 +154,9 @@ export const updateGameDataState = (
             newToShowTiles[gameDataState.yourPlayerId] = newMyToShowTiles;
 
             // removes tiles from hand
-            newHand.splice(indSortedChiGroup[0], 1);
-            newHand.splice(indSortedChiGroup[1], 1);
-            newHand.splice(indSortedChiGroup[2], 1);
+            newHand.splice(findSortedChiGroup[0], 1);
+            newHand.splice(findSortedChiGroup[1], 1);
+            newHand.splice(findSortedChiGroup[2], 1);
 
             useGameDataStore.setState({
               ...useGameDataStore.getState(),

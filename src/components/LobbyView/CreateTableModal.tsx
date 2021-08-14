@@ -10,6 +10,7 @@ import { Filter, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
 import { useUserStore, useConnectionStore } from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
+import type { grpc } from '@improbable-eng/grpc-web';
 
 type CreateTableModalProps = {
   open: boolean;
@@ -22,9 +23,11 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
 }) => {
   const cancelButtonRef = useRef(null);
   const [tableCode, setTableCode] = useState('');
-  const [threadId, setThreadId] = useState<ThreadID>(ThreadID.fromRandom());
+  const threadId = ThreadID.fromRandom();
   const [playerCount, setPlayerCount] = useState<number>(0);
-  const [createListener, setCreateListener] = useState<any>(null);
+  const [createListener, setCreateListener] = useState<grpc.Request | null>(
+    null,
+  );
   const { client, identity } = useConnectionStore(
     (state) => state.connectionState,
   );
@@ -33,8 +36,6 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
     async function createTable() {
       if (props.open && playerCount === 0) {
         setTableCode('loading...');
-
-        const tok = await client.getToken(identity);
         // check if table db already exists
         await client.newDB(threadId, 'table');
         await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
@@ -65,42 +66,38 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           { collectionName: 'playerId' },
           { actionTypes: ['CREATE', 'DELETE'] },
         ];
-        const listen: any = client.listen(
-          threadId,
-          listenFilters,
-          (reply, err) => {
-            async function asyncWrapper() {
-              if (client) {
-                const data: DbConnectionPlayer[] = await client.find(
-                  threadId,
-                  'playerId',
-                  {},
-                );
+        const listen = client.listen(threadId, listenFilters, (reply, err) => {
+          async function asyncWrapper() {
+            if (client) {
+              const data: DbConnectionPlayer[] = await client.find(
+                threadId,
+                'playerId',
+                {},
+              );
 
-                const usersIds: string[] = data.map(
-                  (val: DbConnectionPlayer) => val.playerId,
-                );
+              const usersIds: string[] = data.map(
+                (val: DbConnectionPlayer) => val.playerId,
+              );
 
-                useConnectionStore.setState({
-                  ...useConnectionStore.getState(),
-                  connectionState: {
-                    ...useConnectionStore.getState().connectionState,
-                    signalIDs: usersIds,
-                  },
-                });
-                console.log(usersIds);
-                setPlayerCount(usersIds.length);
+              useConnectionStore.setState({
+                ...useConnectionStore.getState(),
+                connectionState: {
+                  ...useConnectionStore.getState().connectionState,
+                  signalIDs: usersIds,
+                },
+              });
+              console.log(usersIds);
+              setPlayerCount(usersIds.length);
 
-                // table is full
-                if (usersIds.length === 4) {
-                  // change page and start game
-                  history.push('/play');
-                }
+              // table is full
+              if (usersIds.length === 4) {
+                // change page and start game
+                history.push('/play');
               }
             }
-            asyncWrapper();
-          },
-        );
+          }
+          asyncWrapper();
+        });
 
         setCreateListener(listen);
       }
@@ -114,7 +111,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
         userID: useUserStore.getState().userState.did?.id ?? '',
       },
     });
-  }, [props.open, threadId, playerCount]);
+  }, [props.open, threadId, playerCount, client, identity]);
 
   async function close() {
     //check if collections were created, if so delete them

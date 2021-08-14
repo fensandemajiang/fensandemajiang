@@ -1,6 +1,6 @@
 import React, { MouseEvent } from 'react';
 import PropTypes, { InferProps } from 'prop-types';
-import Tile from './Tile/Tile';
+import DeckTile from './DeckTile/DeckTile';
 import './Deck.css';
 
 function Deck(props: InferProps<typeof Deck.propTypes>) {
@@ -9,7 +9,7 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
   const tiles = [];
 
   for (let i = 0; i < size; i++) {
-    tiles.push(<Tile></Tile>);
+    tiles.push(<DeckTile discard={props.discard} index={i}></DeckTile>);
   }
 
   return (
@@ -23,6 +23,7 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
 
 Deck.propTypes = {
   any: PropTypes.any,
+  discard: PropTypes.func,
 };
 
 export default Deck;

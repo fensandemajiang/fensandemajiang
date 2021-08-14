@@ -45,3 +45,8 @@
   -o-transform: rotate(90deg);
   transform: rotate(90deg);
 }
+
+.player .tile, 
+.player-up .tile{
+  height: 100%;
+}

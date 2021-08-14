@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes, { InferProps } from 'prop-types';
 import UprightTile from './UprightTile/UprightTile';
 import Discards from './Discards/Discards';
+import Matches from './Matches/Matches';
 import './Player.css';
 
 function Player(props: InferProps<typeof Player.propTypes>) {
@@ -25,6 +26,7 @@ function Player(props: InferProps<typeof Player.propTypes>) {
       <div className={className}>
         <Discards orientation={props.orientation}></Discards>
         <div className="hand">{deck}</div>
+        <Matches orientation={props.orientation}></Matches>
       </div>
     </>
   );

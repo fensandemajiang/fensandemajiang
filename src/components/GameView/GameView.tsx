@@ -1,24 +1,15 @@
-import React, { useEffect, useContext, FunctionComponent } from 'react';
+import React, { useEffect, FunctionComponent } from 'react';
 import { useGameDataStore, useConnectionStore } from '../../utils/store';
-import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import { compStr, getRandomInt, amCurrentPlayer } from '../../utils/utilFunc';
+import { compStr, getRandomInt } from '../../utils/utilFunc';
 import { updateGameDataState } from './gameState';
-import {
-  giveDeck,
-  updateGameState,
-  sendHand,
-  sendPlaceTile,
-  updateCurrentPlayerIndex,
-  sendConsumeTile,
-} from './playerActions';
-import { GameState, Action } from '../../types';
+import { giveDeck, updateGameState, sendHand } from './playerActions';
+import { GameState } from '../../types';
 import type { Tile } from '../../types';
 import './GameView.css';
 import Board from './Board/Board';
 import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
-import GameOverModal from './GameOverModal';
 
 const GameView: FunctionComponent = () => {
   const deck: Tile[] = useGameDataStore((state) => state.gameDataState.deck);
@@ -30,7 +21,7 @@ const GameView: FunctionComponent = () => {
     const newDeck = [...deck];
 
     for (let t1 = 0; t1 < 143; t1++) {
-      // this approach could technically swap a tile with itself, 
+      // this approach could technically swap a tile with itself,
       // but that's going to be rare enough that I don't think it'll be important to worry about
       const t2 = getRandomInt(0, 143); // 144 total tiles in the deck
       [newDeck[t1], newDeck[t2]] = [newDeck[t2], newDeck[t1]]; //swap
@@ -148,7 +139,11 @@ const GameView: FunctionComponent = () => {
     updateGameDataState(dataStore, gameState, peers);
   }, [gameState]);
 
-  function discard(tile: Tile, playerID: string) {
+  function discard(tileType: number, tileIndex: number) {
+    const discard = confirm('discard this tile?');
+    if (discard) {
+      console.log(tileType, tileIndex);
+    }
     // placeholder
   }
 
@@ -173,7 +168,7 @@ const GameView: FunctionComponent = () => {
             <Board></Board>
           </div>
           <div className="game-view-bot">
-            <Deck></Deck>
+            <Deck discard={discard}></Deck>
             <Actions
               playerActions={{
                 chow: chow,
