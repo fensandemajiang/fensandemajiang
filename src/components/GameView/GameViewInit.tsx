@@ -28,32 +28,28 @@ const GameViewInit: FunctionComponent = () => {
         console.log('could not get token');
       }
 
+      const peers: { [userId: string]: SimplePeer.Instance } = {};
       const listenFilters: Filter[] = [
         { collectionName: 'connectDetail' },
         { actionTypes: ['CREATE'] }
       ];
       await client.listen(threadId, listenFilters, (update?: Update<DbConnectDetail>) => {
-        async function asyncWrapper() {
-          if (!update || !update.instance) return;
-          /*
+        if (!update || !update.instance) return;
+
+        const inst: DbConnectDetail = update.instance;
+        if (inst.to === userID) {
+          console.log("processing req from", inst.from);
           console.log("------------------");
           console.log(update.instance._id);
           console.log(update.instance.data);
           console.log(update.instance.from);
           console.log(update.instance.to);
           console.log("--------------");
-          */
-
-          const inst: DbConnectDetail = update.instance;
-          if (inst.to === userID) {
-            console.log("processing req from", inst.from);
-            peers[inst.from].signal(JSON.parse(inst.data));
-          }
+          peers[inst.from].signal(JSON.parse(inst.data));
+          console.log("finish processing req from", inst.from)
         }
-        asyncWrapper();
       });
 
-      const peers: { [userId: string]: SimplePeer.Instance } = {};
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
         const id = signalIDs[idInd];
         if (userID < id) {
