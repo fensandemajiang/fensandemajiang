@@ -44,7 +44,7 @@ export interface GameDataState {
   currentPlayerIndex: number;
   currentState: GameState;
   roundNumber: number;
-  playerWithDeck: string; // empty string or null if no player has deck
+  //playerWithDeck: string; // empty string or null if no player has deck
   previousIpfsCid: string;
 }
 
@@ -93,29 +93,31 @@ export interface UserState {
 }
 
 export enum GameState {
+  Start = 'Start',
   ShuffleDeck = 'ShuffleDeck',
-  DrawPlayCard = 'DrawPlayCard',
+  DrawCard = 'DrawCard',
+  PlayCard = 'PlayCard',
   PengGang = 'PengGang',
   Chi = 'Chi',
+  Hu = 'Hu',
 }
 
-export enum Action {
+export enum ActionType {
   DrawTile = 1,
   PlaceTile,
   Chi,
   Peng,
   Gang,
-  ShowFlower,
   ReplaceFlower,
-  GiveDeck,
-  GiveHand,
-  UpdateGameState,
-  UpdateCurrentPlayerIndex,
-  UpdateIpfsCid,
+  InitGame,
+  Hu,
+  NoChi,
+  NoPengGang,
+  SetPlayerId,
 }
 
 export interface PlayerAction {
-  action: Action;
+  action: ActionType;
   body: {
     tile?: Tile;
     deck?: Tile[];
