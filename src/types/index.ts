@@ -14,6 +14,7 @@ export interface DbConnectionPlayer {
 }
 
 import type { Client, Identity } from '@textile/hub';
+import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 export interface ConnectionState {
   signalIDs: string[];
   userID: string;
@@ -21,6 +22,7 @@ export interface ConnectionState {
   client: Client;
   identity: Identity;
   threadId: string;
+  peers: { [userId: string]: SimplePeer.Instance };
 }
 export enum UserConnectionState {
   Connected,
