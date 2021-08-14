@@ -1,6 +1,6 @@
 import { GameDataState, ActionType, PlayerAction, Tile } from '../../types';
 import { compStr } from '../../utils/utilFunc';
-import { randomizeDeck } from './GameFunctions';
+import { calculateScore, randomizeDeck } from './GameFunctions';
 
 function drawTile(
   gameDataState: GameDataState,
@@ -85,6 +85,14 @@ function hu(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
 ): GameDataState {
+  const { yourPlayerId, yourHand, score } = gameDataState;
+  if (!(yourPlayerId in score)) {
+    const newScore = { ...score, [yourPlayerId]: calculateScore(yourHand) };
+    return {
+      ...gameDataState,
+      score: newScore,
+    };
+  }
   return gameDataState;
 }
 
