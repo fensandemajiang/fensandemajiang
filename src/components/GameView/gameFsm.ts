@@ -1,15 +1,16 @@
 import { GameDataState, ActionType, PlayerAction } from '../../types';
 
-function drawTile(gameDataState: GameDataState) {
+function drawTile(gameDataState: GameDataState): GameDataState {
+  
 }
 
-function placeTile(gameDataState: GameDataState) {
+function placeTile(gameDataState: GameDataState): GameDataState {
 } 
 
-function chi(gameDataState: GameDataState) {
+function chi(gameDataState: GameDataState): GameDataState {
 } 
 
-function peng(gameDataState: GameDataState) {
+function peng(gameDataState: GameDataState): GameDataState {
 } 
 
 function gang(gameDataState: GameDataState) {
@@ -30,16 +31,16 @@ function hu(gameDataState: GameDataState) {
 export function updateGameDataState(currentGameDataState: GameDataState, stateTransition: PlayerAction): GameDataState {
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(currentgameDataState);
+      return drawTile(currentGameDataState);
       break;
     case ActionType.PlaceTile:
-      return placeTile(currentgameDataState);
+      return placeTile(currentGameDataState);
       break;
     case ActionType.Chi:
-      return chi(currentgameDataState);
+      return chi(currentGameDataState);
       break;
     case ActionType.Peng:
-      return peng(currentgameDataState);
+      return peng(currentGameDataState);
       break;
     case ActionType.Gang:
       return gang(currentgameDataState);
