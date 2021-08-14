@@ -57,14 +57,42 @@ const GameViewInit: FunctionComponent = () => {
           console.log('init: sending to', id);
           peers[id] = new SimplePeer({
             initiator: true,
-            trickle: false,
+            trickle: true,
+            config: {
+              iceServers: [
+              {
+                urls: "stun:numb.viagenie.ca",
+                username: "sultan1640@gmail.com",
+                credential: "98376683"
+              },
+              {
+                urls: "turn:numb.viagenie.ca",
+                username: "sultan1640@gmail.com",
+                credential: "98376683"
+              }
+              ]
+            }
           });
         } else if (userID > id) {
           // partner inits
           console.log('init: receiving from', id);
           peers[id] = new SimplePeer({
             initiator: false,
-            trickle: false,
+            trickle: true,
+            config: {
+              iceServers: [
+              {
+                urls: "stun:numb.viagenie.ca",
+                username: "sultan1640@gmail.com",
+                credential: "98376683"
+              },
+              {
+                urls: "turn:numb.viagenie.ca",
+                username: "sultan1640@gmail.com",
+                credential: "98376683"
+              }
+              ]
+            }
           });
         } else {
           continue;
