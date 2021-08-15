@@ -4,11 +4,12 @@ import Board from './Board/Board';
 import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
+import Timer from './Timer/Timer';
 import GameOverModal from './GameOverModal';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
 import { Suite, Tile, PlayerAction, ActionType, GameState } from '../../types';
-import { mostRecentDiscard, amFirstPlayer } from './GameFunctions';
+import { mostRecentDiscard, amFirstPlayer, containsChi, getFullHand } from './GameFunctions';
 import history from '../../history-helper';
 
 const GameView: FunctionComponent = () => {
@@ -149,17 +150,17 @@ const GameView: FunctionComponent = () => {
     }
   }
 
-  function chow(playerID: string) {
+  function chow(selectedTriple: Tile[]) {
     const mostRecentDiscardTile: Tile = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
     );
+
     // TODO complete this
     // this selected triple is the triple that the user has selected
     // for the chi. The user should be prompted with a list of possible chi
     // (if there are more than one option) and the triple they choose should
     // get thrown into this variable
-    const selectedTriple: Tile[] = [];
     const stateTransition: PlayerAction = {
       action: ActionType.Chi,
       body: {
@@ -256,6 +257,22 @@ const GameView: FunctionComponent = () => {
     }
   }
 
+  function getChowOptions(): Tile[][] {
+    const ret : Tile[][] = []
+    for( let i = 3; i < gameDataState.yourHand.length; i++){
+      const hand: Tile[] = gameDataState.yourHand.splice(i-3, i);
+      if (containsChi(hand, mostRecentDiscard(
+        gameDataState.discards,
+        gameDataState.currentTurn,
+      ))){
+        ret.push(hand)
+      }
+    }
+    return ret;
+  }
+  
+  const chowOptions: Tile[][] = getChowOptions()
+
   function endGame() {
     setOpenGameOver(false);
     history.push('/lobby');
@@ -274,19 +291,24 @@ const GameView: FunctionComponent = () => {
         <Sidebar></Sidebar>
         <div className="game-view-right">
           <div className="game-view-top">
-            <Board></Board>
+            <div className="game-view-top-left">
+              <Board></Board>
+            </div>
+            <div className="game-view-top-right">
+              <Timer></Timer>
+              <Actions
+                playerActions={{
+                  chow: chow,
+                  pung: pung,
+                  kong: kong,
+                  hu: hu,
+                  replaceFlower: replaceFlower,
+                }}
+              />
+            </div>
           </div>
           <div className="game-view-bot">
             <Deck discard={discard}></Deck>
-            <Actions
-              playerActions={{
-                chow: chow,
-                pung: pung,
-                kong: kong,
-                hu: hu,
-                replaceFlower: replaceFlower,
-              }}
-            />
           </div>
         </div>
       </div>

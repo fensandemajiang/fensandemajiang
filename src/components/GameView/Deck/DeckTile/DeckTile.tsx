@@ -1,6 +1,7 @@
 import React, { MouseEvent, useState } from 'react';
 import PropTypes, { InferProps } from 'prop-types';
 import Tile from '@components/GlobalComponents/Tile/Tile';
+import type { Tile as TileType } from "../../../../types" 
 import Overlay from './Overlay/Overlay';
 import './DeckTile.css';
 
@@ -46,7 +47,7 @@ function DeckTile(props: InferProps<typeof DeckTile.propTypes>) {
         key={props.index ? props.index : undefined}
         onMouseLeave={onMouseLeave}
       >
-        <Tile onClick={onClick} className={hover + ' ' + click}></Tile>
+        <Tile onClick={onClick} className={hover + ' ' + click} tile={props.tile}></Tile>
         <Overlay active={overlay} discard={discard} onClick={onClick}></Overlay>
       </li>
     </>
@@ -58,6 +59,7 @@ DeckTile.propTypes = {
   discard: PropTypes.func,
   type: PropTypes.number,
   index: PropTypes.number,
+  tile: PropTypes.any
 };
 
 export default DeckTile;

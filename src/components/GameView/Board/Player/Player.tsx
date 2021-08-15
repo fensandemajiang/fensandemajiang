@@ -15,6 +15,8 @@ function Player(props: InferProps<typeof Player.propTypes>) {
     className += ' player-reverse';
   } else if (props.orientation == 'up') {
     className = 'player-up';
+  } else if (props.orientation == 'bottom') {
+    className = 'player-up player-bottom';
   }
 
   for (let i = 0; i < hand_size; i++) {
@@ -25,7 +27,7 @@ function Player(props: InferProps<typeof Player.propTypes>) {
     <>
       <div className={className}>
         <Discards orientation={props.orientation}></Discards>
-        <div className="hand">{deck}</div>
+        {props.orientation != 'bottom' ? <div className="hand">{deck}</div> : null}
         <Matches orientation={props.orientation}></Matches>
       </div>
     </>

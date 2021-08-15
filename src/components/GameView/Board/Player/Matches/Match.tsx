@@ -13,6 +13,9 @@ function Match(props: InferProps<typeof Match.propTypes>) {
   } else if (props.orientation == 'up') {
     className = 'single-match-up';
     rotation = 'up';
+  } else if(props.orientation == 'bottom'){
+    className = 'single-match-up';
+    rotation = "";
   }
 
   return (

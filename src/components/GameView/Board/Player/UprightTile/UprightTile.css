@@ -9,3 +9,15 @@
 .upright-tile-left {
   background-image: linear-gradient(to left, green, white);
 }
+
+.upright-tile-up {
+  width: 10px;
+  height: 20px;
+  margin-left: 5px;
+  margin-right: 5px;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+  background-image: linear-gradient(to left, green, white);
+}

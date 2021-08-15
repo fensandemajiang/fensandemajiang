@@ -1,6 +1,7 @@
 .actions-container {
-  width: 12%;
-  height: 100%;
+  width: 100%;
+  padding-left: 1em;
+  padding-top: 1em;
 }
 
 .actions {
@@ -8,5 +9,4 @@
   flex-direction: column;
   gap: 0.5em;
   width: 100%;
-  height: 100%;
 }

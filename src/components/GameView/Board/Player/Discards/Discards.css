@@ -11,6 +11,7 @@
   column-gap: 20px;
   padding-right: 5%;
   margin-right: 3%;
+  align-items: flex-end;
 }
 
 .discard-left {
@@ -22,11 +23,18 @@
   margin-right: 0;
 }
 
-.discard-up {
-  width: 55%;
-  height: 55%;
+.discard-up,
+.discard-bottom{
+  width: 70%;
+  height: 35%;
+  padding: 1%;
+  column-gap: 1%;
   flex-direction: row-reverse;
   flex-wrap: wrap-reverse;
   justify-content: flex-end;
-  column-gap: 3%;
+}
+
+.discard-bottom{
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
