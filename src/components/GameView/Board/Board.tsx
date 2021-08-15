@@ -6,13 +6,13 @@ import './Board.css';
 
 function Board(props: InferProps<typeof Board.propTypes>) {
 
-  let state = useGameDataStore();
+  const state = useGameDataStore();
   const yourIndex = state.gameDataState.currentPlayerIndex;
   const orientations = ['bottom', '', 'up', 'left'];
   const players = [];
 
   for (let i = 0; i < 4; i++) {
-    let index = (yourIndex + i) % 4;
+    const index = (yourIndex + i) % 4;
     const playerID = state.gameDataState.allPlayerIds[index];
     const discards = state.gameDataState.discards[playerID];
     const matches = state.gameDataState.shownTiles[playerID];

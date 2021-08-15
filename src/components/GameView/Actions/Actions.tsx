@@ -99,11 +99,11 @@ function Actions(props: { playerActions: any }) {
     <>
       <div className="actions-container">
         <div className="actions">
-          { true ? replaceFlowerButton : null }
-          { true ? chiButton : null }
-          { true ? kongButton : null }
-          { true ? pungButton : null }
-          { true ? huButton : null }
+          { displayReplaceFlower ? replaceFlowerButton : null }
+          { displayChi ? chiButton : null }
+          { displayKong ? kongButton : null }
+          { displayPung ? pungButton : null }
+          { displayHu ? huButton : null }
         </div>
       </div>
     </>
