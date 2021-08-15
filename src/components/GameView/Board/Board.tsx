@@ -5,7 +5,6 @@ import { useGameDataStore } from '@utils/store';
 import './Board.css';
 
 function Board(props: InferProps<typeof Board.propTypes>) {
-
   const state = useGameDataStore();
   const yourIndex = state.gameDataState.currentPlayerIndex;
   const orientations = ['bottom', '', 'up', 'left'];
@@ -36,7 +35,8 @@ function Board(props: InferProps<typeof Board.propTypes>) {
             {players[1]}
             <div className="board-center-div">
               {players[2]}
-              {players[0] // this is you
+              {
+                players[0] // this is you
               }
             </div>
             {players[3]}

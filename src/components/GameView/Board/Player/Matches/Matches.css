@@ -19,7 +19,7 @@
   column-gap: 1%;
 }
 
-.matches-container-bottom{
+.matches-container-bottom {
   flex-direction: row;
 }
 
@@ -35,9 +35,9 @@
   align-items: flex-end;
 }*/
 
-.matches-container-reverse .single-match{
+.matches-container-reverse .single-match {
   align-items: flex-end;
-} 
+}
 
 .single-match .matches-tile-container {
   height: 25%;

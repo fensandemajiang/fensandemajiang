@@ -12,12 +12,12 @@ function Matches(props: InferProps<typeof Matches.propTypes>) {
     className += ' matches-container-reverse';
   } else if (props.orientation == 'up') {
     className = 'matches-container-up';
-  } else if( props.orientation == 'bottom' ){
+  } else if (props.orientation == 'bottom') {
     className = 'matches-container-bottom';
   }
 
   for (let i = 0; i < num_matches; i++) {
-    const match = props.matches ? props.matches[i] : []
+    const match = props.matches ? props.matches[i] : [];
     matches.push(<Match orientation={props.orientation} match={match}></Match>);
   }
 
@@ -34,7 +34,7 @@ function Matches(props: InferProps<typeof Matches.propTypes>) {
 Matches.propTypes = {
   any: PropTypes.any,
   orientation: PropTypes.string,
-  matches: PropTypes.arrayOf(PropTypes.array)
+  matches: PropTypes.arrayOf(PropTypes.array),
 };
 
 export default Matches;

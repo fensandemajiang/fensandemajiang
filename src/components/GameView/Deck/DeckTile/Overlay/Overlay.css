@@ -12,9 +12,9 @@
   display: block;
 }
 
-.overlay .overlay-button{
-    border-radius: 0.5em;
-    font-weight: 600;
-    font-size: 1.5em;
-    color: white;
+.overlay .overlay-button {
+  border-radius: 0.5em;
+  font-weight: 600;
+  font-size: 1.5em;
+  color: white;
 }

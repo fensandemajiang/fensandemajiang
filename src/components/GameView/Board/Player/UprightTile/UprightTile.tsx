@@ -4,9 +4,9 @@ import './UprightTile.css';
 
 function UprightTile(props: InferProps<typeof UprightTile.propTypes>) {
   let className = 'upright-tile';
-  if (props.orientation == 'left' ) {
+  if (props.orientation == 'left') {
     className += ' upright-tile-left';
-  } else if (props.orientation == 'up'){
+  } else if (props.orientation == 'up') {
     className += ' upright-tile-up';
   }
 

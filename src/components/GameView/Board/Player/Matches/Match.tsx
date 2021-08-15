@@ -6,7 +6,7 @@ import './Matches.css';
 function Match(props: InferProps<typeof Match.propTypes>) {
   let className = 'single-match ';
   let rotation = 'right';
-  const tiles = []
+  const tiles = [];
 
   if (props.orientation == 'left') {
     className += ' single-match-reverse';
@@ -14,27 +14,24 @@ function Match(props: InferProps<typeof Match.propTypes>) {
   } else if (props.orientation == 'up') {
     className = 'single-match-up';
     rotation = 'up';
-  } else if(props.orientation == 'bottom'){
+  } else if (props.orientation == 'bottom') {
     className = 'single-match-up';
-    rotation = "";
+    rotation = '';
   }
 
-  if(props.match){
-    for( let i = 0; i < props.match.length; i++){
+  if (props.match) {
+    for (let i = 0; i < props.match.length; i++) {
       tiles.push(
         <div className={'matches-tile-container ' + rotation}>
           <Tile tile={props.match[i]}></Tile>
-        </div>
-      )
+        </div>,
+      );
     }
   }
-  
 
   return (
     <>
-      <div className={className}>
-        {tiles}
-      </div>
+      <div className={className}>{tiles}</div>
     </>
   );
 }
@@ -42,7 +39,7 @@ function Match(props: InferProps<typeof Match.propTypes>) {
 Match.propTypes = {
   any: PropTypes.any,
   orientation: PropTypes.string,
-  match: PropTypes.array
+  match: PropTypes.array,
 };
 
 export default Match;

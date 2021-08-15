@@ -15,7 +15,12 @@ import {
 } from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
 import { Suite, Tile, PlayerAction, ActionType, GameState } from '../../types';
-import { mostRecentDiscard, amFirstPlayer, containsChi, getFullHand } from './GameFunctions';
+import {
+  mostRecentDiscard,
+  amFirstPlayer,
+  containsChi,
+  getFullHand,
+} from './GameFunctions';
 import history from '../../history-helper';
 
 const GameView: FunctionComponent = () => {
@@ -289,20 +294,22 @@ const GameView: FunctionComponent = () => {
   }
 
   function getChowOptions(): Tile[][] {
-    const ret : Tile[][] = []
-    for( let i = 3; i < gameDataState.yourHand.length; i++){
-      const hand: Tile[] = gameDataState.yourHand.splice(i-3, i);
-      if (containsChi(hand, mostRecentDiscard(
-        gameDataState.discards,
-        gameDataState.currentTurn,
-      ))){
-        ret.push(hand)
+    const ret: Tile[][] = [];
+    for (let i = 3; i < gameDataState.yourHand.length; i++) {
+      const hand: Tile[] = gameDataState.yourHand.splice(i - 3, i);
+      if (
+        containsChi(
+          hand,
+          mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn),
+        )
+      ) {
+        ret.push(hand);
       }
     }
     return ret;
   }
-  
-  const chowOptions: Tile[][] = getChowOptions()
+
+  const chowOptions: Tile[][] = getChowOptions();
 
   function endGame() {
     setOpenGameOver(false);
