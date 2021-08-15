@@ -50,6 +50,11 @@ export interface GameDataState {
   score: Score;
 }
 
+export interface BetState {
+  bettingEnabled: boolean;
+  betAmount: number;
+}
+
 export interface ImageMetadata {
   src: string;
   mimeType: string;

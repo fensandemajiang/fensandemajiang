@@ -1,0 +1,16 @@
+{
+  "name": "oracle-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint:contracts": "solium --fix --dir .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fensandemajiang/fensandemajiang"
+  },
+  "author": "",
+  "license": "ISC"
+}

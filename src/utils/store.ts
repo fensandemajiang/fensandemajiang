@@ -1,6 +1,6 @@
 import create, { SetState } from 'zustand';
 import { Suite, Dragon, Flower, Wind, GameState, UserState } from '../types';
-import type { ConnectionState, GameDataState, Tile } from '../types';
+import type { ConnectionState, GameDataState, Tile, BetState } from '../types';
 import { Client, PrivateKey } from '@textile/hub';
 
 export type ConnectionDataStore = {
@@ -120,4 +120,18 @@ const initialUserState: UserState = {
 export const useUserStore = create<UserStore>((set: SetState<UserStore>) => ({
   userState: initialUserState,
   updateUserState: (userState: UserState) => set({ userState }),
+}));
+
+export type BetStore = {
+  betState: BetState;
+  updateBetState: (betState: BetState) => void;
+};
+const initialBetState: BetState = {
+  bettingEnabled: false,
+  betAmount: 0,
+};
+
+export const useBetStore = create<BetStore>((set: SetState<BetStore>) => ({
+  betState: initialBetState,
+  updateBetState: (betState: BetState) => set({ betState }),
 }));
