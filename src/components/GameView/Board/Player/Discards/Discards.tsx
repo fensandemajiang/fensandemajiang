@@ -2,23 +2,10 @@ import React from 'react';
 import PropTypes, { InferProps } from 'prop-types';
 import DiscardedTile from './DiscardedTile/DiscardedTile';
 import './Discards.css';
-import type { Tile } from "../../../../../types"
-import { Suite } from "../../../../../types"
 
 function Discards(props: InferProps<typeof Discards.propTypes>) {
-  function makeDeck(): Tile[]{
-    const ret: Tile[] = []
-    for( let i = 0; i < 7; i++){
-      const tile: Tile = {
-        suite: Suite.Tong,
-        value: i+1
-      }
-      ret.push(tile)
-    }
-    return ret
-  }
   // const discarded_tiles = props.discards ? props.discards :
-  const discarded_tiles = makeDeck();
+  const discarded_tiles = props.discards ? props.discards : []
   const num_discards = discarded_tiles.length
   const total = 10;
   const discards = [];
@@ -32,11 +19,6 @@ function Discards(props: InferProps<typeof Discards.propTypes>) {
         ></DiscardedTile>,
       );
     }
-    // } else {
-    //   discards.push(
-    //     <DiscardedTile orientation={props.orientation}></DiscardedTile>,
-    //   );
-    // }   
   }
 
   return (
