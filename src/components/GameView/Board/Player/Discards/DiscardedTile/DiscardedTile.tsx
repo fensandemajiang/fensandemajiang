@@ -21,8 +21,8 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
   }
 
   let img;
-  if (typeof props.type == 'number') {
-    img = <Tile className={'small-tile-image'}></Tile>;
+  if (props.tile) {
+    img = <Tile className={'small-tile-image'} tile={props.tile}></Tile>;
   } else {
     img = <div className={'no-image '}></div>;
   }
@@ -35,9 +35,8 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
 }
 
 DiscardedTile.propTypes = {
-  any: PropTypes.any,
-  type: PropTypes.number,
   orientation: PropTypes.string,
+  tile: PropTypes.any
 };
 
 export default DiscardedTile;

@@ -1,17 +1,9 @@
 .tile {
-  height: 100px;
-  width: 100%;
-  min-width: 10px;
+  display: block;
+  max-width:100%;
+  max-height:100%;
+  /* width: auto;
+  height: auto; */
+  object-fit: contain;
   border-radius: 1em;
-  background-color: white;
-}
-
-.deck-tile-container .tile:hover, 
-.deck-tile-container .tile-hover{
-  transform: translateY(-20px);
-  filter: drop-shadow(0 0 4px rgb(164, 174, 221));
-}
-
-.deck-tile-container .tile-click{
-  background-color: rgba(255, 255, 255, 0.7);
 }

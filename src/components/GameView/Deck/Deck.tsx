@@ -18,7 +18,7 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
     return ret
   }
 
-  const deck = props.deck ? props.deck : makeDeck();
+  const deck = props.deck ? props.deck.length > 0 ? props.deck : makeDeck() : makeDeck();
   const size = deck.length;
 
   const tiles = [];

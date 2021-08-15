@@ -308,7 +308,7 @@ const GameView: FunctionComponent = () => {
             </div>
           </div>
           <div className="game-view-bot">
-            <Deck discard={discard}></Deck>
+            <Deck discard={discard} deck={gameDataState.yourHand}></Deck>
           </div>
         </div>
       </div>

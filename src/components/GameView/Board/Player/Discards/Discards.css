@@ -4,7 +4,7 @@
 
 .discard-right, 
 .discard-left {
-  width: 85%;
+  width: 35%;
   height: 80%;
   flex-direction: column-reverse;
   flex-wrap: wrap;
