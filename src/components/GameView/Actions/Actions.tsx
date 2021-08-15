@@ -71,7 +71,10 @@ function Actions(props: { playerActions: any }) {
   })();
 
   const displayChi: boolean = (() => {
-    if (gameDataState.discards && gameDataState.discards[gameDataState.currentTurn]) {
+    const nextPlayerInd: number = (gameDataState.currentPlayerIndex + 1) % 4;
+    if (gameDataState.allPlayerIds[nextPlayerInd] === gameDataState.yourPlayerId &&
+        gameDataState.discards && 
+        gameDataState.discards[gameDataState.currentTurn]) {
       const recentDiscard: Tile = mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn);
       return containsChi(gameDataState.yourHand, recentDiscard) && gameDataState.currentTurn !== gameDataState.yourPlayerId;
     } else return false;
