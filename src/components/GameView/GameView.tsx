@@ -5,13 +5,22 @@ import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 import GameOverModal from './GameOverModal';
-import { useConnectionStore, useGameDataStore } from '../../utils/store';
+import Bets from './Bets';
+import { addTable, finishTable } from './Bets/betsUtils';
+import {
+  useConnectionStore,
+  useGameDataStore,
+  useBetStore,
+} from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
 import { Suite, Tile, PlayerAction, ActionType, GameState } from '../../types';
 import { mostRecentDiscard, amFirstPlayer } from './GameFunctions';
 import history from '../../history-helper';
 
 const GameView: FunctionComponent = () => {
+  const { bettingEnabled, betAmount, betPaidOut } = useBetStore(
+    (state) => state.betState,
+  );
   const { userConnectedCount, peers, threadId, signalIDs, userID } =
     useConnectionStore((state) => state.connectionState);
   const gameDataState = useGameDataStore((state) => state.gameDataState);
@@ -30,12 +39,23 @@ const GameView: FunctionComponent = () => {
             userId: userID,
           },
         };
-        updateGameDataStateAndLog(
-          gameDataState,
-          stateTransition,
-          peers,
-          threadId,
-        );
+        if (bettingEnabled) {
+          addTable(threadId).then(() =>
+            updateGameDataStateAndLog(
+              gameDataState,
+              stateTransition,
+              peers,
+              threadId,
+            ),
+          );
+        } else {
+          updateGameDataStateAndLog(
+            gameDataState,
+            stateTransition,
+            peers,
+            threadId,
+          );
+        }
       } else if (
         gameDataState.currentState === GameState.ShuffleDeck &&
         amFirstPlayer(gameDataState.allPlayerIds, gameDataState.yourPlayerId)
@@ -114,7 +134,15 @@ const GameView: FunctionComponent = () => {
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Hu) {
-        setOpenGameOver(true);
+        if (Object.keys(gameDataState.score).length === 4) {
+          if (bettingEnabled && !betPaidOut) {
+            finishTable(threadId, gameDataState.score).then(() =>
+              setOpenGameOver(true),
+            );
+          } else {
+            setOpenGameOver(true);
+          }
+        }
       }
     }
   }, [
@@ -125,6 +153,9 @@ const GameView: FunctionComponent = () => {
     signalIDs,
     threadId,
     userID,
+    bettingEnabled,
+    betAmount,
+    betPaidOut,
   ]);
 
   function discard(tileType: number, tileIndex: number) {
@@ -291,6 +322,7 @@ const GameView: FunctionComponent = () => {
         </div>
       </div>
       <GameOverModal open={openGameOver} hitClose={endGame} />
+      <Bets isOpen={bettingEnabled && betAmount > 0} tableId={threadId} />
     </>
   );
 };

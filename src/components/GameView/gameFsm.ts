@@ -550,7 +550,7 @@ function noDeclare(
       ...stateTransition,
       body: { isSending: false },
     };
-    sendToEveryone(peers, JSON.stringify(stateTransition));
+    sendToEveryone(peers, JSON.stringify(newStateTransition));
   }
   const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
   const newCurrentPlayerInd: number =

@@ -8,10 +8,12 @@
     "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src --config config/eslint.config.js --fix",
     "lint:check": "eslint --ext .js,.jsx,.ts,.tsx src --config config/eslint.config.js",
+    "lint:contracts": "solium --fix --dir ./contracts",
     "test": "cypress open-ct",
     "test:ci": "cypress run-ct --quiet --reporter spec",
     "test:integration": "concurrently \"yarn start \" \"cypress open\"",
-    "test:integration:ci": "cypress run --headless"
+    "test:integration:ci": "cypress run --headless",
+    "compile:contracts": "truffle compile"
   },
   "dependencies": {
     "@3id/connect": "^0.1.6",
@@ -36,6 +38,7 @@
   "devDependencies": {
     "@cypress/react": "^5.7.0",
     "@cypress/vite-dev-server": "^1.2.7",
+    "@openzeppelin/contracts": "^4.2.0",
     "@react-three/test-renderer": "^6.1.1",
     "@testing-library/cypress": "^7.0.6",
     "@testing-library/react": "^11.0.0",

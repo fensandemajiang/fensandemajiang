@@ -6,8 +6,8 @@ const web3Modal = new Web3Modal({
   network: 'mainnet',
   cacheProvider: true,
 });
-const ethProvider = await web3Modal.connect();
-const web3 = new Web3(ethProvider || 'ws://localhost:8545');
+// const ethProvider = await web3Modal.connect();
+const web3 = new Web3('http://localhost:7545');
 const abi: any = {};
 //const address = import.meta.env.VITE_ENV_CONTRACT_ADDRESS || '0x0';
 const address = '0x0';

@@ -53,6 +53,7 @@ export interface GameDataState {
 export interface BetState {
   bettingEnabled: boolean;
   betAmount: number;
+  betPaidOut: boolean;
 }
 
 export interface ImageMetadata {
