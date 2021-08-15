@@ -58,9 +58,4 @@ contract Bets {
         betsInTable.push(Bet(msg.sender, _tableId, msg.value)); 
     }
 
-    function getTable(bytes32 _tableId) public view returns (Outcome outcome, Bet[] users, mapping(address => uint) scores) {
-        Table table = tables[_tableId];
-        return (table.outcome, table.users, table.scores);
-    }
-
 }

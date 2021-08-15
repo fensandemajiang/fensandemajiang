@@ -1,3 +1,4 @@
+//HEAVILY influenced/copied from @jrkosinski on Github
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.4.22 <0.9.0;
 import "./FenSanDeMajiangOracle.sol";
