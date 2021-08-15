@@ -1,7 +1,7 @@
 import React, { FunctionComponent, useState, ChangeEvent } from 'react';
 import { Dialog } from '@headlessui/react';
 import { useBetStore } from '../../../utils/store';
-import { placeBet } from './bets';
+import { placeBet } from './betsFunction';
 import '../../LobbyView/LobbyView.css';
 
 type BetsProps = {
