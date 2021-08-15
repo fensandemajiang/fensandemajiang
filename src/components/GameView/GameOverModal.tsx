@@ -12,11 +12,11 @@ const GameOverModal: FC<GameOverModalProps> = (props: {
   hitClose: () => void;
 }) => {
   const gameStore = useGameDataStore((store) => store.gameDataState);
-  const userStore = useUserStore(store => store.userState);
+  const userStore = useUserStore((store) => store.userState);
   const lobbyButtonRef = useRef(null);
 
   const winningPlayer: string = (() => {
-    return "A player";
+    return 'A player';
   })();
 
   return (
@@ -84,7 +84,7 @@ const GameOverModal: FC<GameOverModalProps> = (props: {
                   onClick={props.hitClose}
                   ref={lobbyButtonRef}
                 >
-                  Lobby 
+                  Lobby
                 </button>
               </div>
             </div>

@@ -22,19 +22,23 @@ export function mostRecentDiscard(
 
 export function containsChi(hand: Tile[], newlyDiscarded: Tile) {
   if ([Suite.Tiao, Suite.Tong, Suite.Wan].includes(newlyDiscarded.suite)) {
-    // sorry if this logic is super ugly, 
+    // sorry if this logic is super ugly,
     // i'm writing this at like 2am and i'm super hella tired rn
     const seenArr = [false, false, true, false, false];
     for (let i = 0; i < hand.length; i++) {
       const t = hand[i];
-      if(t.suite === newlyDiscarded.suite && t.value && newlyDiscarded.value) {
+      if (t.suite === newlyDiscarded.suite && t.value && newlyDiscarded.value) {
         if (Math.abs(t.value - newlyDiscarded.value) <= 2) {
           seenArr[t.value - newlyDiscarded.value + 2] = true;
         }
       }
     }
 
-    return (seenArr[0] && seenArr[1]) || (seenArr[1] && seenArr[3]) || (seenArr[3] && seenArr[4]);
+    return (
+      (seenArr[0] && seenArr[1]) ||
+      (seenArr[1] && seenArr[3]) ||
+      (seenArr[3] && seenArr[4])
+    );
   } else return false;
 }
 
@@ -46,7 +50,7 @@ export function containsPeng(hand: Tile[], newlyDiscarded: Tile): boolean {
       seenCount += 1;
       if (seenCount == 2) return true;
     }
-  } 
+  }
   return false;
 }
 
@@ -58,12 +62,12 @@ export function containsGang(hand: Tile[], newlyDiscarded: Tile): boolean {
       seenCount += 1;
       if (seenCount == 3) return true;
     }
-  } 
-  return false; 
+  }
+  return false;
 }
 
 export function getFullHand(hand: Tile[], shownTiles: Tile[][]): Tile[] {
-  return [ ...hand, ...shownTiles.flat(1) ];
+  return [...hand, ...shownTiles.flat(1)];
 }
 
 // used to clean data before calculating score

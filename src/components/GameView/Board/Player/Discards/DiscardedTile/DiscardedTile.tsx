@@ -7,34 +7,38 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
   const images: string[] = [''];
 
   let tileOrientation = 'tile-right';
-  let rotation = "right"
+  let rotation = 'right';
 
   if (props.orientation == 'left') {
     tileOrientation = 'tile-left';
-    rotation = "left"
+    rotation = 'left';
   } else if (props.orientation == 'up') {
     tileOrientation = 'tile-up';
-    rotation = "up"
+    rotation = 'up';
+  } else if (props.orientation == 'bottom') {
+    tileOrientation = 'tile-up';
+    rotation = '';
   }
 
   let img;
-  if (typeof props.type == 'number') {
-    img = <Tile className={'small-tile-image'}></Tile>;
+  if (props.tile) {
+    img = <Tile className={'small-tile-image'} tile={props.tile}></Tile>;
   } else {
     img = <div className={'no-image '}></div>;
   }
 
   return (
     <>
-      <div className={'discarded-tile ' + tileOrientation + " " + rotation}>{img}</div>
+      <div className={'discarded-tile ' + tileOrientation + ' ' + rotation}>
+        {img}
+      </div>
     </>
   );
 }
 
 DiscardedTile.propTypes = {
-  any: PropTypes.any,
-  type: PropTypes.number,
   orientation: PropTypes.string,
+  tile: PropTypes.any,
 };
 
 export default DiscardedTile;

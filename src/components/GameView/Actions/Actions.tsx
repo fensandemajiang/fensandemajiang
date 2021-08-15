@@ -1,14 +1,22 @@
 import React, { MouseEvent } from 'react';
 import PropTypes, { InferProps } from 'prop-types';
 import ActionButton from './Buttons/ActionButton';
-import { calculateScore, mostRecentDiscard, getFullHand, triplifyShownTiles, containsPeng, containsChi, containsGang } from '../GameFunctions';
+import {
+  calculateScore,
+  mostRecentDiscard,
+  getFullHand,
+  triplifyShownTiles,
+  containsPeng,
+  containsChi,
+  containsGang,
+} from '../GameFunctions';
 import { useGameDataStore } from '@utils/store';
 import { GameDataStore } from '@utils/store';
 import { GameState, Suite, Tile } from '../../../types';
 import './Actions.css';
 
 function Actions(props: { playerActions: any }) {
-  const gameDataState = useGameDataStore(state => state.gameDataState);
+  const gameDataState = useGameDataStore((state) => state.gameDataState);
   const playerID: string = useGameDataStore().gameDataState.yourPlayerId;
 
   const getAction = (actionName: string) => {
@@ -22,7 +30,7 @@ function Actions(props: { playerActions: any }) {
   };
 
   const replaceFlowerButton = (
-     <ActionButton
+    <ActionButton
       type={4}
       otherProps={{ onClick: getAction('replaceFlower') }}
     ></ActionButton>
@@ -57,41 +65,77 @@ function Actions(props: { playerActions: any }) {
   );
 
   const displayHu: boolean = (() => {
-    const myShownTiles: Tile[][] | undefined = gameDataState.shownTiles[gameDataState.yourPlayerId];
+    const myShownTiles: Tile[][] | undefined =
+      gameDataState.shownTiles[gameDataState.yourPlayerId];
     if (myShownTiles) {
-      return calculateScore(getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles))) >= 0;
+      return (
+        calculateScore(
+          getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles)),
+        ) >= 0
+      );
     } else return false;
   })();
 
   const displayPung: boolean = (() => {
-    if (gameDataState.discards && gameDataState.discards[gameDataState.currentTurn]) {
-      const recentDiscard: Tile = mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn);
-      return containsPeng(gameDataState.yourHand, recentDiscard) && gameDataState.currentTurn !== gameDataState.yourPlayerId;
+    if (
+      gameDataState.discards &&
+      gameDataState.discards[gameDataState.currentTurn]
+    ) {
+      const recentDiscard: Tile = mostRecentDiscard(
+        gameDataState.discards,
+        gameDataState.currentTurn,
+      );
+      return (
+        containsPeng(gameDataState.yourHand, recentDiscard) &&
+        gameDataState.currentTurn !== gameDataState.yourPlayerId
+      );
     } else return false;
   })();
 
   const displayKong: boolean = (() => {
-    if (gameDataState.discards && gameDataState.discards[gameDataState.currentTurn]) {
-      const recentDiscard: Tile = mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn);
-      return containsGang(gameDataState.yourHand, recentDiscard) && gameDataState.currentTurn !== gameDataState.yourPlayerId;
+    if (
+      gameDataState.discards &&
+      gameDataState.discards[gameDataState.currentTurn]
+    ) {
+      const recentDiscard: Tile = mostRecentDiscard(
+        gameDataState.discards,
+        gameDataState.currentTurn,
+      );
+      return (
+        containsGang(gameDataState.yourHand, recentDiscard) &&
+        gameDataState.currentTurn !== gameDataState.yourPlayerId
+      );
     } else return false;
   })();
 
   const displayChi: boolean = (() => {
     const nextPlayerInd: number = (gameDataState.currentPlayerIndex + 1) % 4;
-    if (gameDataState.allPlayerIds[nextPlayerInd] === gameDataState.yourPlayerId &&
-        gameDataState.discards && 
-        gameDataState.discards[gameDataState.currentTurn]) {
-      const recentDiscard: Tile = mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn);
-      return containsChi(gameDataState.yourHand, recentDiscard) && gameDataState.currentTurn !== gameDataState.yourPlayerId;
+    if (
+      gameDataState.allPlayerIds[nextPlayerInd] ===
+        gameDataState.yourPlayerId &&
+      gameDataState.discards &&
+      gameDataState.discards[gameDataState.currentTurn]
+    ) {
+      const recentDiscard: Tile = mostRecentDiscard(
+        gameDataState.discards,
+        gameDataState.currentTurn,
+      );
+      return (
+        containsChi(gameDataState.yourHand, recentDiscard) &&
+        gameDataState.currentTurn !== gameDataState.yourPlayerId
+      );
     } else return false;
   })();
 
   const displayReplaceFlower: boolean = (() => {
-    const flower: Tile | undefined = gameDataState.yourHand.find(t => t.suite === Suite.Flowers);
+    const flower: Tile | undefined = gameDataState.yourHand.find(
+      (t) => t.suite === Suite.Flowers,
+    );
     if (flower) {
-      return gameDataState.currentState === GameState.PlayCard && 
-             gameDataState.currentTurn === gameDataState.yourPlayerId;
+      return (
+        gameDataState.currentState === GameState.PlayCard &&
+        gameDataState.currentTurn === gameDataState.yourPlayerId
+      );
     } else return false;
   })();
 
@@ -99,11 +143,11 @@ function Actions(props: { playerActions: any }) {
     <>
       <div className="actions-container">
         <div className="actions">
-          { displayReplaceFlower ? replaceFlowerButton : null }
-          { displayChi ? chiButton : null }
-          { displayKong ? kongButton : null }
-          { displayPung ? pungButton : null }
-          { displayHu ? huButton : null }
+          {displayReplaceFlower ? replaceFlowerButton : null}
+          {displayChi ? chiButton : null}
+          {displayKong ? kongButton : null}
+          {displayPung ? pungButton : null}
+          {displayHu ? huButton : null}
         </div>
       </div>
     </>

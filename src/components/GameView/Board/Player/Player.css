@@ -1,6 +1,6 @@
 .player,
 .player-reverse {
-  width: 20%;
+  width: 22%;
   display: flex;
   flex-direction: row;
   align-items: flex-end;
@@ -15,15 +15,14 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 0.25em;
+  margin: 3px;
 }
 
 .player-up {
-  width: 50%;
-  height: 60%;
+  width: 100%;
+  height: 50%;
   display: flex;
-  position: relative;
   flex-direction: column-reverse;
-  justify-content: space-around;
   justify-content: flex-end;
   align-items: center;
 }
@@ -35,15 +34,9 @@
   gap: 0.25em;
 }
 
-.player-up .hand > div {
-  width: 10px;
-  height: 20px;
-  margin-left: 5px;
-  margin-right: 5px;
-  -webkit-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  -o-transform: rotate(90deg);
-  transform: rotate(90deg);
+.player-bottom {
+  display: flex;
+  flex-direction: column;
 }
 
 .right {

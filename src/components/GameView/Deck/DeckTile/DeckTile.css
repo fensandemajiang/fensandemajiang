@@ -6,3 +6,13 @@
   max-width: 6%;
   flex: 1;
 }
+
+.deck-tile-container .tile:hover,
+.deck-tile-container .tile-hover {
+  transform: translateY(-20px);
+  filter: drop-shadow(0 0 4px rgb(164, 174, 221));
+}
+
+.deck-tile-container .tile-click {
+  opacity: 10%;
+}

@@ -1,0 +1,29 @@
+.timer {
+  margin: 0.25em;
+  font-size: 2em;
+  font-weight: 800;
+}
+
+.timer-container {
+  height: auto;
+  border-radius: 1em;
+  text-align: center;
+  color: #858cc1;
+  border: 2px #858cc1 solid;
+}
+
+/*.timer-container {
+  position: absolute;
+  height: 4em;
+  top: 0;
+  right: 0;
+  margin-left: 2em;
+  border-top-right-radius: 2em;
+  border-bottom-left-radius: 2em;
+  text-align: center;
+  color: #858cc1;
+  border-bottom: 2px #858cc1 solid;
+  border-left: 2px #858cc1 solid;
+  z-index: 100;
+}*/
+

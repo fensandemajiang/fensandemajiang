@@ -6,7 +6,7 @@ function Timer(props: InferProps<typeof Timer.propTypes>) {
   return (
     <>
       <div className="timer-container">
-        <div className="timer">Time left: 0:03</div>
+        <div className="timer">Time: 0:03</div>
       </div>
     </>
   );
