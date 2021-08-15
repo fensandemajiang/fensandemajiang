@@ -5,9 +5,11 @@ import "./Bets.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract BetPayout {
-    function _payOutForTable(bytes32 _tableId, Table _table) private {
+    function _payOutForTable(bytes32 _tableId) private {
             
-            Bet[] storage bets = tableBets[_tableId].users;
+
+
+            Bet[] storage bets = tables[_tableId].users;
             uint totalBets = 0;
             uint totalScore = 0;
             uint[] memory payouts = new uint[](bets.length);
@@ -24,12 +26,14 @@ contract BetPayout {
 
             for(uint i=0; i< bets.length; i++) {
                 address userAddr = bets[i].user;
-                payouts[i] = _calculatePayout(totalBets, totalScore, tableBets[_tableId].scores[userAddr]);
+                payouts[i] = _calculatePayout(totalBets, totalScore, tables[_tableId].scores[userAddr]);
             }
 
             for(uint i=0; i< bets.length; i++) {
                 _payOutWinnings(bets[i].user, payouts[i]);
             }
+
+            isTablePaidOut[_tableId] = true;
 
     }
 
@@ -48,7 +52,14 @@ contract BetPayout {
 
     function checkOutcome(bytes32 _tableId) public returns (Tables.Outcome) {
         Tables.Outcome outcome;
-        
+
+        (outcome,,) = oracle.getTable(_tableId)
+
+        if (outcome == Table.Outcome.Decided) {
+            if (!isTablePaidOut[_tableId]) {
+                _payOutForTable(_tableId);
+            }
+        }
     }
 
 

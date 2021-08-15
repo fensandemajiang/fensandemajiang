@@ -45,6 +45,7 @@ contract Bets {
         }
         return 0; 
     }
+
     function placeBet(bytes32 _tableId) public payable notDisabled {
         require(msg.value >= minimumBet);
         require(oracle.tableExists(_tableId)); 
@@ -56,4 +57,10 @@ contract Bets {
         Bet[] storage betsInTable = tables[_tableId].users; 
         betsInTable.push(Bet(msg.sender, _tableId, msg.value)); 
     }
+
+    function getTable(bytes32 _tableId) public view returns (Outcome outcome, Bet[] users, mapping(address => uint) scores) {
+        Table table = tables[_tableId];
+        return (table.outcome, table.users, table.scores);
+    }
+
 }

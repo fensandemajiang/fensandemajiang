@@ -5,7 +5,7 @@ import "./FenSanDeMajiangOracle.sol";
 contract Tables {
     
     struct Table {
-        uint tableId;
+        bytes32 tableId;
         Outcome outcome;
         Bet[] users;
         mapping(address => uint) scores;
@@ -17,15 +17,6 @@ contract Tables {
         Decided
     }
 
-    mapping(uint => Table[]) tables;
-
-    function getTable(uint _tableId) public view returns
-        (
-            Outcome outcome,
-            Bet[] users,
-            mapping(address => uint) scores
-            );
-        //Table table = tables[_tableId];
-        //return (table.outcome, table.users, table.scores)
+    mapping(bytes32 => Table[]) tables;
 
 }
