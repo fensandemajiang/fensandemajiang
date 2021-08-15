@@ -5,8 +5,6 @@ import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 import GameOverModal from './GameOverModal';
-import Bets from './Bets';
-import { addTable, finishTable } from './Bets/betsUtils';
 import {
   useConnectionStore,
   useGameDataStore,
@@ -40,13 +38,11 @@ const GameView: FunctionComponent = () => {
           },
         };
         if (bettingEnabled) {
-          addTable(threadId).then(() =>
-            updateGameDataStateAndLog(
-              gameDataState,
-              stateTransition,
-              peers,
-              threadId,
-            ),
+          updateGameDataStateAndLog(
+            gameDataState,
+            stateTransition,
+            peers,
+            threadId,
           );
         } else {
           updateGameDataStateAndLog(
@@ -136,9 +132,7 @@ const GameView: FunctionComponent = () => {
       } else if (gameDataState.currentState === GameState.Hu) {
         if (Object.keys(gameDataState.score).length === 4) {
           if (bettingEnabled && !betPaidOut) {
-            finishTable(threadId, gameDataState.score).then(() =>
-              setOpenGameOver(true),
-            );
+            setOpenGameOver(true);
           } else {
             setOpenGameOver(true);
           }
@@ -322,7 +316,6 @@ const GameView: FunctionComponent = () => {
         </div>
       </div>
       <GameOverModal open={openGameOver} hitClose={endGame} />
-      <Bets isOpen={bettingEnabled && betAmount > 0} tableId={threadId} />
     </>
   );
 };
