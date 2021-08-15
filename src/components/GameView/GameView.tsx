@@ -70,8 +70,10 @@ const GameView: FunctionComponent = () => {
         );
       } else if (gameDataState.currentState === GameState.PengGang) {
         timer.current = setInterval(() => {
-          if (countdown !== 0 && 
-              gameDataState.currentState === GameState.PengGang) {
+          if (
+            countdown !== 0 &&
+            gameDataState.currentState === GameState.PengGang
+          ) {
             setCountdown(countdown - 1);
           } else {
             clearInterval(timer.current);
@@ -79,21 +81,20 @@ const GameView: FunctionComponent = () => {
             const stateTransition: PlayerAction = {
               action: ActionType.NoPengGang,
               body: {
-                isSending: true
-              }
+                isSending: true,
+              },
             };
             updateGameDataStateAndLog(
               gameDataState,
               stateTransition,
               peers,
-              threadId
+              threadId,
             );
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Chi) {
         timer.current = setInterval(() => {
-          if (countdown !== 0 && 
-              gameDataState.currentState === GameState.Chi) {
+          if (countdown !== 0 && gameDataState.currentState === GameState.Chi) {
             setCountdown(countdown - 1);
           } else {
             clearInterval(timer.current);
@@ -101,14 +102,14 @@ const GameView: FunctionComponent = () => {
             const stateTransition: PlayerAction = {
               action: ActionType.Chi,
               body: {
-                isSending: true
-              }
+                isSending: true,
+              },
             };
             updateGameDataStateAndLog(
               gameDataState,
               stateTransition,
               peers,
-              threadId
+              threadId,
             );
           }
         }, 1000);
@@ -116,7 +117,15 @@ const GameView: FunctionComponent = () => {
         setOpenGameOver(true);
       }
     }
-  }, [gameDataState, userConnectedCount]);
+  }, [
+    userConnectedCount,
+    countdown,
+    gameDataState,
+    peers,
+    signalIDs,
+    threadId,
+    userID,
+  ]);
 
   function discard(tileType: number, tileIndex: number) {
     const discard = confirm('discard this tile?');
@@ -146,9 +155,9 @@ const GameView: FunctionComponent = () => {
       gameDataState.currentTurn,
     );
     // TODO complete this
-    // this selected triple is the triple that the user has selected 
+    // this selected triple is the triple that the user has selected
     // for the chi. The user should be prompted with a list of possible chi
-    // (if there are more than one option) and the triple they choose should 
+    // (if there are more than one option) and the triple they choose should
     // get thrown into this variable
     const selectedTriple: Tile[] = [];
     const stateTransition: PlayerAction = {
@@ -218,36 +227,43 @@ const GameView: FunctionComponent = () => {
     const stateTransition: PlayerAction = {
       action: ActionType.Hu,
       body: {
-        isSending: true
-      }
-    }
+        isSending: true,
+      },
+    };
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
   function replaceFlower(playerID: string) {
-    const flower: Tile | undefined = gameDataState.yourHand.find(t => t.suite === Suite.Flowers);
+    const flower: Tile | undefined = gameDataState.yourHand.find(
+      (t) => t.suite === Suite.Flowers,
+    );
     if (flower) {
       const stateTransition: PlayerAction = {
         action: ActionType.ReplaceFlower,
         body: {
           tile: flower,
-          isSending: true
-        }
-      }
-      updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+          isSending: true,
+        },
+      };
+      updateGameDataStateAndLog(
+        gameDataState,
+        stateTransition,
+        peers,
+        threadId,
+      );
     } else {
-      console.log("no flower found");
+      console.log('no flower found');
     }
   }
 
   function endGame() {
     setOpenGameOver(false);
     history.push('/lobby');
-    for (let k in Object.keys(peers)) {
+    for (const k in Object.keys(peers)) {
       try {
         peers[k].destroy();
       } catch (err) {
-        console.error("Failed to destroy peer", k);
+        console.error('Failed to destroy peer', k);
       }
     }
   }
@@ -268,7 +284,7 @@ const GameView: FunctionComponent = () => {
                 pung: pung,
                 kong: kong,
                 hu: hu,
-                replaceFlower: replaceFlower
+                replaceFlower: replaceFlower,
               }}
             />
           </div>

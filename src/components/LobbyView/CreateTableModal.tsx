@@ -37,6 +37,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
       if (props.open && playerCount === 0) {
         setTableCode('loading...');
         // check if table db already exists
+        console.log(await client.getToken(identity));
         await client.newDB(threadId, 'table');
         await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
         await client.newCollection(threadId, { name: 'connectDetail' }); // creates separate collection for players to place their signal data for p2p
@@ -66,8 +67,10 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
           { collectionName: 'playerId' },
           { actionTypes: ['CREATE', 'DELETE'] },
         ];
-        const listen = client.listen(threadId, listenFilters, (reply, err) => {
-          async function asyncWrapper() {
+        const listen = client.listen(
+          threadId,
+          listenFilters,
+          async (reply, err) => {
             if (client) {
               const data: DbConnectionPlayer[] = await client.find(
                 threadId,
@@ -95,9 +98,8 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
                 history.push('/play');
               }
             }
-          }
-          asyncWrapper();
-        });
+          },
+        );
 
         setCreateListener(listen);
       }
@@ -112,7 +114,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
         userConnectedCount: 0,
       },
     });
-  }, [props.open, threadId, playerCount, client, identity]);
+  }, [props.open, playerCount, client, identity]);
 
   async function close() {
     //check if collections were created, if so delete them

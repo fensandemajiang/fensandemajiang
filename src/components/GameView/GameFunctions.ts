@@ -202,7 +202,7 @@ function isTriple(t1: Tile, t2: Tile, t3: Tile): boolean {
 function basicWin(hand: Tile[]): boolean {
   // we assume no gang for now, because calculating quads is a pain in the butt
   // maybe just don't insert them into this function?
-  let hasDouble: boolean = false;
+  let hasDouble = false;
   for (let i = 0; i < hand.length; ) {
     // hand is sorted and so and triples/pairs should be adjacent....i think
     // i'm too lazy to prove this to myself but this seems to be true i think

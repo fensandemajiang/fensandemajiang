@@ -76,7 +76,7 @@ const RPanel: FunctionComponent = () => {
         DBSecrets.key,
         DBSecrets.secret,
       );
-      const c = await Client.withUserAuth(auth);
+      const c = Client.withUserAuth(auth);
       useConnectionStore.setState({
         ...useConnectionStore.getState(),
         connectionState: {
