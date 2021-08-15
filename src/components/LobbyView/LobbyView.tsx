@@ -2,7 +2,6 @@ import React, { FunctionComponent } from 'react';
 import LPanel from './LPanel';
 import RPanel from './RPanel';
 import Login from './Login';
-import OldLobby from './OldLobby';
 import './LobbyView.css';
 import { useUserStore } from '../../utils/store';
 
@@ -26,7 +25,6 @@ const LobbyView: FunctionComponent = () => {
               <RPanel />
             </div>
           </div>
-          <OldLobby />
         </div>
       </>
     );

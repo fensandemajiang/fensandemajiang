@@ -129,6 +129,7 @@ export type BetStore = {
 const initialBetState: BetState = {
   bettingEnabled: false,
   betAmount: 0,
+  betPaidOut: false,
 };
 
 export const useBetStore = create<BetStore>((set: SetState<BetStore>) => ({

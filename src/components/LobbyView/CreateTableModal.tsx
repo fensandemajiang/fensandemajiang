@@ -4,11 +4,16 @@ import React, {
   useState,
   useEffect,
   FunctionComponent,
+  ChangeEvent,
 } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { Filter, ThreadID } from '@textile/hub';
 import history from '../../history-helper';
-import { useUserStore, useConnectionStore } from '../../utils/store';
+import {
+  useUserStore,
+  useConnectionStore,
+  useBetStore,
+} from '../../utils/store';
 import type { DbConnectionPlayer } from '../../types';
 import type { grpc } from '@improbable-eng/grpc-web';
 
@@ -21,7 +26,16 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
   open: boolean;
   hitClose: () => void;
 }) => {
+  const { updateBetState } = useBetStore();
   const cancelButtonRef = useRef(null);
+  const toggleCheckboxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { checked } = e.target;
+    updateBetState({
+      bettingEnabled: checked,
+      betAmount: 0,
+      betPaidOut: false,
+    });
+  };
   const [tableCode, setTableCode] = useState('');
   const threadId = ThreadID.fromRandom();
   const [playerCount, setPlayerCount] = useState<number>(0);
@@ -227,7 +241,14 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
                         joined.
                       </p>
 
-                      <div></div>
+                      <div className="my-4 inline-flex align-items-center">
+                        <label className="mx-4">Enable Betting</label>
+                        <input
+                          onChange={toggleCheckboxChange}
+                          type="checkbox"
+                          className="form-checkbox vertical-align-middle"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
