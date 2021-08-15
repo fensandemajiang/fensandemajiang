@@ -4,7 +4,7 @@ import ActionButton from './Buttons/ActionButton';
 import { calculateScore, mostRecentDiscard, getFullHand, triplifyShownTiles, containsPeng, containsChi, containsGang } from '../GameFunctions';
 import { useGameDataStore } from '@utils/store';
 import { GameDataStore } from '@utils/store';
-import type { Tile } from '../../../types';
+import { GameState, Suite, Tile } from '../../../types';
 import './Actions.css';
 
 function Actions(props: { playerActions: any }) {
@@ -20,6 +20,13 @@ function Actions(props: { playerActions: any }) {
           };
     }
   };
+
+  const replaceFlowerButton = (
+     <ActionButton
+      type={4}
+      otherProps={{ onClick: getAction('replaceFlower') }}
+    ></ActionButton>
+  );
 
   const huButton = (
     <ActionButton
@@ -80,10 +87,19 @@ function Actions(props: { playerActions: any }) {
     } else return false;
   })();
 
+  const displayReplaceFlower: boolean = (() => {
+    const flower: Tile | undefined = gameDataState.yourHand.find(t => t.suite === Suite.Flowers);
+    if (flower) {
+      return gameDataState.currentState === GameState.PlayCard && 
+             gameDataState.currentTurn === gameDataState.yourPlayerId;
+    } else return false;
+  })();
+
   return (
     <>
       <div className="actions-container">
         <div className="actions">
+          { displayReplaceFlower ? replaceFlowerButton : null }
           { displayChi ? chiButton : null }
           { displayKong ? kongButton : null }
           { displayPung ? pungButton : null }
