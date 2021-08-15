@@ -2,5 +2,10 @@
   width: 10px;
   height: 20px;
   background-color: white;
+  background-image: linear-gradient(to right, green, white);
   border-radius: 1em;
+}
+
+.upright-tile-left {
+  background-image: linear-gradient(to left, green, white);
 }

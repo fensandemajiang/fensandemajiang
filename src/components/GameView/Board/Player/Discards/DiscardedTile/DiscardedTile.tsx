@@ -6,12 +6,15 @@ import './DiscardedTile.css';
 function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
   const images: string[] = [''];
 
-  let orientation = 'tile-right';
+  let tileOrientation = 'tile-right';
+  let rotation = "right"
 
   if (props.orientation == 'left') {
-    orientation = 'tile-left';
+    tileOrientation = 'tile-left';
+    rotation = "left"
   } else if (props.orientation == 'up') {
-    orientation = 'tile-up';
+    tileOrientation = 'tile-up';
+    rotation = "up"
   }
 
   let img;
@@ -23,7 +26,7 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
 
   return (
     <>
-      <div className={'discarded-tile ' + orientation}>{img}</div>
+      <div className={'discarded-tile ' + tileOrientation + " " + rotation}>{img}</div>
     </>
   );
 }

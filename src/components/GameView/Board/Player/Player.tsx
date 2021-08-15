@@ -18,7 +18,7 @@ function Player(props: InferProps<typeof Player.propTypes>) {
   }
 
   for (let i = 0; i < hand_size; i++) {
-    deck.push(<UprightTile></UprightTile>);
+    deck.push(<UprightTile orientation={props.orientation}></UprightTile>);
   }
 
   return (

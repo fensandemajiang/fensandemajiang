@@ -1,23 +1,28 @@
 import React from 'react';
 import PropTypes, { InferProps } from 'prop-types';
-import Tile from '@components/GlobalComponents/Tile/Tile';
+import Match from './Match';
 import './Matches.css';
 
 function Matches(props: InferProps<typeof Matches.propTypes>) {
-  let className = 'match-container ';
+  let className = 'matches-container ';
   const num_matches = 5;
+  const matches = [];
 
   if (props.orientation == 'left') {
-    className += ' match-container-reverse';
+    className += ' matches-container-reverse';
   } else if (props.orientation == 'up') {
-    className = 'match-container-up';
+    className = 'matches-container-up';
+  }
+
+  for (let i = 0; i < num_matches; i++) {
+    matches.push(<Match orientation={props.orientation}></Match>);
   }
 
   return (
     <>
       <div className={className}>
         {/* <div className="matches"></div> */}
-        <Tile></Tile>
+        {matches}
       </div>
     </>
   );
