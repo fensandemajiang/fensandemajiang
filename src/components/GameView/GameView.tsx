@@ -7,7 +7,7 @@ import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
 import GameOverModal from './GameOverModal';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
-import { Tile, PlayerAction, ActionType, GameState } from '../../types';
+import { Suite, Tile, PlayerAction, ActionType, GameState } from '../../types';
 import { mostRecentDiscard, amFirstPlayer } from './GameFunctions';
 import history from '../../history-helper';
 
@@ -224,6 +224,22 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
+  function replaceFlower(playerID: string) {
+    const flower: Tile | undefined = gameDataState.yourHand.find(t => t.suite === Suite.Flowers);
+    if (flower) {
+      const stateTransition: PlayerAction = {
+        action: ActionType.ReplaceFlower,
+        body: {
+          tile: flower,
+          isSending: true
+        }
+      }
+      updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+    } else {
+      console.log("no flower found");
+    }
+  }
+
   function endGame() {
     setOpenGameOver(false);
     history.push('/lobby');
@@ -251,6 +267,8 @@ const GameView: FunctionComponent = () => {
                 chow: chow,
                 pung: pung,
                 kong: kong,
+                hu: hu,
+                replaceFlower: replaceFlower
               }}
             />
           </div>
