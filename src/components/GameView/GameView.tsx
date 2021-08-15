@@ -214,7 +214,6 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  // TODO: make a button for this
   function hu(playerID: string) {
     const stateTransition: PlayerAction = {
       action: ActionType.Hu,
@@ -252,6 +251,7 @@ const GameView: FunctionComponent = () => {
                 chow: chow,
                 pung: pung,
                 kong: kong,
+                hu: hu,
               }}
             />
           </div>

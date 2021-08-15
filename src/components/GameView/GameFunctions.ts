@@ -20,6 +20,67 @@ export function mostRecentDiscard(
   return discards[currentPlayer][discards[currentPlayer].length - 1];
 }
 
+export function containsChi(hand: Tile[], newlyDiscarded: Tile) {
+  if ([Suite.Tiao, Suite.Tong, Suite.Wan].includes(newlyDiscarded.suite)) {
+    // sorry if this logic is super ugly, 
+    // i'm writing this at like 2am and i'm super hella tired rn
+    const seenArr = [false, false, true, false, false];
+    for (let i = 0; i < hand.length; i++) {
+      const t = hand[i];
+      if(t.suite === newlyDiscarded.suite && t.value && newlyDiscarded.value) {
+        if (Math.abs(t.value - newlyDiscarded.value) <= 2) {
+          seenArr[t.value - newlyDiscarded.value + 2] = true;
+        }
+      }
+    }
+
+    return (seenArr[0] && seenArr[1]) || (seenArr[1] && seenArr[3]) || (seenArr[3] && seenArr[4]);
+  } else return false;
+}
+
+export function containsPeng(hand: Tile[], newlyDiscarded: Tile): boolean {
+  let seenCount = 0;
+  for (let i = 0; i < hand.length; i++) {
+    const t = hand[i];
+    if (tileEqual(t, newlyDiscarded)) {
+      seenCount += 1;
+      if (seenCount == 2) return true;
+    }
+  } 
+  return false;
+}
+
+export function containsGang(hand: Tile[], newlyDiscarded: Tile): boolean {
+  let seenCount = 0;
+  for (let i = 0; i < hand.length; i++) {
+    const t = hand[i];
+    if (tileEqual(t, newlyDiscarded)) {
+      seenCount += 1;
+      if (seenCount == 3) return true;
+    }
+  } 
+  return false; 
+}
+
+export function getFullHand(hand: Tile[], shownTiles: Tile[][]): Tile[] {
+  return [ ...hand, ...shownTiles.flat(1) ];
+}
+
+// used to clean data before calculating score
+export function triplifyShownTiles(shownTiles: Tile[][]): Tile[][] {
+  const out: Tile[][] = [];
+  for (let i = 0; i < shownTiles.length; i++) {
+    const group: Tile[] = shownTiles[i];
+    if (group.length === 3) {
+      out.push(group);
+    } else {
+      out.push(group.slice(0, 3));
+    }
+  }
+
+  return out;
+}
+
 export function amFirstPlayer(allPlayerIds: string[], yourPlayerId: string) {
   return allPlayerIds.findIndex((id) => id === yourPlayerId) === 0;
 }
@@ -34,7 +95,7 @@ export function findGrouping(
   const out: number[][] = [];
   if (
     action === ActionType.Chi &&
-    newTile.suite in [Suite.Tiao, Suite.Wan, Suite.Tong]
+    [Suite.Tiao, Suite.Wan, Suite.Tong].includes(newTile.suite)
   ) {
     const buckets: { [key: number]: number[] } = {};
 
@@ -132,7 +193,7 @@ function isTriple(t1: Tile, t2: Tile, t3: Tile): boolean {
     (tileEqual(t1, t2) && tileEqual(t2, t3)) ||
     (t1.suite === t2.suite &&
       t2.suite === t3.suite &&
-      t1.suite in [Suite.Tiao, Suite.Wan, Suite.Tong] &&
+      [Suite.Tiao, Suite.Wan, Suite.Tong].includes(t1.suite) &&
       (t1.value ?? -1) + 1 === t2.value &&
       (t2.value ?? -1) + 1 === t3.value)
   );
@@ -141,6 +202,7 @@ function isTriple(t1: Tile, t2: Tile, t3: Tile): boolean {
 function basicWin(hand: Tile[]): boolean {
   // we assume no gang for now, because calculating quads is a pain in the butt
   // maybe just don't insert them into this function?
+  let hasDouble: boolean = false;
   for (let i = 0; i < hand.length; ) {
     // hand is sorted and so and triples/pairs should be adjacent....i think
     // i'm too lazy to prove this to myself but this seems to be true i think
@@ -148,8 +210,9 @@ function basicWin(hand: Tile[]): boolean {
     if (t1 && t2 && t3 && isTriple(t1, t2, t3)) {
       // greedy, try and grab the largest possible first
       i += 3;
-    } else if (t1 && t2 && tileEqual(t1, t2)) {
+    } else if (t1 && t2 && !hasDouble && tileEqual(t1, t2)) {
       i += 2;
+      hasDouble = true;
     } else {
       return false;
     }
