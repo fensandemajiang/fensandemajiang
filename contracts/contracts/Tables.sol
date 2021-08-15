@@ -42,18 +42,20 @@ contract Tables {
         return (tableIndex[_tableId] > 0);
     }
 
-    function addTable(string _name, Bet[] users, mapping(address => uint) scores, uint _participantCount, uint _date) public returns (bytes32) {
+    function addTable(string _name, Bet[] users, uint _participantCount, uint _date) public returns (bytes32) {
 
         bytes32 id = keccak256(abi.encodePacked(_name, _participantCount, _date)); 
         require(!tableExists(id));
-        uint newIndex = tableList.push(Table(_name, _participantCount, id, MatchOutcome.Pending, users, scores))-1; 
+        mapping(address => uint) initScores;
+        uint newIndex = tableList.push(Table(_name, _participantCount, id, MatchOutcome.Pending, users, initScores))-1; 
     }
 
-    function startTable(bytes32 _tableId) {
+    function startTable(bytes32 _tableId, mapping(address => uint) scores) {
         require(tableExists(_tableId)); 
         Table table = tables[getIndex(_tableId)];
         require(table.outcome == Outcome.Pending);
         table.outcome = Outcome.Underway;
+        table.scores = scores;
     }
 
     function finishTable(bytes32 _tableId) {
