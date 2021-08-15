@@ -1,19 +1,23 @@
-import React, { useEffect, useState, FunctionComponent } from 'react';
+import React, { useRef, useEffect, useState, FunctionComponent } from 'react';
 import './GameView.css';
 import Board from './Board/Board';
 import Actions from './Actions/Actions';
 import Deck from './Deck/Deck';
 import Sidebar from '../GlobalComponents/Sidebar/Sidebar';
+import GameOverModal from './GameOverModal';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import { updateGameDataStateAndLog } from './gameFsm';
 import { Tile, PlayerAction, ActionType, GameState } from '../../types';
 import { mostRecentDiscard, amFirstPlayer } from './GameFunctions';
+import history from '../../history-helper';
 
 const GameView: FunctionComponent = () => {
   const { userConnectedCount, peers, threadId, signalIDs, userID } =
     useConnectionStore((state) => state.connectionState);
   const gameDataState = useGameDataStore((state) => state.gameDataState);
-  const [timer, setTimer] = useState(null);
+  const [countdown, setCountdown] = useState(5); // 5 second timer? to be more flexible for garbage internet. Pass this variable down to the timer component
+  const [openGameOver, setOpenGameOver] = useState(false);
+  const timer = useRef<any>();
 
   useEffect(() => {
     if (userConnectedCount === 3) {
@@ -65,7 +69,51 @@ const GameView: FunctionComponent = () => {
           threadId,
         );
       } else if (gameDataState.currentState === GameState.PengGang) {
-        // TODO complete this
+        timer.current = setInterval(() => {
+          if (countdown !== 0 && 
+              gameDataState.currentState === GameState.PengGang) {
+            setCountdown(countdown - 1);
+          } else {
+            clearInterval(timer.current);
+            setCountdown(5);
+            const stateTransition: PlayerAction = {
+              action: ActionType.NoPengGang,
+              body: {
+                isSending: true
+              }
+            };
+            updateGameDataStateAndLog(
+              gameDataState,
+              stateTransition,
+              peers,
+              threadId
+            );
+          }
+        }, 1000);
+      } else if (gameDataState.currentState === GameState.Chi) {
+        timer.current = setInterval(() => {
+          if (countdown !== 0 && 
+              gameDataState.currentState === GameState.Chi) {
+            setCountdown(countdown - 1);
+          } else {
+            clearInterval(timer.current);
+            setCountdown(5);
+            const stateTransition: PlayerAction = {
+              action: ActionType.Chi,
+              body: {
+                isSending: true
+              }
+            };
+            updateGameDataStateAndLog(
+              gameDataState,
+              stateTransition,
+              peers,
+              threadId
+            );
+          }
+        }, 1000);
+      } else if (gameDataState.currentState === GameState.Hu) {
+        setOpenGameOver(true);
       }
     }
   }, [gameDataState, userConnectedCount]);
@@ -98,6 +146,10 @@ const GameView: FunctionComponent = () => {
       gameDataState.currentTurn,
     );
     // TODO complete this
+    // this selected triple is the triple that the user has selected 
+    // for the chi. The user should be prompted with a list of possible chi
+    // (if there are more than one option) and the triple they choose should 
+    // get thrown into this variable
     const selectedTriple: Tile[] = [];
     const stateTransition: PlayerAction = {
       action: ActionType.Chi,
@@ -146,6 +198,7 @@ const GameView: FunctionComponent = () => {
       mostRecentDiscardTile,
       mostRecentDiscardTile,
       mostRecentDiscardTile,
+      mostRecentDiscardTile,
     ];
     const stateTransition: PlayerAction = {
       action: ActionType.Gang,
@@ -159,6 +212,28 @@ const GameView: FunctionComponent = () => {
     };
 
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+  }
+
+  function hu(playerID: string) {
+    const stateTransition: PlayerAction = {
+      action: ActionType.Hu,
+      body: {
+        isSending: true
+      }
+    }
+    updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+  }
+
+  function endGame() {
+    setOpenGameOver(false);
+    history.push('/lobby');
+    for (let k in Object.keys(peers)) {
+      try {
+        peers[k].destroy();
+      } catch (err) {
+        console.error("Failed to destroy peer", k);
+      }
+    }
   }
 
   return (
@@ -181,6 +256,7 @@ const GameView: FunctionComponent = () => {
           </div>
         </div>
       </div>
+      <GameOverModal open={openGameOver} hitClose={endGame} />
     </>
   );
 };
