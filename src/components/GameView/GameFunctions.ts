@@ -4,6 +4,7 @@ import { getRandomInt } from '../../utils/utilFunc';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
+  if (tile1 === undefined || tile2 === undefined) return false;
   return (
     tile1.suite === tile2.suite &&
     tile1.value === tile2.value &&
@@ -21,6 +22,7 @@ export function mostRecentDiscard(
 }
 
 export function containsChi(hand: Tile[], newlyDiscarded: Tile) {
+  if (newlyDiscarded === undefined) return false;
   if ([Suite.Tiao, Suite.Tong, Suite.Wan].includes(newlyDiscarded.suite)) {
     // sorry if this logic is super ugly,
     // i'm writing this at like 2am and i'm super hella tired rn
@@ -67,6 +69,7 @@ export function containsGang(hand: Tile[], newlyDiscarded: Tile): boolean {
 }
 
 export function getFullHand(hand: Tile[], shownTiles: Tile[][]): Tile[] {
+  if (hand === undefined) return [];
   return [...hand, ...shownTiles.flat(1)];
 }
 
@@ -92,10 +95,11 @@ export function amFirstPlayer(allPlayerIds: string[], yourPlayerId: string) {
 // returns indexes of triple
 // assumes the newTile is already in hand
 export function findGrouping(
-  hand: Tile[],
+  _hand: Tile[],
   action: ActionType,
   newTile: Tile,
 ): number[][] {
+  const hand = Array.from(_hand);
   const out: number[][] = [];
   if (
     action === ActionType.Chi &&
@@ -141,6 +145,8 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   // so i'm making my own
   // here's my implementation of bucket sort......excellent prep for my upcoming exam
   // currently untested and i'm not even sure if it works...but who needs to test stuff anyways
+  if (tiles === undefined) return [];
+  // const tiles = Array.from(_tiles);
 
   const valBuckets: { [val: number]: Tile[] } = {};
   for (let tileInd = 0; tileInd < tiles.length; tileInd++) {
@@ -163,6 +169,7 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   const out: Tile[] = [];
   for (const v in Object.keys(valBuckets)) {
     const currBucket: Tile[] = valBuckets[v];
+    if (currBucket === undefined) continue;
     for (let tInd = 0; tInd < currBucket.length; tInd++) {
       const t: Tile = currBucket[tInd];
       out.push(t);
@@ -183,6 +190,7 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   const out2: Tile[] = [];
   for (const s in Object.keys(suiteBuckets)) {
     const currBucket: Tile[] = suiteBuckets[s];
+    if (currBucket === undefined) continue;
     for (let tInd = 0; tInd < currBucket.length; tInd++) {
       const t: Tile = currBucket[tInd];
       out2.push(t);
@@ -257,6 +265,7 @@ function allPairs(hand: Tile[]): boolean {
 }
 
 function sameSuite(hand: Tile[]): boolean {
+  if (hand[0] === undefined) return false;
   const s = hand[0].suite;
   return hand.filter((t) => t.suite !== s).length > 0;
 }
@@ -264,7 +273,8 @@ function sameSuite(hand: Tile[]): boolean {
 // returns a number indicating the tier of the victory
 // aka how much money/points they should get
 // return -1 if no victory
-export function calculateScore(hand: Tile[]): number {
+export function calculateScore(_hand: Tile[]): number {
+  const hand = Array.from(_hand);
   const sortHand: Tile[] = sortTiles(hand);
 
   // cache this cause a few win cons use this

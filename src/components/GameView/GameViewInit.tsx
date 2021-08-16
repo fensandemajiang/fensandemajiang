@@ -2,8 +2,10 @@ import React, { useEffect, FunctionComponent } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
-import { updateGameDataStateAndLog } from './gameFsm';
+import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, ThreadID, Filter } from '@textile/hub';
+import { waitForCondition } from '../../utils/utilFunc';
+import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
@@ -36,7 +38,7 @@ const GameViewInit: FunctionComponent = () => {
         { collectionName: 'connectDetail' },
         { actionTypes: ['CREATE'] },
       ];
-      await client.listen(
+      client.listen(
         threadId,
         listenFilters,
         (update?: Update<DbConnectDetail>) => {
@@ -97,10 +99,11 @@ const GameViewInit: FunctionComponent = () => {
           continue;
         }
 
+        const signalMutex = new Mutex();
         peers[id].on('signal', (data) => {
           // send data to db for user with current id
           // might be able batch inserts into the db to increase efficiency
-          async function asyncWrapper() {
+          signalMutex.runExclusive(async () => {
             console.log('sending req to', id);
             // add the entry to the db
             const connectDetail: DbConnectDetail = {
@@ -110,40 +113,49 @@ const GameViewInit: FunctionComponent = () => {
               _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
-          }
-          asyncWrapper();
+          });
         });
 
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          updateGameDataStateAndLog(
-            useGameDataStore.getState().gameDataState,
-            JSON.parse(data),
-            peers,
-            threadIdString,
-          )
-            .then((newDataStore) => {
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newDataStore,
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+          const condition = () =>
+            stateTransitionAllowed(
+              useGameDataStore.getState().gameDataState.currentState,
+              JSON.parse(data),
+            );
+          waitForCondition(condition).then(() =>
+            updateGameDataStateAndLog(
+              useGameDataStore.getState().gameDataState,
+              JSON.parse(data),
+              peers,
+              threadIdString,
+            )
+              .then((newDataStore) => {
+                useGameDataStore.setState({
+                  ...useGameDataStore.getState(),
+                  gameDataState: newDataStore,
+                });
+              })
+              .catch((err) => {
+                console.error(err);
+              }),
+          );
         });
 
+        const connectMutex = new Mutex();
         peers[id].on('connect', () => {
-          console.log('connected with', id);
-          useConnectionStore.setState({
-            ...useConnectionStore.getState(),
-            connectionState: {
-              ...useConnectionStore.getState().connectionState,
-              userConnectedCount:
-                useConnectionStore.getState().connectionState
-                  .userConnectedCount + 1,
-            },
+          connectMutex.runExclusive(() => {
+            console.log('connected with', id);
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                userConnectedCount:
+                  useConnectionStore.getState().connectionState
+                    .userConnectedCount + 1,
+              },
+            });
           });
         });
 

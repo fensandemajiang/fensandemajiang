@@ -27,7 +27,8 @@ const GameView: FunctionComponent = () => {
   );
   const { userConnectedCount, peers, threadId, signalIDs, userID } =
     useConnectionStore((state) => state.connectionState);
-  const gameDataState = useGameDataStore((state) => state.gameDataState);
+  const _gameDataState = useGameDataStore((state) => state.gameDataState);
+  const gameDataState = Object.assign({}, _gameDataState);
   const [countdown, setCountdown] = useState(5); // 5 second timer? to be more flexible for garbage internet. Pass this variable down to the timer component
   const [openGameOver, setOpenGameOver] = useState(false);
   const timer = useRef<any>();
@@ -50,24 +51,28 @@ const GameView: FunctionComponent = () => {
             stateTransition,
             peers,
             threadId,
-          ).then((newGameDataState) =>
-            useGameDataStore.setState({
-              ...useGameDataStore.getState(),
-              gameDataState: newGameDataState,
-            }),
-          );
+          )
+            .then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
+            )
+            .catch((err) => console.error(err));
         } else {
           updateGameDataStateAndLog(
             gameDataState,
             stateTransition,
             peers,
             threadId,
-          ).then((newGameDataState) =>
-            useGameDataStore.setState({
-              ...useGameDataStore.getState(),
-              gameDataState: newGameDataState,
-            }),
-          );
+          )
+            .then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
+            )
+            .catch((err) => console.error(err));
         }
       } else if (
         gameDataState.currentState === GameState.ShuffleDeck &&
@@ -321,8 +326,9 @@ const GameView: FunctionComponent = () => {
   function getChowOptions(): Tile[][] {
     const ret: Tile[][] = [];
     if (gameDataState.yourHand === undefined) return [];
-    for (let i = 3; i < gameDataState.yourHand.length; i++) {
-      const hand: Tile[] = gameDataState.yourHand.splice(i - 3, i);
+    const _hand = Array.from(gameDataState.yourHand);
+    for (let i = 3; i < _hand.length; i++) {
+      const hand: Tile[] = _hand.splice(i - 3, i);
       if (
         containsChi(
           hand,

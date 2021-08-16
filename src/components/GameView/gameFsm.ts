@@ -14,6 +14,9 @@ import {
   sendToEveryone,
 } from './GameFunctions';
 import { logStateInIpfs } from './ipfs';
+import { Mutex } from 'async-mutex';
+
+const mutex = new Mutex();
 
 function drawTile(
   gameDataState: GameDataState,
@@ -427,31 +430,37 @@ function initGame(
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
   }
+  console.log(stateTransition);
   if (isSending === true) {
     const { allPlayerIds, deck, yourPlayerId } = gameDataState;
     let newDeck = deck;
     newDeck = randomizeDeck([...deck]);
 
-    const hands: { [playerId: string]: Tile[] } = {};
-    for (const playerId in allPlayerIds) {
+    let handsArr = [];
+    let hands: { [userId: string]: Tile[] } = {};
+    for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
       hands[playerId] = hand;
     }
+    const stateTransitionHands = Object.assign({}, hands);
+    const retHands = Object.assign({}, hands);
     const newStateTransition = {
       ...stateTransition,
       body: {
         ...stateTransition.body,
         isSending: false,
-        hands: hands,
+        hands: stateTransitionHands,
         deck: newDeck,
       },
     };
+    console.log('HANDS');
+    console.dir(hands);
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
-      deck: newDeck,
-      yourHand: hands[yourPlayerId],
+      deck: Array.from(newDeck),
+      yourHand: Array.from(retHands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   } else {
@@ -459,11 +468,14 @@ function initGame(
     if (hands === undefined || deck === undefined) {
       throw Error('hands or deck is undefined.');
     }
+    const retHands = Object.assign({}, hands);
+    console.log('HANDS');
     const { yourPlayerId } = gameDataState;
+    console.log(retHands, retHands[yourPlayerId]);
     return {
       ...gameDataState,
-      deck: deck,
-      yourHand: hands[yourPlayerId],
+      deck: Array.from(deck),
+      yourHand: Array.from(retHands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   }
@@ -482,11 +494,11 @@ function setPlayerId(
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
   let currentPlayerId: string = sortedPlayerIds[0];
   let currentPlayerIndex = 0;
-  if (currentPlayerId === userId) {
-    // we're sending the deck to the next player
-    currentPlayerId = sortedPlayerIds[1];
-    currentPlayerIndex = 1;
-  }
+  const shownTiles = Object.fromEntries(
+    playerIds.map((player) => [player, []]),
+  );
+  const discards = Object.assign({}, shownTiles);
+  const flowers = Object.assign({}, shownTiles);
   return {
     ...gameDataState,
     allPlayerIds: sortedPlayerIds,
@@ -494,6 +506,9 @@ function setPlayerId(
     currentTurn: currentPlayerId,
     currentPlayerIndex: currentPlayerIndex,
     currentState: GameState.ShuffleDeck,
+    shownTiles: shownTiles,
+    flowers: flowers,
+    discards: discards,
   };
 }
 
@@ -569,29 +584,31 @@ function updateGameDataState(
   stateTransition: PlayerAction,
   peers: Peers,
 ): GameDataState {
+  const gameDataState = Object.assign({}, currentGameDataState);
+  const transition = Object.assign({}, stateTransition);
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(currentGameDataState, stateTransition, peers);
+      return drawTile(gameDataState, transition, peers);
     case ActionType.PlaceTile:
-      return placeTile(currentGameDataState, stateTransition, peers);
+      return placeTile(gameDataState, transition, peers);
     case ActionType.Chi:
-      return chi(currentGameDataState, stateTransition, peers);
+      return chi(gameDataState, transition, peers);
     case ActionType.Peng:
-      return peng(currentGameDataState, stateTransition, peers);
+      return peng(gameDataState, transition, peers);
     case ActionType.Gang:
-      return gang(currentGameDataState, stateTransition, peers);
+      return gang(gameDataState, transition, peers);
     case ActionType.ReplaceFlower:
-      return replaceFlower(currentGameDataState, stateTransition, peers);
+      return replaceFlower(gameDataState, transition, peers);
     case ActionType.InitGame:
-      return initGame(currentGameDataState, stateTransition, peers);
+      return initGame(gameDataState, transition, peers);
     case ActionType.Hu:
-      return hu(currentGameDataState, stateTransition, peers);
+      return hu(gameDataState, transition, peers);
     case ActionType.SetPlayerId:
-      return setPlayerId(currentGameDataState, stateTransition, peers);
+      return setPlayerId(gameDataState, transition, peers);
     case ActionType.NoChi:
-      return noDeclare(currentGameDataState, stateTransition, peers, true);
+      return noDeclare(gameDataState, transition, peers, true);
     case ActionType.NoPengGang:
-      return noDeclare(currentGameDataState, stateTransition, peers, false);
+      return noDeclare(gameDataState, transition, peers, false);
     default:
       return currentGameDataState;
   }
@@ -603,21 +620,63 @@ export async function updateGameDataStateAndLog(
   peers: Peers,
   gameId: string,
 ): Promise<GameDataState> {
-  const nextState = updateGameDataState(
-    currentGameDataState,
-    stateTransition,
-    peers,
-  );
-  try {
-    await logStateInIpfs(currentGameDataState, stateTransition, gameId);
-  } catch (err) {
-    console.error(err);
+  return mutex.runExclusive(async () => {
+    let _nextState;
+    try {
+      _nextState = updateGameDataState(
+        currentGameDataState,
+        stateTransition,
+        peers,
+      );
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+    try {
+      await logStateInIpfs(currentGameDataState, stateTransition, gameId);
+    } catch (err) {
+      console.error(err);
+    }
+    const nextState = Object.assign({}, _nextState);
+    const obj = {
+      logType: 'UPDATE_GAME_DATA_STATE',
+      currentState: currentGameDataState.currentState.toString(),
+      stateTransition: stateTransition,
+      nextState: nextState,
+    };
+    console.dir(obj);
+    return nextState;
+  });
+}
+
+export function stateTransitionAllowed(
+  currentState: GameState,
+  stateTransition: PlayerAction,
+) {
+  switch (stateTransition.action) {
+    case ActionType.DrawTile:
+      return currentState === GameState.DrawCard;
+    case ActionType.PlaceTile:
+      return currentState === GameState.PlayCard;
+    case ActionType.Chi:
+      return currentState === GameState.Chi;
+    case ActionType.Peng:
+      return currentState === GameState.PengGang;
+    case ActionType.Gang:
+      return currentState === GameState.PengGang;
+    case ActionType.ReplaceFlower:
+      return currentState === GameState.PlayCard;
+    case ActionType.InitGame:
+      return currentState === GameState.ShuffleDeck;
+    case ActionType.Hu:
+      return currentState === GameState.PlayCard;
+    case ActionType.SetPlayerId:
+      return currentState === GameState.Start;
+    case ActionType.NoChi:
+      return currentState === GameState.Chi;
+    case ActionType.NoPengGang:
+      return currentState === GameState.PengGang;
+    default:
+      throw Error('Invalid state transition');
   }
-  console.log(
-    'UPDATE_GAME_DATA_STATE: ',
-    currentGameDataState.currentState.toString(),
-    JSON.stringify(stateTransition),
-    nextState.toString(),
-  );
-  return nextState;
 }
