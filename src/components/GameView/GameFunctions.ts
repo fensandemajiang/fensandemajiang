@@ -142,6 +142,7 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   // so i'm making my own
   // here's my implementation of bucket sort......excellent prep for my upcoming exam
   // currently untested and i'm not even sure if it works...but who needs to test stuff anyways
+  if (tiles === undefined) return [];
 
   const valBuckets: { [val: number]: Tile[] } = {};
   for (let tileInd = 0; tileInd < tiles.length; tileInd++) {
