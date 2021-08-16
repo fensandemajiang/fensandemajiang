@@ -15,7 +15,12 @@ function Deck(props: InferProps<typeof Deck.propTypes>) {
     const tile: Tile = deck[i];
 
     tiles.push(
-      <DeckTile discard={props.discard} index={i} tile={tile}></DeckTile>,
+      <DeckTile
+        discard={props.discard}
+        key={i}
+        index={i}
+        tile={tile}
+      ></DeckTile>,
     );
   }
 

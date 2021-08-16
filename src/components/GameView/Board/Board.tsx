@@ -20,6 +20,7 @@ function Board(props: InferProps<typeof Board.propTypes>) {
     players.push(
       <Player
         id={playerID}
+        key={playerID}
         orientation={orientation}
         matches={matches}
         discards={discards}

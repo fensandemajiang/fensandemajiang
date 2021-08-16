@@ -95,10 +95,11 @@ export function amFirstPlayer(allPlayerIds: string[], yourPlayerId: string) {
 // returns indexes of triple
 // assumes the newTile is already in hand
 export function findGrouping(
-  hand: Tile[],
+  _hand: Tile[],
   action: ActionType,
   newTile: Tile,
 ): number[][] {
+  const hand = Array.from(_hand);
   const out: number[][] = [];
   if (
     action === ActionType.Chi &&
@@ -139,12 +140,13 @@ export function findGrouping(
   return out;
 }
 
-export function sortTiles(tiles: Tile[]): Tile[] {
+export function sortTiles(_tiles: Tile[]): Tile[] {
   // js doesn't have a built in stable sort ;-;
   // so i'm making my own
   // here's my implementation of bucket sort......excellent prep for my upcoming exam
   // currently untested and i'm not even sure if it works...but who needs to test stuff anyways
-  if (tiles === undefined) return [];
+  if (_tiles === undefined) return [];
+  const tiles = Array.from(_tiles);
 
   const valBuckets: { [val: number]: Tile[] } = {};
   for (let tileInd = 0; tileInd < tiles.length; tileInd++) {
