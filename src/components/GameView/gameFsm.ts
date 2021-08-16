@@ -581,29 +581,31 @@ function updateGameDataState(
   stateTransition: PlayerAction,
   peers: Peers,
 ): GameDataState {
+  const gameDataState = Object.assign({}, currentGameDataState);
+  const transition = Object.assign({}, stateTransition);
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(currentGameDataState, stateTransition, peers);
+      return drawTile(gameDataState, transition, peers);
     case ActionType.PlaceTile:
-      return placeTile(currentGameDataState, stateTransition, peers);
+      return placeTile(gameDataState, transition, peers);
     case ActionType.Chi:
-      return chi(currentGameDataState, stateTransition, peers);
+      return chi(gameDataState, transition, peers);
     case ActionType.Peng:
-      return peng(currentGameDataState, stateTransition, peers);
+      return peng(gameDataState, transition, peers);
     case ActionType.Gang:
-      return gang(currentGameDataState, stateTransition, peers);
+      return gang(gameDataState, transition, peers);
     case ActionType.ReplaceFlower:
-      return replaceFlower(currentGameDataState, stateTransition, peers);
+      return replaceFlower(gameDataState, transition, peers);
     case ActionType.InitGame:
-      return initGame(currentGameDataState, stateTransition, peers);
+      return initGame(gameDataState, transition, peers);
     case ActionType.Hu:
-      return hu(currentGameDataState, stateTransition, peers);
+      return hu(gameDataState, transition, peers);
     case ActionType.SetPlayerId:
-      return setPlayerId(currentGameDataState, stateTransition, peers);
+      return setPlayerId(gameDataState, transition, peers);
     case ActionType.NoChi:
-      return noDeclare(currentGameDataState, stateTransition, peers, true);
+      return noDeclare(gameDataState, transition, peers, true);
     case ActionType.NoPengGang:
-      return noDeclare(currentGameDataState, stateTransition, peers, false);
+      return noDeclare(gameDataState, transition, peers, false);
     default:
       return currentGameDataState;
   }
