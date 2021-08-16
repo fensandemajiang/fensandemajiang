@@ -14,6 +14,9 @@ import {
   sendToEveryone,
 } from './GameFunctions';
 import { logStateInIpfs } from './ipfs';
+import { Mutex } from 'async-mutex';
+
+const mutex = new Mutex();
 
 function drawTile(
   gameDataState: GameDataState,
@@ -600,21 +603,23 @@ export async function updateGameDataStateAndLog(
   peers: Peers,
   gameId: string,
 ): Promise<GameDataState> {
-  const nextState = updateGameDataState(
-    currentGameDataState,
-    stateTransition,
-    peers,
-  );
-  try {
-    await logStateInIpfs(currentGameDataState, stateTransition, gameId);
-  } catch (err) {
-    console.error(err);
-  }
-  console.log(
-    'UPDATE_GAME_DATA_STATE: ',
-    currentGameDataState.currentState.toString(),
-    JSON.stringify(stateTransition),
-    JSON.stringify(nextState),
-  );
-  return nextState;
+  return await mutex.runExclusive(async () => {
+    const nextState = updateGameDataState(
+      currentGameDataState,
+      stateTransition,
+      peers,
+    );
+    try {
+      await logStateInIpfs(currentGameDataState, stateTransition, gameId);
+    } catch (err) {
+      console.error(err);
+    }
+    console.log(
+      'UPDATE_GAME_DATA_STATE: ',
+      currentGameDataState.currentState.toString(),
+      JSON.stringify(stateTransition),
+      JSON.stringify(nextState),
+    );
+    return nextState;
+  });
 }
