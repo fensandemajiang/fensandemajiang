@@ -628,18 +628,13 @@ export async function updateGameDataStateAndLog(
     } catch (err) {
       console.error(err);
     }
-    console.log(
-      "{'UPDATE_GAME_DATA_STATE': {",
-      "'currentState':",
-      currentGameDataState.currentState.toString(),
-      ',',
-      "'stateTransition:'",
-      JSON.stringify(stateTransition),
-      ',',
-      "'nextState:'",
-      JSON.stringify(nextState),
-      '}',
-    );
+    const obj = {
+      logType: 'UPDATE_GAME_DATA_STATE',
+      currentState: currentGameDataState.currentState.toString(),
+      stateTransition: stateTransition,
+      nextState: nextState,
+    };
+    console.log(JSON.stringify(obj));
     return nextState;
   });
 }
