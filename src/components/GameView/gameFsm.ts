@@ -617,7 +617,7 @@ export async function updateGameDataStateAndLog(
     'UPDATE_GAME_DATA_STATE: ',
     currentGameDataState.currentState.toString(),
     JSON.stringify(stateTransition),
-    nextState.toString(),
+    JSON.stringify(nextState),
   );
   return nextState;
 }
