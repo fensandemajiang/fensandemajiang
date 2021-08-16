@@ -157,8 +157,9 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
       }
     }
 
-    setThreadId(ThreadID.fromRandom());
     await client.deleteDB(threadId);
+
+    setThreadId(ThreadID.fromRandom());
   }
 
   function copyToClip() {
