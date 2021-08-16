@@ -634,7 +634,7 @@ export async function updateGameDataStateAndLog(
       stateTransition: stateTransition,
       nextState: nextState,
     };
-    console.log(JSON.stringify(obj));
+    console.dir(obj);
     return nextState;
   });
 }
