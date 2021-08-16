@@ -22,6 +22,7 @@ export function mostRecentDiscard(
 }
 
 export function containsChi(hand: Tile[], newlyDiscarded: Tile) {
+  if (newlyDiscarded === undefined) return false;
   if ([Suite.Tiao, Suite.Tong, Suite.Wan].includes(newlyDiscarded.suite)) {
     // sorry if this logic is super ugly,
     // i'm writing this at like 2am and i'm super hella tired rn
