@@ -67,6 +67,7 @@ export function containsGang(hand: Tile[], newlyDiscarded: Tile): boolean {
 }
 
 export function getFullHand(hand: Tile[], shownTiles: Tile[][]): Tile[] {
+  if (hand === undefined) return [];
   return [...hand, ...shownTiles.flat(1)];
 }
 
