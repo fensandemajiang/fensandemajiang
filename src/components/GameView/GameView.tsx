@@ -50,6 +50,11 @@ const GameView: FunctionComponent = () => {
             stateTransition,
             peers,
             threadId,
+          ).then((newGameDataState) =>
+            useGameDataStore.setState({
+              ...useGameDataStore.getState(),
+              gameDataState: newGameDataState,
+            }),
           );
         } else {
           updateGameDataStateAndLog(
@@ -57,6 +62,11 @@ const GameView: FunctionComponent = () => {
             stateTransition,
             peers,
             threadId,
+          ).then((newGameDataState) =>
+            useGameDataStore.setState({
+              ...useGameDataStore.getState(),
+              gameDataState: newGameDataState,
+            }),
           );
         }
       } else if (
@@ -74,6 +84,11 @@ const GameView: FunctionComponent = () => {
           stateTransition,
           peers,
           threadId,
+        ).then((newGameDataState) =>
+          useGameDataStore.setState({
+            ...useGameDataStore.getState(),
+            gameDataState: newGameDataState,
+          }),
         );
       } else if (
         gameDataState.currentState === GameState.DrawCard &&
@@ -90,6 +105,11 @@ const GameView: FunctionComponent = () => {
           stateTransition,
           peers,
           threadId,
+        ).then((newGameDataState) =>
+          useGameDataStore.setState({
+            ...useGameDataStore.getState(),
+            gameDataState: newGameDataState,
+          }),
         );
       } else if (gameDataState.currentState === GameState.PengGang) {
         timer.current = setInterval(() => {
@@ -112,6 +132,11 @@ const GameView: FunctionComponent = () => {
               stateTransition,
               peers,
               threadId,
+            ).then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
             );
           }
         }, 1000);
@@ -133,6 +158,11 @@ const GameView: FunctionComponent = () => {
               stateTransition,
               peers,
               threadId,
+            ).then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
             );
           }
         }, 1000);
