@@ -628,7 +628,6 @@ export async function updateGameDataStateAndLog(
         stateTransition,
         peers,
       );
-      console.log(JSON.stringify(_nextState.yourHand));
     } catch (err) {
       console.error(err);
       throw err;
