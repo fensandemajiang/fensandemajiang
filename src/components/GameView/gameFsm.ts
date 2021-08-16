@@ -621,9 +621,9 @@ export async function updateGameDataStateAndLog(
   gameId: string,
 ): Promise<GameDataState> {
   return mutex.runExclusive(async () => {
-    let nextState;
+    let _nextState;
     try {
-      nextState = updateGameDataState(
+      _nextState = updateGameDataState(
         currentGameDataState,
         stateTransition,
         peers,
@@ -637,12 +637,14 @@ export async function updateGameDataStateAndLog(
     } catch (err) {
       console.error(err);
     }
+    const nextState = Object.assign({}, _nextState);
     const obj = {
       logType: 'UPDATE_GAME_DATA_STATE',
       currentState: currentGameDataState.currentState.toString(),
       stateTransition: stateTransition,
       nextState: nextState,
     };
+    console.dir(_nextState);
     console.dir(obj);
     return nextState;
   });
