@@ -273,7 +273,8 @@ function sameSuite(hand: Tile[]): boolean {
 // returns a number indicating the tier of the victory
 // aka how much money/points they should get
 // return -1 if no victory
-export function calculateScore(hand: Tile[]): number {
+export function calculateScore(_hand: Tile[]): number {
+  const hand = Array.from(_hand);
   const sortHand: Tile[] = sortTiles(hand);
 
   // cache this cause a few win cons use this
