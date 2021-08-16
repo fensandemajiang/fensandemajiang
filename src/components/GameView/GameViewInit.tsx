@@ -36,7 +36,7 @@ const GameViewInit: FunctionComponent = () => {
         { collectionName: 'connectDetail' },
         { actionTypes: ['CREATE'] },
       ];
-      await client.listen(
+      client.listen(
         threadId,
         listenFilters,
         (update?: Update<DbConnectDetail>) => {

@@ -603,12 +603,18 @@ export async function updateGameDataStateAndLog(
   peers: Peers,
   gameId: string,
 ): Promise<GameDataState> {
-  return await mutex.runExclusive(async () => {
-    const nextState = updateGameDataState(
-      currentGameDataState,
-      stateTransition,
-      peers,
-    );
+  return mutex.runExclusive(async () => {
+    let nextState;
+    try {
+      nextState = updateGameDataState(
+        currentGameDataState,
+        stateTransition,
+        peers,
+      );
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
     try {
       await logStateInIpfs(currentGameDataState, stateTransition, gameId);
     } catch (err) {
