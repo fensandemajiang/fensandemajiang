@@ -257,6 +257,7 @@ function allPairs(hand: Tile[]): boolean {
 }
 
 function sameSuite(hand: Tile[]): boolean {
+  if (hand[0] === undefined) return false;
   const s = hand[0].suite;
   return hand.filter((t) => t.suite !== s).length > 0;
 }
