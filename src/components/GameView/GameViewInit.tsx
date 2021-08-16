@@ -5,6 +5,7 @@ import GameView from './GameView';
 import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
+import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
@@ -98,10 +99,11 @@ const GameViewInit: FunctionComponent = () => {
           continue;
         }
 
+        const signalMutex = new Mutex();
         peers[id].on('signal', (data) => {
           // send data to db for user with current id
           // might be able batch inserts into the db to increase efficiency
-          async function asyncWrapper() {
+          signalMutex.runExclusive(async () => {
             console.log('sending req to', id);
             // add the entry to the db
             const connectDetail: DbConnectDetail = {
@@ -111,8 +113,7 @@ const GameViewInit: FunctionComponent = () => {
               _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
-          }
-          asyncWrapper();
+          });
         });
 
         peers[id].on('data', (data) => {
@@ -142,16 +143,19 @@ const GameViewInit: FunctionComponent = () => {
           );
         });
 
+        const connectMutex = new Mutex();
         peers[id].on('connect', () => {
-          console.log('connected with', id);
-          useConnectionStore.setState({
-            ...useConnectionStore.getState(),
-            connectionState: {
-              ...useConnectionStore.getState().connectionState,
-              userConnectedCount:
-                useConnectionStore.getState().connectionState
-                  .userConnectedCount + 1,
-            },
+          connectMutex.runExclusive(() => {
+            console.log('connected with', id);
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                userConnectedCount:
+                  useConnectionStore.getState().connectionState
+                    .userConnectedCount + 1,
+              },
+            });
           });
         });
 
