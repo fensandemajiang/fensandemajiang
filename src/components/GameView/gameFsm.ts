@@ -629,10 +629,16 @@ export async function updateGameDataStateAndLog(
       console.error(err);
     }
     console.log(
-      'UPDATE_GAME_DATA_STATE: ',
+      "{'UPDATE_GAME_DATA_STATE': {",
+      'currentState: ',
       currentGameDataState.currentState.toString(),
+      ',',
+      'stateTransition: ',
       JSON.stringify(stateTransition),
+      ',',
+      'nextState: ',
       JSON.stringify(nextState),
+      '}',
     );
     return nextState;
   });
