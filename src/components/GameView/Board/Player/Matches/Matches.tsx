@@ -18,7 +18,9 @@ function Matches(props: InferProps<typeof Matches.propTypes>) {
 
   for (let i = 0; i < num_matches; i++) {
     const match = props.matches ? props.matches[i] : [];
-    matches.push(<Match orientation={props.orientation} match={match}></Match>);
+    matches.push(
+      <Match key={i} orientation={props.orientation} match={match}></Match>,
+    );
   }
 
   return (

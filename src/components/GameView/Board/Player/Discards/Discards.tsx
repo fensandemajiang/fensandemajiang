@@ -14,6 +14,7 @@ function Discards(props: InferProps<typeof Discards.propTypes>) {
     if (i < num_discards) {
       discards.push(
         <DiscardedTile
+          key={discarded_tiles[i]}
           tile={discarded_tiles[i]}
           orientation={props.orientation}
         ></DiscardedTile>,
