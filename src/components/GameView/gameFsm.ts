@@ -630,13 +630,13 @@ export async function updateGameDataStateAndLog(
     }
     console.log(
       "{'UPDATE_GAME_DATA_STATE': {",
-      'currentState: ',
+      "'currentState':",
       currentGameDataState.currentState.toString(),
       ',',
-      'stateTransition: ',
+      "'stateTransition:'",
       JSON.stringify(stateTransition),
       ',',
-      'nextState: ',
+      "'nextState:'",
       JSON.stringify(nextState),
       '}',
     );
