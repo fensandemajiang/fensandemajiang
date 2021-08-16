@@ -15,3 +15,17 @@ export function amCurrentPlayer(
 ): boolean {
   return allIds[currInd % 4] === myId;
 }
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+export async function waitForCondition(
+  condition: () => boolean,
+): Promise<void> {
+  return new Promise(async function (resolve, reject) {
+    while (condition() !== true) {
+      await sleep(100);
+    }
+    resolve();
+  });
+}

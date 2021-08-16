@@ -2,8 +2,9 @@ import React, { useEffect, FunctionComponent } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
-import { updateGameDataStateAndLog } from './gameFsm';
+import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, ThreadID, Filter } from '@textile/hub';
+import { waitForCondition } from '../../utils/utilFunc';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
@@ -117,21 +118,28 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          updateGameDataStateAndLog(
-            useGameDataStore.getState().gameDataState,
-            JSON.parse(data),
-            peers,
-            threadIdString,
-          )
-            .then((newDataStore) => {
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newDataStore,
-              });
-            })
-            .catch((err) => {
-              console.error(err);
-            });
+          const condition = () =>
+            stateTransitionAllowed(
+              useGameDataStore.getState().gameDataState.currentState,
+              JSON.parse(data),
+            );
+          waitForCondition(condition).then(() =>
+            updateGameDataStateAndLog(
+              useGameDataStore.getState().gameDataState,
+              JSON.parse(data),
+              peers,
+              threadIdString,
+            )
+              .then((newDataStore) => {
+                useGameDataStore.setState({
+                  ...useGameDataStore.getState(),
+                  gameDataState: newDataStore,
+                });
+              })
+              .catch((err) => {
+                console.error(err);
+              }),
+          );
         });
 
         peers[id].on('connect', () => {

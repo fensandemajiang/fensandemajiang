@@ -629,3 +629,35 @@ export async function updateGameDataStateAndLog(
     return nextState;
   });
 }
+
+export function stateTransitionAllowed(
+  currentState: GameState,
+  stateTransition: PlayerAction,
+) {
+  switch (stateTransition.action) {
+    case ActionType.DrawTile:
+      return currentState === GameState.DrawCard;
+    case ActionType.PlaceTile:
+      return currentState === GameState.PlayCard;
+    case ActionType.Chi:
+      return currentState === GameState.Chi;
+    case ActionType.Peng:
+      return currentState === GameState.PengGang;
+    case ActionType.Gang:
+      return currentState === GameState.PengGang;
+    case ActionType.ReplaceFlower:
+      return currentState === GameState.PlayCard;
+    case ActionType.InitGame:
+      return currentState === GameState.ShuffleDeck;
+    case ActionType.Hu:
+      return currentState === GameState.PlayCard;
+    case ActionType.SetPlayerId:
+      return currentState === GameState.Start;
+    case ActionType.NoChi:
+      return currentState === GameState.Chi;
+    case ActionType.NoPengGang:
+      return currentState === GameState.PengGang;
+    default:
+      throw Error('Invalid state transition');
+  }
+}
