@@ -4,6 +4,7 @@ import { getRandomInt } from '../../utils/utilFunc';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
+  if (tile1 === undefined || tile2 === undefined) return false;
   return (
     tile1.suite === tile2.suite &&
     tile1.value === tile2.value &&
