@@ -34,6 +34,7 @@ const GameView: FunctionComponent = () => {
 
   useEffect(() => {
     if (userConnectedCount === 3) {
+      console.log(gameDataState.currentState);
       // all users have connected
       if (gameDataState.currentState === GameState.Start) {
         const stateTransition: PlayerAction = {

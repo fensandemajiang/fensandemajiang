@@ -603,6 +603,11 @@ export async function updateGameDataStateAndLog(
   peers: Peers,
   gameId: string,
 ): Promise<GameDataState> {
+  console.log(
+    'UPDATE_GAME_DATA_STATE: ',
+    currentGameDataState.currentState.toString(),
+    JSON.stringify(stateTransition),
+  );
   const nextState = updateGameDataState(
     currentGameDataState,
     stateTransition,
