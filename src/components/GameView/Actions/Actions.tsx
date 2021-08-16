@@ -128,9 +128,10 @@ function Actions(props: { playerActions: any }) {
   })();
 
   const displayReplaceFlower: boolean = (() => {
-    const flower: Tile | undefined = gameDataState.yourHand.find(
-      (t) => t.suite === Suite.Flowers,
-    );
+    const flower: Tile | undefined =
+      gameDataState.yourHand === undefined
+        ? undefined
+        : gameDataState.yourHand.find((t) => t.suite === Suite.Flowers);
     if (flower) {
       return (
         gameDataState.currentState === GameState.PlayCard &&
