@@ -37,7 +37,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
     });
   };
   const [tableCode, setTableCode] = useState('');
-  const threadId = ThreadID.fromRandom();
+  const [threadId, setThreadId] = useState(ThreadID.fromRandom());
   const [playerCount, setPlayerCount] = useState<number>(0);
   const [createListener, setCreateListener] = useState<grpc.Request | null>(
     null,
@@ -157,6 +157,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
       }
     }
 
+    setThreadId(ThreadID.fromRandom());
     await client.deleteDB(threadId);
   }
 
@@ -183,7 +184,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+            <Dialog.Overlay className="fixed inset-0 bg-white-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
 
           {/* This element is to trick the browser into centering the modal contents. */}
