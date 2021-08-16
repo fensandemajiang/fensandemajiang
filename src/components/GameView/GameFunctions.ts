@@ -165,6 +165,7 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   const out: Tile[] = [];
   for (const v in Object.keys(valBuckets)) {
     const currBucket: Tile[] = valBuckets[v];
+    if (currBucket === undefined) continue;
     for (let tInd = 0; tInd < currBucket.length; tInd++) {
       const t: Tile = currBucket[tInd];
       out.push(t);
@@ -185,6 +186,7 @@ export function sortTiles(tiles: Tile[]): Tile[] {
   const out2: Tile[] = [];
   for (const s in Object.keys(suiteBuckets)) {
     const currBucket: Tile[] = suiteBuckets[s];
+    if (currBucket === undefined) continue;
     for (let tInd = 0; tInd < currBucket.length; tInd++) {
       const t: Tile = currBucket[tInd];
       out2.push(t);
