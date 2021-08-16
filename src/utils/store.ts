@@ -2,6 +2,7 @@ import create, { SetState } from 'zustand';
 import { Suite, Dragon, Flower, Wind, GameState, UserState } from '../types';
 import type { ConnectionState, GameDataState, Tile, BetState } from '../types';
 import { Client, PrivateKey } from '@textile/hub';
+import { devtools } from 'zustand/middleware';
 
 export type ConnectionDataStore = {
   connectionState: ConnectionState;
@@ -19,11 +20,11 @@ const initialConnectionDataState: ConnectionState = {
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(
-  (set: SetState<ConnectionDataStore>) => ({
+  devtools((set: SetState<ConnectionDataStore>) => ({
     connectionState: initialConnectionDataState,
     updateConnectionState: (connectionState: ConnectionState) =>
       set({ connectionState }),
-  }),
+  })),
 );
 
 export type GameDataStore = {
@@ -97,11 +98,11 @@ const initialGameDataState: GameDataState = {
 };
 
 export const useGameDataStore = create<GameDataStore>(
-  (set: SetState<GameDataStore>) => ({
+  devtools((set: SetState<GameDataStore>) => ({
     gameDataState: initialGameDataState,
     updateGameDataState: (gameDataState: GameDataState) =>
       set({ gameDataState }),
-  }),
+  })),
 );
 
 export type UserStore = {
@@ -117,10 +118,12 @@ const initialUserState: UserState = {
   idx: undefined,
 };
 
-export const useUserStore = create<UserStore>((set: SetState<UserStore>) => ({
-  userState: initialUserState,
-  updateUserState: (userState: UserState) => set({ userState }),
-}));
+export const useUserStore = create<UserStore>(
+  devtools((set: SetState<UserStore>) => ({
+    userState: initialUserState,
+    updateUserState: (userState: UserState) => set({ userState }),
+  })),
+);
 
 export type BetStore = {
   betState: BetState;
@@ -132,7 +135,9 @@ const initialBetState: BetState = {
   betPaidOut: false,
 };
 
-export const useBetStore = create<BetStore>((set: SetState<BetStore>) => ({
-  betState: initialBetState,
-  updateBetState: (betState: BetState) => set({ betState }),
-}));
+export const useBetStore = create<BetStore>(
+  devtools((set: SetState<BetStore>) => ({
+    betState: initialBetState,
+    updateBetState: (betState: BetState) => set({ betState }),
+  })),
+);
