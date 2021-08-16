@@ -158,6 +158,7 @@ function Actions(props: { playerActions: any }) {
 Actions.propTypes = {
   any: PropTypes.any,
   playerActions: PropTypes.objectOf(PropTypes.func),
+  chowOptions: PropTypes.any,
 };
 
 export default Actions;
