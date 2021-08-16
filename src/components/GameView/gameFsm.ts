@@ -436,7 +436,7 @@ function initGame(
     let newDeck = deck;
     newDeck = randomizeDeck([...deck]);
 
-    const hands: { [playerId: string]: Tile[] } = {};
+    let hands: { [userId: string]: Tile[] } = {};
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
@@ -462,6 +462,8 @@ function initGame(
     };
   } else {
     const { hands, deck } = stateTransition.body;
+    console.log('HANDS');
+    console.log(hands);
     if (hands === undefined || deck === undefined) {
       throw Error('hands or deck is undefined.');
     }
