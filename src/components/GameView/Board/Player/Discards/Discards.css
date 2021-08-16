@@ -5,36 +5,45 @@
 .discard-right,
 .discard-left {
   width: 35%;
-  height: 80%;
-  flex-direction: column-reverse;
-  flex-wrap: wrap;
-  column-gap: 20px;
-  padding-right: 5%;
-  margin-right: 3%;
+  height: 70%;
+  padding: 3% 0;
+  flex-direction: column;
   align-items: flex-end;
+  overflow-y: auto;
+  scrollbar-width: none;
+  scroll-snap-type: y proximity;
 }
 
 .discard-left {
-  flex-direction: column;
-  flex-wrap: wrap-reverse;
-  padding-left: 5%;
-  margin-left: 3%;
-  padding-right: 0;
-  margin-right: 0;
+  flex-direction: column-reverse;
+  align-items: flex-start;
 }
 
 .discard-up,
 .discard-bottom {
-  width: 70%;
+  display: flex;
+  padding: 0 1%;
+  width: 40%;
+  max-width: 80%;
   height: 35%;
-  padding: 1%;
-  column-gap: 1%;
-  flex-direction: row-reverse;
-  flex-wrap: wrap-reverse;
-  justify-content: flex-end;
+  column-gap: 2%;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: scroll;
+  scrollbar-width: none;
+  scroll-snap-type: x proximity;
 }
 
 .discard-bottom {
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+}
+/* Remove scrollbar space */
+/* Optional: just make scrollbar invisible */
+
+.discards::-webkit-scrollbar {
+  width: 0;  
+  height: 0;
+  background: transparent;  
 }

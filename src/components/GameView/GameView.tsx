@@ -205,7 +205,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function pung(playerID: string) {
+  function pung(chowOptions: Tile[]) {
     const mostRecentDiscardTile: Tile = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
@@ -229,7 +229,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function kong(playerID: string) {
+  function kong(chowOptions: Tile[]) {
     const mostRecentDiscardTile: Tile = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
@@ -254,7 +254,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function hu(playerID: string) {
+  function hu(chowOptions: Tile[]) {
     const stateTransition: PlayerAction = {
       action: ActionType.Hu,
       body: {
@@ -264,7 +264,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function replaceFlower(playerID: string) {
+  function replaceFlower(chowOptions: Tile[]) {
     const flower: Tile | undefined = gameDataState.yourHand.find(
       (t) => t.suite === Suite.Flowers,
     );
@@ -336,6 +336,7 @@ const GameView: FunctionComponent = () => {
                   hu: hu,
                   replaceFlower: replaceFlower,
                 }}
+                chowOptions={chowOptions}
               />
             </div>
           </div>

@@ -16,7 +16,7 @@ function DiscardedTile(props: InferProps<typeof DiscardedTile.propTypes>) {
     tileOrientation = 'tile-up';
     rotation = 'up';
   } else if (props.orientation == 'bottom') {
-    tileOrientation = 'tile-up';
+    tileOrientation = 'tile-up tile-bottom';
     rotation = '';
   }
 

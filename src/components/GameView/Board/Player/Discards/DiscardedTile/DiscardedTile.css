@@ -12,18 +12,13 @@
   /* border-radius: 1em; */
 }
 
-.discarded-tile .no-image {
-  background-color: #232646;
-  display: none;
-}
-
 .tile-up {
-  width: 9%;
-  padding-bottom: 10%;
-  position: relative;
+  min-width:21%;
+  padding-bottom: 0;
+  height:75%;
+  min-height: 0;
 }
 
-.tile-up .small-tile-image,
-.tile-up .no-image {
-  height: 100%;
-}
+/* .tile-bottom{
+  padding-top: min(calc(4.5vh - 1.5vw), 12px);
+} */
