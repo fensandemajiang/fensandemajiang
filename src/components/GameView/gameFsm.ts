@@ -441,26 +441,26 @@ function initGame(
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
-      handsArr.push(Array.from(hand));
       hands[playerId] = hand;
     }
+    const stateTransitionHands = Object.assign({}, hands);
+    const retHands = Object.assign({}, hands);
     const newStateTransition = {
       ...stateTransition,
       body: {
         ...stateTransition.body,
         isSending: false,
-        hands: Object.assign({}, hands),
+        hands: stateTransitionHands,
         deck: newDeck,
       },
     };
     console.log('HANDS');
-    console.log(handsArr);
     console.dir(hands);
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
       deck: Array.from(newDeck),
-      yourHand: Array.from(hands[yourPlayerId]),
+      yourHand: Array.from(retHands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   } else {
@@ -468,11 +468,14 @@ function initGame(
     if (hands === undefined || deck === undefined) {
       throw Error('hands or deck is undefined.');
     }
+    const retHands = Object.assign({}, hands);
+    console.log('HANDS');
     const { yourPlayerId } = gameDataState;
+    console.log(retHands, retHands[yourPlayerId]);
     return {
       ...gameDataState,
       deck: Array.from(deck),
-      yourHand: Array.from(hands[yourPlayerId]),
+      yourHand: Array.from(retHands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   }
