@@ -456,8 +456,8 @@ function initGame(
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
-      deck: newDeck,
-      yourHand: hands[yourPlayerId],
+      deck: Array.from(newDeck),
+      yourHand: Array.from(hands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   } else {
@@ -468,11 +468,10 @@ function initGame(
       throw Error('hands or deck is undefined.');
     }
     const { yourPlayerId } = gameDataState;
-    console.log(yourPlayerId, JSON.stringify(hands), hands[yourPlayerId]);
     return {
       ...gameDataState,
-      deck: deck,
-      yourHand: hands[yourPlayerId],
+      deck: Array.from(deck),
+      yourHand: Array.from(hands[yourPlayerId]),
       currentState: GameState.DrawCard,
     };
   }
