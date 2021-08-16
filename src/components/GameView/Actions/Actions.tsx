@@ -15,8 +15,9 @@ import { GameDataStore } from '@utils/store';
 import { GameState, Suite, Tile } from '../../../types';
 import './Actions.css';
 
-function Actions(props: { playerActions: any, chowOptions: Tile[][] }) {
-  const gameDataState = useGameDataStore((state) => state.gameDataState);
+function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
+  const _gameDataState = useGameDataStore((state) => state.gameDataState);
+  const gameDataState = Object.assign({}, _gameDataState);
   const playerID: string = useGameDataStore().gameDataState.yourPlayerId;
 
   const getAction = (actionName: string) => {

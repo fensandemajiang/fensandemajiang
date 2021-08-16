@@ -27,7 +27,8 @@ const GameView: FunctionComponent = () => {
   );
   const { userConnectedCount, peers, threadId, signalIDs, userID } =
     useConnectionStore((state) => state.connectionState);
-  const gameDataState = useGameDataStore((state) => state.gameDataState);
+  const _gameDataState = useGameDataStore((state) => state.gameDataState);
+  const gameDataState = Object.assign({}, _gameDataState);
   const [countdown, setCountdown] = useState(5); // 5 second timer? to be more flexible for garbage internet. Pass this variable down to the timer component
   const [openGameOver, setOpenGameOver] = useState(false);
   const timer = useRef<any>();
