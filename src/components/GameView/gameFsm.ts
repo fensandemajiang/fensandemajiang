@@ -487,6 +487,11 @@ function setPlayerId(
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
   let currentPlayerId: string = sortedPlayerIds[0];
   let currentPlayerIndex = 0;
+  const shownTiles = Object.fromEntries(
+    playerIds.map((player) => [player, []]),
+  );
+  const discards = Object.assign({}, shownTiles);
+  const flowers = Object.assign({}, shownTiles);
   return {
     ...gameDataState,
     allPlayerIds: sortedPlayerIds,
@@ -494,6 +499,9 @@ function setPlayerId(
     currentTurn: currentPlayerId,
     currentPlayerIndex: currentPlayerIndex,
     currentState: GameState.ShuffleDeck,
+    shownTiles: shownTiles,
+    flowers: flowers,
+    discards: discards,
   };
 }
 
