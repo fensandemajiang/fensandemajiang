@@ -433,7 +433,7 @@ function initGame(
     newDeck = randomizeDeck([...deck]);
 
     const hands: { [playerId: string]: Tile[] } = {};
-    for (const playerId in allPlayerIds) {
+    for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
       hands[playerId] = hand;
