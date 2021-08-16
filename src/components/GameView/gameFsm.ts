@@ -628,6 +628,7 @@ export async function updateGameDataStateAndLog(
         stateTransition,
         peers,
       );
+      console.log(_nextState.yourHand);
     } catch (err) {
       console.error(err);
       throw err;
@@ -644,7 +645,6 @@ export async function updateGameDataStateAndLog(
       stateTransition: stateTransition,
       nextState: nextState,
     };
-    console.dir(_nextState);
     console.dir(obj);
     return nextState;
   });
