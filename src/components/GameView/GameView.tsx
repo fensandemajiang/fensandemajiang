@@ -50,24 +50,28 @@ const GameView: FunctionComponent = () => {
             stateTransition,
             peers,
             threadId,
-          ).then((newGameDataState) =>
-            useGameDataStore.setState({
-              ...useGameDataStore.getState(),
-              gameDataState: newGameDataState,
-            }),
-          );
+          )
+            .then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
+            )
+            .catch((err) => console.error(err));
         } else {
           updateGameDataStateAndLog(
             gameDataState,
             stateTransition,
             peers,
             threadId,
-          ).then((newGameDataState) =>
-            useGameDataStore.setState({
-              ...useGameDataStore.getState(),
-              gameDataState: newGameDataState,
-            }),
-          );
+          )
+            .then((newGameDataState) =>
+              useGameDataStore.setState({
+                ...useGameDataStore.getState(),
+                gameDataState: newGameDataState,
+              }),
+            )
+            .catch((err) => console.error(err));
         }
       } else if (
         gameDataState.currentState === GameState.ShuffleDeck &&

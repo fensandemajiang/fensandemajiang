@@ -427,6 +427,7 @@ function initGame(
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
   }
+  console.log(stateTransition);
   if (isSending === true) {
     const { allPlayerIds, deck, yourPlayerId } = gameDataState;
     let newDeck = deck;
@@ -460,6 +461,7 @@ function initGame(
       throw Error('hands or deck is undefined.');
     }
     const { yourPlayerId } = gameDataState;
+    console.log(yourPlayerId, JSON.stringify(hands), hands[yourPlayerId]);
     return {
       ...gameDataState,
       deck: deck,
@@ -482,11 +484,6 @@ function setPlayerId(
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
   let currentPlayerId: string = sortedPlayerIds[0];
   let currentPlayerIndex = 0;
-  if (currentPlayerId === userId) {
-    // we're sending the deck to the next player
-    currentPlayerId = sortedPlayerIds[1];
-    currentPlayerIndex = 1;
-  }
   return {
     ...gameDataState,
     allPlayerIds: sortedPlayerIds,
