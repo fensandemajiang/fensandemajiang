@@ -440,14 +440,16 @@ function initGame(
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
+      console.log(hand);
       hands[playerId] = hand;
+      console.log(hands);
     }
     const newStateTransition = {
       ...stateTransition,
       body: {
         ...stateTransition.body,
         isSending: false,
-        hands: hands,
+        hands: Object.assign({}, hands),
         deck: newDeck,
       },
     };
