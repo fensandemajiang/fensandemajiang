@@ -326,8 +326,9 @@ const GameView: FunctionComponent = () => {
   function getChowOptions(): Tile[][] {
     const ret: Tile[][] = [];
     if (gameDataState.yourHand === undefined) return [];
-    for (let i = 3; i < gameDataState.yourHand.length; i++) {
-      const hand: Tile[] = gameDataState.yourHand.splice(i - 3, i);
+    const _hand = Array.from(gameDataState.yourHand);
+    for (let i = 3; i < _hand.length; i++) {
+      const hand: Tile[] = _hand.splice(i - 3, i);
       if (
         containsChi(
           hand,
