@@ -451,8 +451,8 @@ function initGame(
         deck: newDeck,
       },
     };
-    console.log('NEW STATE TRANSITION');
-    console.dir(newStateTransition);
+    console.log('HANDS');
+    console.dir(hands);
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
