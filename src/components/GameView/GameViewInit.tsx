@@ -3,7 +3,7 @@ import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
 import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
-import { Update, ThreadID, Filter } from '@textile/hub';
+import { Update, Where, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
@@ -67,7 +67,7 @@ const GameViewInit: FunctionComponent = () => {
                 }
               });
             } else if (update.collectionName === 'completedConnection') {
-              console.log("number of connected", value.length);
+              console.log("number of connected", update.collectionName, update.instance, value);
               if (value.length === 4) setDisplayGameView(true);
             }
           });
@@ -180,10 +180,14 @@ const GameViewInit: FunctionComponent = () => {
               },
             });
 
-            console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
-            if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
-              console.log("sending completed connection");
-              client.create(threadId, 'completedConnection', [{ userId: userID }]);
+            async function asyncWrapper() {
+              console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
+              if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
+                console.log("sending completed connection");
+                const found = await client.find(threadId, 'completedConnection', new Where('userId').eq(userID));
+                if (found.length === 0)
+                  await client.create(threadId, 'completedConnection', [{ userId: userID }]);
+              }
             }
           });
         });
