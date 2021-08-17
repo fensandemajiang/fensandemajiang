@@ -78,10 +78,12 @@ const GameViewInit: FunctionComponent = () => {
         threadId,
         connectedListenFilters,
         (update?) => {
+          console.log("heard connected update");
           if (!update || !update.collectionName) return;
           
           client.find(threadId, update.collectionName, {})
           .then((value: unknown[]) => {
+            console.log("number of connected", value.length);
             if (value.length === 4) setDisplayGameView(true);
           });
         }
@@ -193,7 +195,9 @@ const GameViewInit: FunctionComponent = () => {
               },
             });
 
+            console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
             if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
+              console.log("sending completed connection");
               client.create(threadId, 'completedConnection', [{ userId: userID }]);
             }
           });
