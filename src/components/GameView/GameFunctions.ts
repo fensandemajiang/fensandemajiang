@@ -17,7 +17,12 @@ export function tileEqual(tile1: Tile, tile2: Tile): boolean {
 export function mostRecentDiscard(
   discards: { [userId: string]: Tile[] },
   currentPlayer: string,
-): Tile {
+): Tile | undefined {
+  if (
+    discards[currentPlayer] === undefined ||
+    discards[currentPlayer].length === 0
+  )
+    return undefined;
   return discards[currentPlayer][discards[currentPlayer].length - 1];
 }
 
