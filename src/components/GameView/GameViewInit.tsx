@@ -37,56 +37,41 @@ const GameViewInit: FunctionComponent = () => {
 
       const peers: { [userId: string]: SimplePeer.Instance } = {};
       const listenFilters: Filter[] = [
-        { collectionName: 'connectDetail' },
         { actionTypes: ['CREATE'] },
       ];
       client.listen(
         threadId,
         listenFilters,
-        (update?: Update<DbConnectDetail>) => {
+        (update?) => {
           if (!update || !update.collectionName) return;
 
           client.find(threadId, update.collectionName, {})
-          .then((value) => {
-            const allInst: DbConnectDetail[] = value as DbConnectDetail[];
-            const returnedConnectionIds: string[] = useConnectionStore.getState().connectionState.returnedConnectionIds;
-            const dataToSendToPeers: DbConnectDetail[] = allInst.filter(cd => cd.to === userID && !returnedConnectionIds.includes(cd.from));
-          
-            for (let i = 0; i < dataToSendToPeers.length; i++) {
-              const inst: DbConnectDetail = dataToSendToPeers[i];
-              peers[inst.from].signal(JSON.parse(inst.data));
-            }
-
-            const sendingToIds: string[] = dataToSendToPeers.map(d => d.from);
-            const newReturned: string[] = [ ...returnedConnectionIds, ...sendingToIds ];
-            useConnectionStore.setState({
-              ...useConnectionStore.getState(),
-              connectionState: {
-                ...useConnectionStore.getState().connectionState,
-                returnedConnectionIds: newReturned
+          .then((value: unknown[]) => {
+            if (update.collectionName === 'connectDetail') {
+              const allInst: DbConnectDetail[] = value as DbConnectDetail[];
+              const returnedConnectionIds: string[] = useConnectionStore.getState().connectionState.returnedConnectionIds;
+              const dataToSendToPeers: DbConnectDetail[] = allInst.filter(cd => cd.to === userID && !returnedConnectionIds.includes(cd.from));
+            
+              for (let i = 0; i < dataToSendToPeers.length; i++) {
+                const inst: DbConnectDetail = dataToSendToPeers[i];
+                peers[inst.from].signal(JSON.parse(inst.data));
               }
-            });
+
+              const sendingToIds: string[] = dataToSendToPeers.map(d => d.from);
+              const newReturned: string[] = [ ...returnedConnectionIds, ...sendingToIds ];
+              useConnectionStore.setState({
+                ...useConnectionStore.getState(),
+                connectionState: {
+                  ...useConnectionStore.getState().connectionState,
+                  returnedConnectionIds: newReturned
+                }
+              });
+            } else if (update.collectionName === 'completedConnection') {
+              console.log("number of connected", value.length);
+              if (value.length === 4) setDisplayGameView(true);
+            }
           });
         },
-      );
-
-      const connectedListenFilters: Filter[] = [
-        { collectionName: 'completedConnection' },
-        { actionTypes: ['CREATE'] },
-      ];
-      client.listen(
-        threadId,
-        connectedListenFilters,
-        (update?) => {
-          if (!update || !update.collectionName) return;
-          console.log("heard connected update", update.collectionName, update.instance, update.action);
-          
-          client.find(threadId, 'completedConnection', {})
-          .then((value: unknown[]) => {
-            console.log("number of connected", value.length);
-            if (value.length === 4) setDisplayGameView(true);
-          });
-        }
       );
 
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
@@ -196,10 +181,10 @@ const GameViewInit: FunctionComponent = () => {
             });
 
             console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
-            //if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
-            //  console.log("sending completed connection");
-            //  client.create(threadId, 'completedConnection', [{ userId: userID }]);
-            //}
+            if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
+              console.log("sending completed connection");
+              client.create(threadId, 'completedConnection', [{ userId: userID }]);
+            }
           });
         });
 
