@@ -160,8 +160,7 @@ const GameViewInit: FunctionComponent = () => {
         });
 
         peers[id].on('error', (err) => {
-          console.log('err', err.name);
-          console.log('err', err.message);
+          console.error(err);
         });
       }
 

@@ -436,7 +436,6 @@ function initGame(
     let newDeck = deck;
     newDeck = randomizeDeck([...deck]);
 
-    let handsArr = [];
     let hands: { [userId: string]: Tile[] } = {};
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
@@ -472,10 +471,21 @@ function initGame(
     console.log('HANDS');
     const { yourPlayerId } = gameDataState;
     console.log(retHands, retHands[yourPlayerId]);
+    const _yourHand = Array.from(retHands[yourPlayerId]);
+    var proxied = new Proxy(_yourHand, {
+      get: function (target, prop) {
+        console.log({ type: 'get', target, prop });
+        return Reflect.get(target, prop);
+      },
+      set: function (target, prop, value) {
+        console.log({ type: 'set', target, prop, value });
+        return Reflect.set(target, prop, value);
+      },
+    });
     return {
       ...gameDataState,
       deck: Array.from(deck),
-      yourHand: Array.from(retHands[yourPlayerId]),
+      yourHand: proxied,
       currentState: GameState.DrawCard,
     };
   }
