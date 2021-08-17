@@ -220,7 +220,7 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
-  return (displayGameView? (<div>Loading...</div>) : (<GameView />));
+  return (displayGameView? (<GameView />) : (<div>Loading...</div>));
 };
 
 export default GameViewInit;
