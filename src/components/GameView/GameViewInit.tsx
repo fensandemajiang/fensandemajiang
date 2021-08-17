@@ -88,11 +88,9 @@ const GameViewInit: FunctionComponent = () => {
                   returnedConnectionIds: newReturned,
                 },
               });
-              /*
             } else if (update.collectionName === 'completedConnection') {
               console.log('number of connected', value.length);
               if (value.length === 4) setDisplayGameView(true);
-              */
             }
           });
       });
@@ -213,9 +211,13 @@ const GameViewInit: FunctionComponent = () => {
                 .returnedConnectionIds.length === 3
             ) {
               console.log('sending completed connection');
-              client.create(threadId, 'completedConnection', [
-                { userId: userID },
-              ]);
+              setTimeout(
+                () =>
+                  client.create(threadId, 'completedConnection', [
+                    { userId: userID },
+                  ]),
+                Math.floor(Math.random() * 300),
+              );
             }
           });
         });
@@ -263,14 +265,15 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
+  /*
   useInterval(() => {
+    const connState: ConnectionState =
+      useConnectionStore.getState().connectionState;
+    const client = connState.client;
+    const threadIdString =
+      useConnectionStore.getState().connectionState.threadId;
+    const threadId = ThreadID.fromString(threadIdString);
     if (!displayGameView) {
-      const connState: ConnectionState =
-        useConnectionStore.getState().connectionState;
-      const client = connState.client;
-      const threadIdString =
-        useConnectionStore.getState().connectionState.threadId;
-      const threadId = ThreadID.fromString(threadIdString);
       if (client) {
         client
           .find(threadId, 'completedConnection', {})
@@ -283,6 +286,7 @@ const GameViewInit: FunctionComponent = () => {
       }
     }
   }, 200 + Math.floor(Math.random() * 100));
+  */
 
   return displayGameView ? <GameView /> : <div>Loading...</div>;
 };
