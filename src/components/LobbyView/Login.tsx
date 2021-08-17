@@ -101,7 +101,10 @@ const Login: FunctionComponent = () => {
       <div className="lobbyview h-screen">
         <div className="grid grid-cols-12 grid-rows-6 gap-4">
           <div className="lobbyview__lpanel row-start-2 row-end-2 col-start-5 col-end-9 p-4 br-2 text-white rounded-xl m-8">
-            <div className="w-20 text-5xl font-extrabold text-purple-200 rounded-full bg-purple-500"> M </div>
+            <div className="w-20 text-5xl font-extrabold text-purple-200 rounded-full bg-purple-500">
+              {' '}
+              M{' '}
+            </div>
             <div className="w-100 m-4 flex">
               <button
                 className="lobbyview__button m-auto text-2xl font-bold p-4 br-4 rounded-md"

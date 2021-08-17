@@ -8,7 +8,9 @@ import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 const useInterval = (callback: () => any, delay: number) => {
-  const savedCallback = useRef(function () {});
+  const savedCallback = useRef(function () {
+    // do nothing
+  });
 
   useEffect(() => {
     savedCallback.current = callback;
