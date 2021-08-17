@@ -78,10 +78,10 @@ const GameViewInit: FunctionComponent = () => {
         threadId,
         connectedListenFilters,
         (update?) => {
-          console.log("heard connected update");
           if (!update || !update.collectionName) return;
+          console.log("heard connected update", update.collectionName, update.instance, update.action);
           
-          client.find(threadId, update.collectionName, {})
+          client.find(threadId, 'completedConnection', {})
           .then((value: unknown[]) => {
             console.log("number of connected", value.length);
             if (value.length === 4) setDisplayGameView(true);
