@@ -99,11 +99,10 @@ const GameViewInit: FunctionComponent = () => {
           continue;
         }
 
-        const signalMutex = new Mutex();
         peers[id].on('signal', (data) => {
           // send data to db for user with current id
           // might be able batch inserts into the db to increase efficiency
-          signalMutex.runExclusive(async () => {
+          (async function req() {
             console.log('sending req to', id);
             // add the entry to the db
             const connectDetail: DbConnectDetail = {
@@ -113,7 +112,7 @@ const GameViewInit: FunctionComponent = () => {
               _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
-          });
+          })();
         });
 
         peers[id].on('data', (data) => {
