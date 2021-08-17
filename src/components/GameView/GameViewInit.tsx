@@ -196,10 +196,10 @@ const GameViewInit: FunctionComponent = () => {
             });
 
             console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
-            if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
-              console.log("sending completed connection");
-              client.create(threadId, 'completedConnection', [{ userId: userID }]);
-            }
+            //if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
+            //  console.log("sending completed connection");
+            //  client.create(threadId, 'completedConnection', [{ userId: userID }]);
+            //}
           });
         });
 
