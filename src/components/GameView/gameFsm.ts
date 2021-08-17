@@ -472,20 +472,10 @@ function initGame(
     const { yourPlayerId } = gameDataState;
     console.log(retHands, retHands[yourPlayerId]);
     const _yourHand = Array.from(retHands[yourPlayerId]);
-    var proxied = new Proxy(_yourHand, {
-      get: function (target, prop) {
-        console.log({ type: 'get', target, prop });
-        return Reflect.get(target, prop);
-      },
-      set: function (target, prop, value) {
-        console.log({ type: 'set', target, prop, value });
-        return Reflect.set(target, prop, value);
-      },
-    });
     return {
       ...gameDataState,
       deck: Array.from(deck),
-      yourHand: proxied,
+      yourHand: _yourHand,
       currentState: GameState.DrawCard,
     };
   }

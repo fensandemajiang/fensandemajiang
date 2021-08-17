@@ -16,16 +16,30 @@ export function amCurrentPlayer(
   return allIds[currInd % 4] === myId;
 }
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 export async function waitForCondition(
   condition: () => boolean,
 ): Promise<void> {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(function (resolve, reject) {
     while (condition() !== true) {
-      await sleep(100);
+      setTimeout(function () {
+        // do nothing
+      }, 100);
     }
     resolve();
   });
+}
+
+export function debugObject(obj: object): object {
+  const proxied = new Proxy(obj, {
+    get: function (target, prop) {
+      console.log({ type: 'get', target, prop });
+      return Reflect.get(target, prop);
+    },
+    set: function (target, prop, value) {
+      console.log({ type: 'set', target, prop, value });
+      return Reflect.set(target, prop, value);
+    },
+  });
+
+  return proxied;
 }
