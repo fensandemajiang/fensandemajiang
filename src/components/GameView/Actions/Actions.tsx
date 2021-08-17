@@ -11,7 +11,6 @@ import {
   containsGang,
 } from '../GameFunctions';
 import { useGameDataStore } from '@utils/store';
-import { GameDataStore } from '@utils/store';
 import { GameState, Suite, Tile } from '../../../types';
 import './Actions.css';
 
@@ -69,11 +68,10 @@ function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
     const myShownTiles: Tile[][] | undefined =
       gameDataState.shownTiles[gameDataState.yourPlayerId];
     if (myShownTiles) {
-      return (
-        calculateScore(
-          getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles)),
-        ) >= 0
+      const score = calculateScore(
+        getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles)),
       );
+      return score >= 0;
     } else return false;
   })();
 
@@ -82,11 +80,12 @@ function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
       gameDataState.discards &&
       gameDataState.discards[gameDataState.currentTurn]
     ) {
-      const recentDiscard: Tile = mostRecentDiscard(
+      const recentDiscard: Tile | undefined = mostRecentDiscard(
         gameDataState.discards,
         gameDataState.currentTurn,
       );
       return (
+        recentDiscard !== undefined &&
         containsPeng(gameDataState.yourHand, recentDiscard) &&
         gameDataState.currentTurn !== gameDataState.yourPlayerId
       );
@@ -98,11 +97,12 @@ function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
       gameDataState.discards &&
       gameDataState.discards[gameDataState.currentTurn]
     ) {
-      const recentDiscard: Tile = mostRecentDiscard(
+      const recentDiscard: Tile | undefined = mostRecentDiscard(
         gameDataState.discards,
         gameDataState.currentTurn,
       );
       return (
+        recentDiscard !== undefined &&
         containsGang(gameDataState.yourHand, recentDiscard) &&
         gameDataState.currentTurn !== gameDataState.yourPlayerId
       );
@@ -117,11 +117,12 @@ function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
       gameDataState.discards &&
       gameDataState.discards[gameDataState.currentTurn]
     ) {
-      const recentDiscard: Tile = mostRecentDiscard(
+      const recentDiscard: Tile | undefined = mostRecentDiscard(
         gameDataState.discards,
         gameDataState.currentTurn,
       );
       return (
+        recentDiscard !== undefined &&
         containsChi(gameDataState.yourHand, recentDiscard) &&
         gameDataState.currentTurn !== gameDataState.yourPlayerId
       );

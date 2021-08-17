@@ -385,7 +385,7 @@ function replaceFlower(
     if (tile === undefined) {
       throw Error('tile is undefined.');
     }
-    const { yourHand, deck, discards, yourPlayerId } = gameDataState;
+    const { yourHand, deck, shownTiles, yourPlayerId } = gameDataState;
     const handIdx = yourHand.findIndex((t) => tileEqual(t, tile));
     const newHand = [
       ...yourHand.slice(0, handIdx),
@@ -393,31 +393,31 @@ function replaceFlower(
       deck[0],
     ];
 
-    const deckIdx = deck.findIndex((t) => tileEqual(t, tile));
-    const newDeck = [...deck.slice(1, deckIdx), ...deck.slice(deckIdx + 1)];
+    const newDeck = deck.slice(1);
 
-    const newDiscards = {
-      ...discards,
-      [yourPlayerId]: [...discards[yourPlayerId], tile],
+    const newTileGroup = [tile];
+    const newShownTiles = {
+      ...shownTiles,
+      [yourPlayerId]: [...shownTiles[yourPlayerId], newTileGroup],
     };
 
     const newStateTransition = {
       ...stateTransition,
-      body: { isSending: false, deck: newDeck, discards: newDiscards },
+      body: { isSending: false, deck: newDeck, shownTiles: newShownTiles },
     };
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
-      discards: newDiscards,
+      shownTiles: newShownTiles,
       deck: newDeck,
       yourHand: newHand,
     };
   } else {
-    const { deck, discards } = stateTransition.body;
-    if (deck === undefined || discards === undefined) {
+    const { deck, shownTiles } = stateTransition.body;
+    if (deck === undefined || shownTiles === undefined) {
       throw Error('deck or discards is undefined.');
     }
-    return { ...gameDataState, discards: discards, deck: deck };
+    return { ...gameDataState, shownTiles: shownTiles, deck: deck };
   }
 }
 
@@ -430,14 +430,12 @@ function initGame(
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
   }
-  console.log(stateTransition);
   if (isSending === true) {
     const { allPlayerIds, deck, yourPlayerId } = gameDataState;
     let newDeck = deck;
     newDeck = randomizeDeck([...deck]);
 
-    let handsArr = [];
-    let hands: { [userId: string]: Tile[] } = {};
+    const hands: { [userId: string]: Tile[] } = {};
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
@@ -454,8 +452,6 @@ function initGame(
         deck: newDeck,
       },
     };
-    console.log('HANDS');
-    console.dir(hands);
     sendToEveryone(peers, JSON.stringify(newStateTransition));
     return {
       ...gameDataState,
@@ -469,13 +465,12 @@ function initGame(
       throw Error('hands or deck is undefined.');
     }
     const retHands = Object.assign({}, hands);
-    console.log('HANDS');
     const { yourPlayerId } = gameDataState;
-    console.log(retHands, retHands[yourPlayerId]);
+    const _yourHand = Array.from(retHands[yourPlayerId]);
     return {
       ...gameDataState,
       deck: Array.from(deck),
-      yourHand: Array.from(retHands[yourPlayerId]),
+      yourHand: _yourHand,
       currentState: GameState.DrawCard,
     };
   }
@@ -492,8 +487,8 @@ function setPlayerId(
   }
   const playerIds = signalIds;
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
-  let currentPlayerId: string = sortedPlayerIds[0];
-  let currentPlayerIndex = 0;
+  const currentPlayerId: string = sortedPlayerIds[0];
+  const currentPlayerIndex = 0;
   const shownTiles = Object.fromEntries(
     playerIds.map((player) => [player, []]),
   );

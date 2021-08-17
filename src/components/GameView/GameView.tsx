@@ -217,7 +217,7 @@ const GameView: FunctionComponent = () => {
   }
 
   function chow(selectedTriple: Tile[]) {
-    const mostRecentDiscardTile: Tile = mostRecentDiscard(
+    const mostRecentDiscardTile: Tile | undefined = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
     );
@@ -242,52 +242,66 @@ const GameView: FunctionComponent = () => {
   }
 
   function pung(chowOptions: Tile[]) {
-    const mostRecentDiscardTile: Tile = mostRecentDiscard(
+    const mostRecentDiscardTile: Tile | undefined = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
     );
-    const selectedTriple: Tile[] = [
-      mostRecentDiscardTile,
-      mostRecentDiscardTile,
-      mostRecentDiscardTile,
-    ];
-    const stateTransition: PlayerAction = {
-      action: ActionType.Peng,
-      body: {
-        // fill with stuff
-        triple: selectedTriple,
-        playerTo: gameDataState.yourPlayerId,
-        playerFrom: gameDataState.currentTurn,
-        isSending: true,
-      },
-    };
+    if (mostRecentDiscardTile !== undefined) {
+      const selectedTriple: Tile[] = [
+        mostRecentDiscardTile,
+        mostRecentDiscardTile,
+        mostRecentDiscardTile,
+      ];
+      const stateTransition: PlayerAction = {
+        action: ActionType.Peng,
+        body: {
+          // fill with stuff
+          triple: selectedTriple,
+          playerTo: gameDataState.yourPlayerId,
+          playerFrom: gameDataState.currentTurn,
+          isSending: true,
+        },
+      };
 
-    updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+      updateGameDataStateAndLog(
+        gameDataState,
+        stateTransition,
+        peers,
+        threadId,
+      );
+    }
   }
 
   function kong(chowOptions: Tile[]) {
-    const mostRecentDiscardTile: Tile = mostRecentDiscard(
+    const mostRecentDiscardTile: Tile | undefined = mostRecentDiscard(
       gameDataState.discards,
       gameDataState.currentTurn,
     );
-    const selectedTriple: Tile[] = [
-      mostRecentDiscardTile,
-      mostRecentDiscardTile,
-      mostRecentDiscardTile,
-      mostRecentDiscardTile,
-    ];
-    const stateTransition: PlayerAction = {
-      action: ActionType.Gang,
-      body: {
-        // fill with stuff
-        triple: selectedTriple,
-        playerTo: gameDataState.yourPlayerId,
-        playerFrom: gameDataState.currentTurn,
-        isSending: true,
-      },
-    };
+    if (mostRecentDiscardTile !== undefined) {
+      const selectedTriple: Tile[] = [
+        mostRecentDiscardTile,
+        mostRecentDiscardTile,
+        mostRecentDiscardTile,
+        mostRecentDiscardTile,
+      ];
+      const stateTransition: PlayerAction = {
+        action: ActionType.Gang,
+        body: {
+          // fill with stuff
+          triple: selectedTriple,
+          playerTo: gameDataState.yourPlayerId,
+          playerFrom: gameDataState.currentTurn,
+          isSending: true,
+        },
+      };
 
-    updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+      updateGameDataStateAndLog(
+        gameDataState,
+        stateTransition,
+        peers,
+        threadId,
+      );
+    }
   }
 
   function hu(chowOptions: Tile[]) {
@@ -300,7 +314,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function replaceFlower(chowOptions: Tile[]) {
+  function replaceFlower() {
     const flower: Tile | undefined = gameDataState.yourHand.find(
       (t) => t.suite === Suite.Flowers,
     );
@@ -329,11 +343,13 @@ const GameView: FunctionComponent = () => {
     const _hand = Array.from(gameDataState.yourHand);
     for (let i = 3; i < _hand.length; i++) {
       const hand: Tile[] = _hand.splice(i - 3, i);
+      const recentlyDiscarded = mostRecentDiscard(
+        gameDataState.discards,
+        gameDataState.currentTurn,
+      );
       if (
-        containsChi(
-          hand,
-          mostRecentDiscard(gameDataState.discards, gameDataState.currentTurn),
-        )
+        recentlyDiscarded !== undefined &&
+        containsChi(hand, recentlyDiscarded)
       ) {
         ret.push(hand);
       }

@@ -1,4 +1,4 @@
-import React, { useEffect, FunctionComponent } from 'react';
+import React, { useState, useEffect, FunctionComponent, useRef } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
@@ -7,8 +7,28 @@ import { Update, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
+const useInterval = (callback: () => any, delay: number) => {
+  const savedCallback = useRef(function () {
+    // do nothing
+  });
 
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+};
 const GameViewInit: FunctionComponent = () => {
+  const [displayGameView, setDisplayGameView] = useState(false);
+
   useEffect(() => {
     if (useConnectionStore.getState().connectionState.threadId.length === 0) {
       console.log('empty thread id found, defaulting to dev');
@@ -34,22 +54,48 @@ const GameViewInit: FunctionComponent = () => {
       }
 
       const peers: { [userId: string]: SimplePeer.Instance } = {};
-      const listenFilters: Filter[] = [
-        { collectionName: 'connectDetail' },
-        { actionTypes: ['CREATE'] },
-      ];
-      client.listen(
-        threadId,
-        listenFilters,
-        (update?: Update<DbConnectDetail>) => {
-          if (!update || !update.instance) return;
+      const listenFilters: Filter[] = [{ actionTypes: ['CREATE'] }];
+      client.listen(threadId, listenFilters, (update?) => {
+        if (!update || !update.collectionName) return;
 
-          const inst: DbConnectDetail = update.instance;
-          if (inst.to === userID) {
-            peers[inst.from].signal(JSON.parse(inst.data));
-          }
-        },
-      );
+        client
+          .find(threadId, update.collectionName, {})
+          .then((value: unknown[]) => {
+            if (update.collectionName === 'connectDetail') {
+              const allInst: DbConnectDetail[] = value as DbConnectDetail[];
+              const returnedConnectionIds: string[] =
+                useConnectionStore.getState().connectionState
+                  .returnedConnectionIds;
+              const dataToSendToPeers: DbConnectDetail[] = allInst.filter(
+                (cd) =>
+                  cd.to === userID && !returnedConnectionIds.includes(cd.from),
+              );
+
+              for (let i = 0; i < dataToSendToPeers.length; i++) {
+                const inst: DbConnectDetail = dataToSendToPeers[i];
+                peers[inst.from].signal(JSON.parse(inst.data));
+              }
+
+              const sendingToIds: string[] = dataToSendToPeers.map(
+                (d) => d.from,
+              );
+              const newReturned: string[] = [
+                ...returnedConnectionIds,
+                ...sendingToIds,
+              ];
+              useConnectionStore.setState({
+                ...useConnectionStore.getState(),
+                connectionState: {
+                  ...useConnectionStore.getState().connectionState,
+                  returnedConnectionIds: newReturned,
+                },
+              });
+            } else if (update.collectionName === 'completedConnection') {
+              console.log('number of connected', value.length);
+              if (value.length === 6) setDisplayGameView(true);
+            }
+          });
+      });
 
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
         const id = signalIDs[idInd];
@@ -99,11 +145,10 @@ const GameViewInit: FunctionComponent = () => {
           continue;
         }
 
-        const signalMutex = new Mutex();
         peers[id].on('signal', (data) => {
           // send data to db for user with current id
           // might be able batch inserts into the db to increase efficiency
-          signalMutex.runExclusive(async () => {
+          (async function req() {
             console.log('sending req to', id);
             // add the entry to the db
             const connectDetail: DbConnectDetail = {
@@ -113,7 +158,7 @@ const GameViewInit: FunctionComponent = () => {
               _id: '',
             };
             await client.create(threadId, 'connectDetail', [connectDetail]);
-          });
+          })();
         });
 
         peers[id].on('data', (data) => {
@@ -147,6 +192,7 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('connect', () => {
           connectMutex.runExclusive(() => {
             console.log('connected with', id);
+
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {
@@ -156,12 +202,30 @@ const GameViewInit: FunctionComponent = () => {
                     .userConnectedCount + 1,
               },
             });
+
+            console.log(
+              'completed connections',
+              useConnectionStore.getState().connectionState
+                .returnedConnectionIds.length,
+            );
+            if (
+              useConnectionStore.getState().connectionState
+                .returnedConnectionIds.length === 3
+            ) {
+              console.log('sending completed connection');
+              setTimeout(
+                () =>
+                  client.create(threadId, 'completedConnection', [
+                    { userId: userID },
+                  ]),
+                Math.floor(Math.random() * 300),
+              );
+            }
           });
         });
 
         peers[id].on('error', (err) => {
-          console.log('err', err.name);
-          console.log('err', err.message);
+          console.error(err);
         });
       }
 
@@ -172,11 +236,61 @@ const GameViewInit: FunctionComponent = () => {
           peers: peers,
         },
       });
+
+      client.find(threadId, 'connectDetail', {}).then((value) => {
+        const allInst: DbConnectDetail[] = value as DbConnectDetail[];
+        const returnedConnectionIds: string[] =
+          useConnectionStore.getState().connectionState.returnedConnectionIds;
+        const dataToSendToPeers: DbConnectDetail[] = allInst.filter(
+          (cd) => cd.to === userID && !returnedConnectionIds.includes(cd.from),
+        );
+
+        for (let i = 0; i < dataToSendToPeers.length; i++) {
+          const inst: DbConnectDetail = dataToSendToPeers[i];
+          peers[inst.from].signal(JSON.parse(inst.data));
+        }
+
+        const sendingToIds: string[] = dataToSendToPeers.map((d) => d.from);
+        const newReturned: string[] = [
+          ...returnedConnectionIds,
+          ...sendingToIds,
+        ];
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            returnedConnectionIds: newReturned,
+          },
+        });
+      });
     }
     init();
   }, []);
 
-  return <GameView />;
+  /*
+  useInterval(() => {
+    const connState: ConnectionState =
+      useConnectionStore.getState().connectionState;
+    const client = connState.client;
+    const threadIdString =
+      useConnectionStore.getState().connectionState.threadId;
+    const threadId = ThreadID.fromString(threadIdString);
+    if (!displayGameView) {
+      if (client) {
+        client
+          .find(threadId, 'completedConnection', {})
+          .then((value: unknown[]) => {
+            if (value.length === 4)
+              setTimeout(function () {
+                setDisplayGameView(true);
+              }, 300);
+          });
+      }
+    }
+  }, 200 + Math.floor(Math.random() * 100));
+  */
+
+  return displayGameView ? <GameView /> : <div>Loading...</div>;
 };
 
 export default GameViewInit;

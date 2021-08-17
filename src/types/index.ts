@@ -24,6 +24,7 @@ export interface ConnectionState {
   identity: Identity;
   threadId: string;
   peers: { [userId: string]: SimplePeer.Instance };
+  returnedConnectionIds: string[];
 }
 export enum UserConnectionState {
   Connected,
@@ -133,6 +134,7 @@ export interface PlayerAction {
     tile?: Tile;
     deck?: Tile[];
     discards?: { [userId: string]: Tile[] };
+    shownTiles?: { [userId: string]: Tile[][] };
     triple?: Tile[]; // used for chi and peng
     quad?: Tile[]; // used for gang
     playerFrom?: string;

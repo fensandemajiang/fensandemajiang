@@ -23,7 +23,7 @@ function Match(props: InferProps<typeof Match.propTypes>) {
     for (let i = 0; i < props.match.length; i++) {
       tiles.push(
         <div className={'matches-tile-container ' + rotation}>
-          <Tile tile={props.match[i]}></Tile>
+          <Tile key={props.match[i]} tile={props.match[i]}></Tile>
         </div>,
       );
     }
