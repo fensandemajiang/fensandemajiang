@@ -55,6 +55,7 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
         await client.newDB(threadId, 'table');
         await client.newCollection(threadId, { name: 'playerId' }); // create a collection of player ids
         await client.newCollection(threadId, { name: 'connectDetail' }); // creates separate collection for players to place their signal data for p2p
+        await client.newCollection(threadId, { name: 'completedConnection' });
 
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
@@ -154,6 +155,9 @@ const CreateTableModal: FunctionComponent<CreateTableModalProps> = (props: {
       } else if (collections[i].name === 'connectDetail') {
         console.log('delete connectDetail');
         await client.deleteCollection(threadId, 'connectDetail');
+      } else if (collections[i].name === 'completedConnection') {
+        console.log('delete completedConnection');
+        await client.deleteCollection(threadId, 'completedConnection');
       }
     }
 

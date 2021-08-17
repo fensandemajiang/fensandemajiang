@@ -66,12 +66,25 @@ const GameViewInit: FunctionComponent = () => {
                 returnedConnectionIds: newReturned
               }
             });
-
-            if (allInst.length === 12) {
-              setDisplayGameView(true);
-            }
           });
         },
+      );
+
+      const connectedListenFilters: Filter[] = [
+        { collectionName: 'completedConnection' },
+        { actionTypes: ['CREATE'] },
+      ];
+      client.listen(
+        threadId,
+        connectedListenFilters,
+        (update?) => {
+          if (!update || !update.collectionName) return;
+          
+          client.find(threadId, update.collectionName, {})
+          .then((value: unknown[]) => {
+            if (value.length === 4) setDisplayGameView(true);
+          });
+        }
       );
 
       for (let idInd = 0; idInd < signalIDs.length; idInd++) {
@@ -179,6 +192,10 @@ const GameViewInit: FunctionComponent = () => {
                     .userConnectedCount + 1,
               },
             });
+
+            if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
+              client.create(threadId, 'completedConnection', [{ userId: userID }]);
+            }
           });
         });
 
