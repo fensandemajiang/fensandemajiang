@@ -24,6 +24,7 @@ export interface ConnectionState {
   identity: Identity;
   threadId: string;
   peers: { [userId: string]: SimplePeer.Instance };
+  returnedConnectionIds: string[];
 }
 export enum UserConnectionState {
   Connected,

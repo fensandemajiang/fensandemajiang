@@ -42,12 +42,36 @@ const GameViewInit: FunctionComponent = () => {
         threadId,
         listenFilters,
         (update?: Update<DbConnectDetail>) => {
-          if (!update || !update.instance) return;
+          if (!update || !update.collectionName) return;
 
+          client.find(threadId, update.collectionName, {})
+          .then((value) => {
+            const allInst: DbConnectDetail[] = value as DbConnectDetail[];
+            const returnedConnectionIds: string[] = useConnectionStore.getState().connectionState.returnedConnectionIds;
+            const dataToSendToPeers: DbConnectDetail[] = allInst.filter(cd => cd.to === userID && !returnedConnectionIds.includes(cd.from));
+          
+            for (let i = 0; i < dataToSendToPeers.length; i++) {
+              const inst: DbConnectDetail = dataToSendToPeers[i];
+              peers[inst.from].signal(JSON.parse(inst.data));
+            }
+
+            const sendingToIds: string[] = dataToSendToPeers.map(d => d.from);
+            const newReturned: string[] = [ ...returnedConnectionIds, ...sendingToIds ];
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                returnedConnectionIds: newReturned
+              }
+            });
+          });
+          
+          /*
           const inst: DbConnectDetail = update.instance;
           if (inst.to === userID) {
             peers[inst.from].signal(JSON.parse(inst.data));
           }
+          */
         },
       );
 
