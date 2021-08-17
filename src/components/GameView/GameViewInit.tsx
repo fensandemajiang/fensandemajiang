@@ -7,8 +7,8 @@ import { Update, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
-const useInterval = (callback, delay) => {
-  const savedCallback = useRef();
+const useInterval = (callback: () => any, delay: number) => {
+  const savedCallback = useRef(function () {});
 
   useEffect(() => {
     savedCallback.current = callback;
@@ -88,9 +88,11 @@ const GameViewInit: FunctionComponent = () => {
                   returnedConnectionIds: newReturned,
                 },
               });
+              /*
             } else if (update.collectionName === 'completedConnection') {
               console.log('number of connected', value.length);
               if (value.length === 4) setDisplayGameView(true);
+              */
             }
           });
       });
@@ -261,24 +263,26 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
-  useInterval(() => {
-    const connState: ConnectionState =
-      useConnectionStore.getState().connectionState;
-    const client = connState.client;
-    const threadIdString =
-      useConnectionStore.getState().connectionState.threadId;
-    const threadId = ThreadID.fromString(threadIdString);
-    if (client) {
-      client
-        .find(threadId, 'completedConnection', {})
-        .then((value: unknown[]) => {
-          if (value.length === 4)
-            setTimeout(function () {
-              setDisplayGameView(true);
-            }, 300);
-        });
-    }
-  }, 200);
+  if (!displayGameView) {
+    useInterval(() => {
+      const connState: ConnectionState =
+        useConnectionStore.getState().connectionState;
+      const client = connState.client;
+      const threadIdString =
+        useConnectionStore.getState().connectionState.threadId;
+      const threadId = ThreadID.fromString(threadIdString);
+      if (client) {
+        client
+          .find(threadId, 'completedConnection', {})
+          .then((value: unknown[]) => {
+            if (value.length === 4)
+              setTimeout(function () {
+                setDisplayGameView(true);
+              }, 300);
+          });
+      }
+    }, 200 + Math.floor(Math.random() * 100));
+  }
 
   return displayGameView ? <GameView /> : <div>Loading...</div>;
 };
