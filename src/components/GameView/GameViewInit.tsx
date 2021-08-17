@@ -90,7 +90,7 @@ const GameViewInit: FunctionComponent = () => {
               });
             } else if (update.collectionName === 'completedConnection') {
               console.log('number of connected', value.length);
-              if (value.length === 4) setDisplayGameView(true);
+              if (value.length === 6) setDisplayGameView(true);
             }
           });
       });
