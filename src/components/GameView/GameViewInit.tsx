@@ -1,4 +1,4 @@
-import React, { useEffect, FunctionComponent } from 'react';
+import React, { useState, useEffect, FunctionComponent } from 'react';
 import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
@@ -9,6 +9,8 @@ import { Mutex } from 'async-mutex';
 import type { ConnectionState, DbConnectDetail } from '../../types';
 
 const GameViewInit: FunctionComponent = () => {
+  const [displayGameView, setDisplayGameView] = useState(false);
+
   useEffect(() => {
     if (useConnectionStore.getState().connectionState.threadId.length === 0) {
       console.log('empty thread id found, defaulting to dev');
@@ -163,6 +165,7 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('connect', () => {
           connectMutex.runExclusive(() => {
             console.log('connected with', id);
+
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {
@@ -172,6 +175,10 @@ const GameViewInit: FunctionComponent = () => {
                     .userConnectedCount + 1,
               },
             });
+
+            if (useConnectionStore.getState().connectionState.userConnectedCount === 3) { 
+              setDisplayGameView(true);
+            }
           });
         });
 
@@ -213,7 +220,7 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
-  return <GameView />;
+  return (displayGameView? (<div>Loading...</div>) : (<GameView />));
 };
 
 export default GameViewInit;
