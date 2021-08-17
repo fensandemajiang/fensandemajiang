@@ -29,7 +29,9 @@ export async function waitForCondition(
   });
 }
 
-export function debugObject(obj: object): object {
+export function debugObject(
+  obj: Record<string, unknown>,
+): Record<string, unknown> {
   const proxied = new Proxy(obj, {
     get: function (target, prop) {
       console.log({ type: 'get', target, prop });

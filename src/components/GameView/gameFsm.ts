@@ -436,7 +436,7 @@ function initGame(
     let newDeck = deck;
     newDeck = randomizeDeck([...deck]);
 
-    let hands: { [userId: string]: Tile[] } = {};
+    const hands: { [userId: string]: Tile[] } = {};
     for (const playerId of allPlayerIds) {
       const hand = newDeck.slice(newDeck.length - 13); // get the top 13 cards in deck
       newDeck = newDeck.slice(0, newDeck.length - 13);
@@ -492,8 +492,8 @@ function setPlayerId(
   }
   const playerIds = signalIds;
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
-  let currentPlayerId: string = sortedPlayerIds[0];
-  let currentPlayerIndex = 0;
+  const currentPlayerId: string = sortedPlayerIds[0];
+  const currentPlayerIndex = 0;
   const shownTiles = Object.fromEntries(
     playerIds.map((player) => [player, []]),
   );
