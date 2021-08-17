@@ -66,6 +66,10 @@ const GameViewInit: FunctionComponent = () => {
                 returnedConnectionIds: newReturned
               }
             });
+
+            if (allInst.length === 12) {
+              setDisplayGameView(true);
+            }
           });
         },
       );
@@ -175,10 +179,6 @@ const GameViewInit: FunctionComponent = () => {
                     .userConnectedCount + 1,
               },
             });
-
-            if (useConnectionStore.getState().connectionState.userConnectedCount === 3) { 
-              setDisplayGameView(true);
-            }
           });
         });
 
