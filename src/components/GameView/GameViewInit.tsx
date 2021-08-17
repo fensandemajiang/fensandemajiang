@@ -263,8 +263,8 @@ const GameViewInit: FunctionComponent = () => {
     init();
   }, []);
 
-  if (!displayGameView) {
-    useInterval(() => {
+  useInterval(() => {
+    if (!displayGameView) {
       const connState: ConnectionState =
         useConnectionStore.getState().connectionState;
       const client = connState.client;
@@ -281,8 +281,8 @@ const GameViewInit: FunctionComponent = () => {
               }, 300);
           });
       }
-    }, 200 + Math.floor(Math.random() * 100));
-  }
+    }
+  }, 200 + Math.floor(Math.random() * 100));
 
   return displayGameView ? <GameView /> : <div>Loading...</div>;
 };
