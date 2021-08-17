@@ -11,7 +11,6 @@ import {
   containsGang,
 } from '../GameFunctions';
 import { useGameDataStore } from '@utils/store';
-import { GameDataStore } from '@utils/store';
 import { GameState, Suite, Tile } from '../../../types';
 import './Actions.css';
 
@@ -69,11 +68,10 @@ function Actions(props: { playerActions: any; chowOptions: Tile[][] }) {
     const myShownTiles: Tile[][] | undefined =
       gameDataState.shownTiles[gameDataState.yourPlayerId];
     if (myShownTiles) {
-      return (
-        calculateScore(
-          getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles)),
-        ) >= 0
+      const score = calculateScore(
+        getFullHand(gameDataState.yourHand, triplifyShownTiles(myShownTiles)),
       );
+      return score >= 0;
     } else return false;
   })();
 

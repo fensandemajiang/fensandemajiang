@@ -300,7 +300,7 @@ const GameView: FunctionComponent = () => {
     updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
   }
 
-  function replaceFlower(chowOptions: Tile[]) {
+  function replaceFlower() {
     const flower: Tile | undefined = gameDataState.yourHand.find(
       (t) => t.suite === Suite.Flowers,
     );
