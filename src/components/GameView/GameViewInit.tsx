@@ -6,7 +6,12 @@ import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, Where, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
-import type { ConnectionState, DbConnectDetail } from '../../types';
+import {
+  ConnectionState,
+  DbConnectDetail,
+  Event,
+  EventType,
+} from '../../types';
 const useInterval = (callback: () => any, delay: number) => {
   const savedCallback = useRef(function () {
     // do nothing
@@ -28,6 +33,7 @@ const useInterval = (callback: () => any, delay: number) => {
 };
 const GameViewInit: FunctionComponent = () => {
   const [displayGameView, setDisplayGameView] = useState(false);
+  const [hasCompletedConnection, setHasCompletedConnection] = useState(false);
 
   useEffect(() => {
     if (useConnectionStore.getState().connectionState.threadId.length === 0) {
@@ -91,7 +97,12 @@ const GameViewInit: FunctionComponent = () => {
                 },
               });
             } else if (update.collectionName === 'completedConnection') {
-              console.log("number of connected", update.collectionName, update.instance, JSON.stringify(value));
+              console.log(
+                'number of connected',
+                update.collectionName,
+                update.instance,
+                JSON.stringify(value),
+              );
               //if (value.length === 4) setDisplayGameView(true);
             }
           });
@@ -164,28 +175,35 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          const condition = () =>
-            stateTransitionAllowed(
-              useGameDataStore.getState().gameDataState.currentState,
-              JSON.parse(data),
+          const event: Event = JSON.parse(data);
+          const isRequest = event.eventType === EventType.Request;
+          if (isRequest) {
+            // TODO: Send response that received req with eventId
+            const condition = () =>
+              stateTransitionAllowed(
+                useGameDataStore.getState().gameDataState.currentState,
+                JSON.parse(event.body),
+              );
+            waitForCondition(condition).then(() =>
+              updateGameDataStateAndLog(
+                useGameDataStore.getState().gameDataState,
+                JSON.parse(event.body),
+                peers,
+                threadIdString,
+              )
+                .then((newDataStore) => {
+                  useGameDataStore.setState({
+                    ...useGameDataStore.getState(),
+                    gameDataState: newDataStore,
+                  });
+                })
+                .catch((err) => {
+                  console.error(err);
+                }),
             );
-          waitForCondition(condition).then(() =>
-            updateGameDataStateAndLog(
-              useGameDataStore.getState().gameDataState,
-              JSON.parse(data),
-              peers,
-              threadIdString,
-            )
-              .then((newDataStore) => {
-                useGameDataStore.setState({
-                  ...useGameDataStore.getState(),
-                  gameDataState: newDataStore,
-                });
-              })
-              .catch((err) => {
-                console.error(err);
-              }),
-          );
+          } else {
+            // TODO: handle response
+          }
         });
 
         const connectMutex = new Mutex();
@@ -204,12 +222,19 @@ const GameViewInit: FunctionComponent = () => {
             });
 
             async function asyncWrapper() {
-              console.log("completed connections", useConnectionStore.getState().connectionState.returnedConnectionIds.length);
-              if (useConnectionStore.getState().connectionState.returnedConnectionIds.length === 3) {
-                console.log("sending completed connection");
-                const found = await client.find(threadId, 'completedConnection', new Where('userId').eq(userID));
-                if (found.length === 0)
-                  await client.create(threadId, 'completedConnection', [{ userId: userID }]);
+              console.log(
+                'completed connections',
+                useConnectionStore.getState().connectionState
+                  .returnedConnectionIds.length,
+              );
+              if (
+                useConnectionStore.getState().connectionState
+                  .returnedConnectionIds.length === 3
+              ) {
+                if (!hasCompletedConnection) setHasCompletedConnection(true);
+                await client.create(threadId, 'completedConnection', [
+                  { userId: userID },
+                ]);
               }
             }
             asyncWrapper();
@@ -303,7 +328,21 @@ const GameViewInit: FunctionComponent = () => {
   }
   */
 
-  return (displayGameView ? (<GameView />) : (<div> hello world <button className="bg-blue-500 text-white p-3" onClick={() => setDisplayGameView(true)}> go to gameview </button> </div>)); 
+  return displayGameView ? (
+    <GameView />
+  ) : (
+    <div>
+      {' '}
+      hello world{' '}
+      <button
+        className="bg-blue-500 text-white p-3"
+        onClick={() => setDisplayGameView(true)}
+      >
+        {' '}
+        go to gameview{' '}
+      </button>{' '}
+    </div>
+  );
   //displayGameView ? <GameView /> : <div><div>Loading...</div> <button className="bg-blue-500 text-white p-3" onClick={refresh}>refresh</button></div>;
 };
 

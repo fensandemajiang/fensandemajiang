@@ -128,6 +128,16 @@ export interface Peers {
   [userId: string]: SimplePeer.Instance;
 }
 
+export enum EventType {
+  Request,
+  Response,
+}
+export interface Event {
+  eventType: EventType;
+  eventId: string;
+  body: string;
+}
+
 export interface PlayerAction {
   action: ActionType;
   body: {
