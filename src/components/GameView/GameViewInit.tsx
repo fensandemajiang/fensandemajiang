@@ -91,8 +91,8 @@ const GameViewInit: FunctionComponent = () => {
                 },
               });
             } else if (update.collectionName === 'completedConnection') {
-              console.log("number of connected", update.collectionName, update.instance, value);
-              if (value.length === 4) setDisplayGameView(true);
+              console.log("number of connected", update.collectionName, update.instance, JSON.stringify(value));
+              //if (value.length === 4) setDisplayGameView(true);
             }
           });
       });
@@ -282,6 +282,7 @@ const GameViewInit: FunctionComponent = () => {
   }, 200 + Math.floor(Math.random() * 100));
   */
 
+  /*
   async function refresh() {
     const connState: ConnectionState =
       useConnectionStore.getState().connectionState;
@@ -295,15 +296,15 @@ const GameViewInit: FunctionComponent = () => {
           .find(threadId, 'completedConnection', {})
           .then((value: unknown[]) => {
             if (value.length === 4)
-              setTimeout(function () {
-                setDisplayGameView(true);
-              }, 300);
+              setDisplayGameView(true);
           });
       }
     }
   }
+  */
 
-  return displayGameView ? <GameView /> : <div><div>Loading...</div> <button className="bg-blue-500 text-white p-3" onClick={refresh}>refresh</button></div>;
+  return (displayGameView ? (<GameView />) : (<div> hello world <button className="bg-blue-500 text-white p-3" onClick={() => setDisplayGameView(true)}> go to gameview </button> </div>)); 
+  //displayGameView ? <GameView /> : <div><div>Loading...</div> <button className="bg-blue-500 text-white p-3" onClick={refresh}>refresh</button></div>;
 };
 
 export default GameViewInit;
