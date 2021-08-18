@@ -282,7 +282,28 @@ const GameViewInit: FunctionComponent = () => {
   }, 200 + Math.floor(Math.random() * 100));
   */
 
-  return displayGameView ? <GameView /> : <div>Loading...</div>;
+  async function refresh() {
+    const connState: ConnectionState =
+      useConnectionStore.getState().connectionState;
+    const client = connState.client;
+    const threadIdString =
+      useConnectionStore.getState().connectionState.threadId;
+    const threadId = ThreadID.fromString(threadIdString);
+    if (!displayGameView) {
+      if (client) {
+        client
+          .find(threadId, 'completedConnection', {})
+          .then((value: unknown[]) => {
+            if (value.length === 4)
+              setTimeout(function () {
+                setDisplayGameView(true);
+              }, 300);
+          });
+      }
+    }
+  }
+
+  return displayGameView ? <GameView /> : <div><div>Loading...</div> <button className="bg-blue-500 text-white p-3" onClick={refresh}>refresh</button></div>;
 };
 
 export default GameViewInit;
