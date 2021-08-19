@@ -22,6 +22,7 @@ function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
@@ -37,7 +38,7 @@ function drawTile(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -58,6 +59,7 @@ function placeTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   if (
     stateTransition.body.tile === undefined ||
@@ -90,7 +92,7 @@ function placeTile(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -111,6 +113,7 @@ function chi(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   if (
     stateTransition.body.triple === undefined ||
@@ -166,7 +169,7 @@ function chi(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -195,6 +198,7 @@ function peng(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   if (
     stateTransition.body.triple === undefined ||
@@ -251,7 +255,7 @@ function peng(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -280,6 +284,7 @@ function gang(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   if (
     stateTransition.body.quad === undefined ||
@@ -344,7 +349,7 @@ function gang(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition));
+    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -375,6 +380,7 @@ function replaceFlower(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
@@ -405,7 +411,7 @@ function replaceFlower(
       ...stateTransition,
       body: { isSending: false, deck: newDeck, shownTiles: newShownTiles },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
     return {
       ...gameDataState,
       shownTiles: newShownTiles,
@@ -425,6 +431,7 @@ function initGame(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
@@ -452,7 +459,7 @@ function initGame(
         deck: newDeck,
       },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
     return {
       ...gameDataState,
       deck: Array.from(newDeck),
@@ -480,10 +487,11 @@ function setPlayerId(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
-  const { signalIds, userId } = stateTransition.body;
-  if (signalIds === undefined || userId === undefined || peers === undefined) {
-    throw Error('SignalIds, userId or peers is undefined');
+  const { signalIds, userId: yourPlayerId } = stateTransition.body;
+  if (signalIds === undefined || yourPlayerId === undefined) {
+    throw Error('SignalIds or yourPlayerId is undefined');
   }
   const playerIds = signalIds;
   const sortedPlayerIds: string[] = playerIds.sort(compStr); // sort by id, the order of the array gives the turn order
@@ -497,7 +505,7 @@ function setPlayerId(
   return {
     ...gameDataState,
     allPlayerIds: sortedPlayerIds,
-    yourPlayerId: userId,
+    yourPlayerId: yourPlayerId,
     currentTurn: currentPlayerId,
     currentPlayerIndex: currentPlayerIndex,
     currentState: GameState.ShuffleDeck,
@@ -511,6 +519,7 @@ function hu(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
@@ -526,7 +535,7 @@ function hu(
         score: newScore,
       },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
   }
   if (isSending === true) {
     return {
@@ -549,6 +558,7 @@ function noDeclare(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
   isChi: boolean,
 ): GameDataState {
   const { isSending } = stateTransition.body;
@@ -560,7 +570,7 @@ function noDeclare(
       ...stateTransition,
       body: { isSending: false },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition));
+    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
   }
   const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
   const newCurrentPlayerInd: number =
@@ -578,32 +588,33 @@ function updateGameDataState(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
 ): GameDataState {
   const gameDataState = Object.assign({}, currentGameDataState);
   const transition = Object.assign({}, stateTransition);
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(gameDataState, transition, peers);
+      return drawTile(gameDataState, transition, peers, userId);
     case ActionType.PlaceTile:
-      return placeTile(gameDataState, transition, peers);
+      return placeTile(gameDataState, transition, peers, userId);
     case ActionType.Chi:
-      return chi(gameDataState, transition, peers);
+      return chi(gameDataState, transition, peers, userId);
     case ActionType.Peng:
-      return peng(gameDataState, transition, peers);
+      return peng(gameDataState, transition, peers, userId);
     case ActionType.Gang:
-      return gang(gameDataState, transition, peers);
+      return gang(gameDataState, transition, peers, userId);
     case ActionType.ReplaceFlower:
-      return replaceFlower(gameDataState, transition, peers);
+      return replaceFlower(gameDataState, transition, peers, userId);
     case ActionType.InitGame:
-      return initGame(gameDataState, transition, peers);
+      return initGame(gameDataState, transition, peers, userId);
     case ActionType.Hu:
-      return hu(gameDataState, transition, peers);
+      return hu(gameDataState, transition, peers, userId);
     case ActionType.SetPlayerId:
-      return setPlayerId(gameDataState, transition, peers);
+      return setPlayerId(gameDataState, transition, peers, userId);
     case ActionType.NoChi:
-      return noDeclare(gameDataState, transition, peers, true);
+      return noDeclare(gameDataState, transition, peers, userId, true);
     case ActionType.NoPengGang:
-      return noDeclare(gameDataState, transition, peers, false);
+      return noDeclare(gameDataState, transition, peers, userId, false);
     default:
       return currentGameDataState;
   }
@@ -613,6 +624,7 @@ export async function updateGameDataStateAndLog(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
+  userId: string,
   gameId: string,
 ): Promise<GameDataState> {
   return mutex.runExclusive(async () => {
@@ -622,6 +634,7 @@ export async function updateGameDataStateAndLog(
         currentGameDataState,
         stateTransition,
         peers,
+        userId,
       );
     } catch (err) {
       console.error(err);

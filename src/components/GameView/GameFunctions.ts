@@ -304,23 +304,34 @@ export function randomizeDeck(deck: Tile[]): Tile[] {
 
   return newDeck;
 }
+
+export function sendResponseToPlayer(
+  peers: { [userId: string]: SimplePeer.Instance },
+  event: Event,
+) {
+  sendToPlayer(peers, JSON.stringify(event), event.responder, event.requester);
+}
 export function sendToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
-  peerId: string,
+  fromPeerId: string,
+  toPeerId: string,
 ): void {
   const event: Event = {
     eventType: EventType.Request,
     eventId: uuidv4(),
+    requester: fromPeerId,
+    responder: toPeerId,
     body: data,
   };
-  peers[peerId].send(JSON.stringify(event));
+  peers[toPeerId].send(JSON.stringify(event));
 }
 export function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
+  fromPeerId: string,
 ): void {
-  for (const id in peers) {
-    sendToPlayer(peers, data, id);
+  for (const toPeerId in peers) {
+    sendToPlayer(peers, data, fromPeerId, toPeerId);
   }
 }
