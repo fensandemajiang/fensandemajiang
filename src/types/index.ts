@@ -135,6 +135,8 @@ export enum EventType {
 export interface Event {
   eventType: EventType;
   eventId: string;
+  requester: string;
+  responder: string;
   body: string;
 }
 
