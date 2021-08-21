@@ -101,16 +101,18 @@ const Login: FunctionComponent = () => {
       <div className="lobbyview h-screen">
         <div className="grid grid-cols-12 grid-rows-6 gap-4">
           <div className="lobbyview__lpanel row-start-2 row-end-2 col-start-5 col-end-9 p-4 br-2 text-white rounded-xl m-8">
-            <div className="w-20 text-5xl font-extrabold text-purple-200 rounded-full bg-purple-500">
-              {' '}
-              M{' '}
+            <div className="w-full flex m-auto justify-center">
+              <div className="w-15 p-4 text-5xl font-extrabold text-purple-200 rounded-full bg-purple-500 text-center">
+                M
+              </div>
             </div>
-            <div className="w-100 m-4 flex">
+            <div className="text-center mt-5 text-xl"> Login to begin playing </div>
+            <div className="w-100 m-4 mt-10 flex">
               <button
                 className="lobbyview__button m-auto text-2xl font-bold p-4 br-4 rounded-md"
                 onClick={() => loginOnClick()}
               >
-                Login
+                MetaMask
               </button>
             </div>
           </div>
