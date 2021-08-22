@@ -3,6 +3,7 @@ import type { Tile } from '../../types';
 import { getRandomInt } from '../../utils/utilFunc';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { v4 as uuidv4 } from 'uuid';
+import { useConnectionStore } from '../../utils/store';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
   if (tile1 === undefined || tile2 === undefined) return false;
@@ -305,33 +306,59 @@ export function randomizeDeck(deck: Tile[]): Tile[] {
   return newDeck;
 }
 
-export function sendResponseToPlayer(
+export async function sendResponseToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
   event: Event,
 ) {
-  sendToPlayer(peers, JSON.stringify(event), event.responder, event.requester);
+  await sendToPlayer(
+    peers,
+    JSON.stringify(event),
+    event.responder,
+    event.requester,
+  );
 }
 export function sendToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
   fromPeerId: string,
   toPeerId: string,
-): void {
-  const event: Event = {
-    eventType: EventType.Request,
-    eventId: uuidv4(),
-    requester: fromPeerId,
-    responder: toPeerId,
-    body: data,
-  };
-  peers[toPeerId].send(JSON.stringify(event));
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const event: Event = {
+      eventType: EventType.Request,
+      eventId: uuidv4(),
+      requester: fromPeerId,
+      responder: toPeerId,
+      body: data,
+    };
+    peers[toPeerId].send(JSON.stringify(event));
+
+    let failCount = 0;
+    const checkRecievedResp = setInterval(() => {
+      if (useConnectionStore.getState().connectionState.recievedResponse) {
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            recievedResponse: false,
+          },
+        });
+        clearInterval(checkRecievedResp);
+        resolve();
+      } else if (failCount >= 10) {
+        reject('failed at least 10 times, response time out');
+      } else {
+        failCount += 1;
+      }
+    }, 1000);
+  });
 }
-export function sendToEveryone(
+export async function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
   fromPeerId: string,
-): void {
+): Promise<void> {
   for (const toPeerId in peers) {
-    sendToPlayer(peers, data, fromPeerId, toPeerId);
+    await sendToPlayer(peers, data, fromPeerId, toPeerId);
   }
 }

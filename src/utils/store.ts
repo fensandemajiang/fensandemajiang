@@ -18,6 +18,7 @@ const initialConnectionDataState: ConnectionState = {
   threadId: '',
   peers: {},
   returnedConnectionIds: [],
+  recievedResponse: false,
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(

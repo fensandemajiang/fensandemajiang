@@ -209,7 +209,14 @@ const GameViewInit: FunctionComponent = () => {
                 }),
             );
           } else {
-            // TODO: handle response
+            // handle response
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                recievedResponse: true,
+              }
+            });
           }
         });
 

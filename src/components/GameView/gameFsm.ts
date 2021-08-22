@@ -18,12 +18,12 @@ import { Mutex } from 'async-mutex';
 
 const mutex = new Mutex();
 
-function drawTile(
+async function drawTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
   if (stateTransition.body?.isSending) {
@@ -38,7 +38,7 @@ function drawTile(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -55,12 +55,12 @@ function drawTile(
   }
 }
 
-function placeTile(
+async function placeTile(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   if (
     stateTransition.body.tile === undefined ||
     stateTransition.body.playerTo === undefined
@@ -92,7 +92,7 @@ function placeTile(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -109,12 +109,12 @@ function placeTile(
   }
 }
 
-function chi(
+async function chi(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   if (
     stateTransition.body.triple === undefined ||
     stateTransition.body.playerTo === undefined ||
@@ -169,7 +169,7 @@ function chi(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -194,12 +194,12 @@ function chi(
   }
 }
 
-function peng(
+async function peng(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   if (
     stateTransition.body.triple === undefined ||
     stateTransition.body.playerTo === undefined ||
@@ -255,7 +255,7 @@ function peng(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -280,12 +280,12 @@ function peng(
   }
 }
 
-function gang(
+async function gang(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   if (
     stateTransition.body.quad === undefined ||
     stateTransition.body.playerTo === undefined ||
@@ -349,7 +349,7 @@ function gang(
         isSending: false,
       },
     };
-    sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
 
     return {
       ...gameDataState,
@@ -376,12 +376,12 @@ function gang(
   }
 }
 
-function replaceFlower(
+async function replaceFlower(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
@@ -411,7 +411,7 @@ function replaceFlower(
       ...stateTransition,
       body: { isSending: false, deck: newDeck, shownTiles: newShownTiles },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
     return {
       ...gameDataState,
       shownTiles: newShownTiles,
@@ -427,12 +427,12 @@ function replaceFlower(
   }
 }
 
-function initGame(
+async function initGame(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
@@ -459,7 +459,7 @@ function initGame(
         deck: newDeck,
       },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
     return {
       ...gameDataState,
       deck: Array.from(newDeck),
@@ -483,12 +483,12 @@ function initGame(
   }
 }
 
-function setPlayerId(
+async function setPlayerId(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const { signalIds, userId: yourPlayerId } = stateTransition.body;
   if (signalIds === undefined || yourPlayerId === undefined) {
     throw Error('SignalIds or yourPlayerId is undefined');
@@ -515,12 +515,12 @@ function setPlayerId(
   };
 }
 
-function hu(
+async function hu(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
@@ -535,7 +535,7 @@ function hu(
         score: newScore,
       },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
   }
   if (isSending === true) {
     return {
@@ -554,13 +554,13 @@ function hu(
     };
   }
 }
-function noDeclare(
+async function noDeclare(
   gameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
   isChi: boolean,
-): GameDataState {
+): Promise<GameDataState> {
   const { isSending } = stateTransition.body;
   if (isSending === undefined) {
     throw Error('isSending is undefined.');
@@ -570,7 +570,7 @@ function noDeclare(
       ...stateTransition,
       body: { isSending: false },
     };
-    sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
   }
   const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
   const newCurrentPlayerInd: number =
@@ -584,39 +584,39 @@ function noDeclare(
   };
 }
 
-function updateGameDataState(
+async function updateGameDataState(
   currentGameDataState: GameDataState,
   stateTransition: PlayerAction,
   peers: Peers,
   userId: string,
-): GameDataState {
+): Promise<GameDataState> {
   const gameDataState = Object.assign({}, currentGameDataState);
   const transition = Object.assign({}, stateTransition);
   switch (stateTransition.action) {
     case ActionType.DrawTile:
-      return drawTile(gameDataState, transition, peers, userId);
+      return await drawTile(gameDataState, transition, peers, userId);
     case ActionType.PlaceTile:
-      return placeTile(gameDataState, transition, peers, userId);
+      return await placeTile(gameDataState, transition, peers, userId);
     case ActionType.Chi:
-      return chi(gameDataState, transition, peers, userId);
+      return await chi(gameDataState, transition, peers, userId);
     case ActionType.Peng:
-      return peng(gameDataState, transition, peers, userId);
+      return await peng(gameDataState, transition, peers, userId);
     case ActionType.Gang:
-      return gang(gameDataState, transition, peers, userId);
+      return await gang(gameDataState, transition, peers, userId);
     case ActionType.ReplaceFlower:
-      return replaceFlower(gameDataState, transition, peers, userId);
+      return await replaceFlower(gameDataState, transition, peers, userId);
     case ActionType.InitGame:
       return initGame(gameDataState, transition, peers, userId);
     case ActionType.Hu:
-      return hu(gameDataState, transition, peers, userId);
+      return await hu(gameDataState, transition, peers, userId);
     case ActionType.SetPlayerId:
-      return setPlayerId(gameDataState, transition, peers, userId);
+      return await setPlayerId(gameDataState, transition, peers, userId);
     case ActionType.NoChi:
-      return noDeclare(gameDataState, transition, peers, userId, true);
+      return await noDeclare(gameDataState, transition, peers, userId, true);
     case ActionType.NoPengGang:
-      return noDeclare(gameDataState, transition, peers, userId, false);
+      return await noDeclare(gameDataState, transition, peers, userId, false);
     default:
-      return currentGameDataState;
+      return new Promise((resolve, reject) => resolve(currentGameDataState));
   }
 }
 
@@ -630,7 +630,7 @@ export async function updateGameDataStateAndLog(
   return mutex.runExclusive(async () => {
     let _nextState;
     try {
-      _nextState = updateGameDataState(
+      _nextState = await updateGameDataState(
         currentGameDataState,
         stateTransition,
         peers,

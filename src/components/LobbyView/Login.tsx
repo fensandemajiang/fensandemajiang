@@ -106,7 +106,10 @@ const Login: FunctionComponent = () => {
                 M
               </div>
             </div>
-            <div className="text-center mt-5 text-xl"> Login to begin playing </div>
+            <div className="text-center mt-5 text-xl">
+              {' '}
+              Login to begin playing{' '}
+            </div>
             <div className="w-100 m-4 mt-10 flex">
               <button
                 className="lobbyview__button m-auto text-2xl font-bold p-4 br-4 rounded-md"
