@@ -215,7 +215,7 @@ const GameViewInit: FunctionComponent = () => {
               connectionState: {
                 ...useConnectionStore.getState().connectionState,
                 recievedResponse: true,
-              }
+              },
             });
           }
         });
