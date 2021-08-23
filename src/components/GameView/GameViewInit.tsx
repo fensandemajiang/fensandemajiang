@@ -6,7 +6,7 @@ import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, Where, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
-import { sendResponseToPlayer } from './GameFunctions';
+import { sendToPlayer } from './GameFunctions';
 import {
   ConnectionState,
   DbConnectDetail,
@@ -176,18 +176,20 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          console.log("data", data);
+          console.log('data', data);
           const event: Event = JSON.parse(data);
           const isRequest = event.eventType === EventType.Request;
           if (isRequest) {
             const response: Event = {
               ...event,
               eventType: EventType.Response,
+              requester: event.responder,
+              responder: event.requester,
               body: '{}',
             };
-            sendResponseToPlayer(peers, response);
+            sendToPlayer(peers, response);
 
-            console.log("body", event.body);
+            console.log('body', event.body);
             const condition = () => {
               try {
                 return stateTransitionAllowed(
@@ -198,7 +200,7 @@ const GameViewInit: FunctionComponent = () => {
                 return false;
               }
             };
-            
+
             waitForCondition(condition).then(() =>
               updateGameDataStateAndLog(
                 useGameDataStore.getState().gameDataState,
