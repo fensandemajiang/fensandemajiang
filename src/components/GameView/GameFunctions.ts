@@ -317,13 +317,13 @@ export async function sendResponseToPlayer(
     event.requester,
   );
 }
-export function sendToPlayer(
+export async function sendToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
   data: string,
   fromPeerId: string,
   toPeerId: string,
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
+  const p = new Promise((resolve, reject) => {
     const event: Event = {
       eventType: EventType.Request,
       eventId: uuidv4(),
@@ -333,14 +333,17 @@ export function sendToPlayer(
     };
     peers[toPeerId].send(JSON.stringify(event));
 
+
     let failCount = 0;
     const checkRecievedResp = setInterval(() => {
-      if (useConnectionStore.getState().connectionState.recievedResponse) {
+      if (useConnectionStore.getState().connectionState.receivedResponse[event.eventId]) {
+        const { [event.eventId]: recRespBool, ...newReceivedResponse}: { [eventId: string]: boolean } = { ...useConnectionStore.getState().connectionState.receivedResponse };
+
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
           connectionState: {
             ...useConnectionStore.getState().connectionState,
-            recievedResponse: false,
+            receivedResponse: newReceivedResponse,
           },
         });
         clearInterval(checkRecievedResp);
@@ -352,6 +355,16 @@ export function sendToPlayer(
       }
     }, 500);
   });
+
+  let keepTrying = true;
+  do {
+    try {
+      await p;
+      keepTrying = false;
+    } catch (err) {
+      console.log("fail req, trying again");
+    }
+  } while (keepTrying);
 }
 export async function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
@@ -359,16 +372,6 @@ export async function sendToEveryone(
   fromPeerId: string,
 ): Promise<void> {
   for (const toPeerId in peers) {
-    let keepTrying = true;
-    do {
-      try {
-        await sendToPlayer(peers, data, fromPeerId, toPeerId);
-        keepTrying = false;
-      } catch (err) {
-        // TODO send req again if req fails
-        // do nothing really, the loop will cause us to try again
-        console.log("fail req, trying again");
-      }
-    } while(keepTrying);
+    await sendToPlayer(peers, data, fromPeerId, toPeerId);
   }
 }

@@ -219,11 +219,16 @@ const GameViewInit: FunctionComponent = () => {
             );
           } else {
             // handle response
+            const newReceivedResponse: { [eventId: string]: boolean } = {
+              ...useConnectionStore.getState().connectionState.receivedResponse,
+              [event.eventId]: true
+            };
+            
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {
                 ...useConnectionStore.getState().connectionState,
-                recievedResponse: true,
+                receivedResponse: newReceivedResponse,
               },
             });
           }
