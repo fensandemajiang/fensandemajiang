@@ -50,6 +50,7 @@ const GameView: FunctionComponent = () => {
             gameDataState,
             stateTransition,
             peers,
+            userID,
             threadId,
           )
             .then((newGameDataState) =>
@@ -64,6 +65,7 @@ const GameView: FunctionComponent = () => {
             gameDataState,
             stateTransition,
             peers,
+            userID,
             threadId,
           )
             .then((newGameDataState) =>
@@ -88,6 +90,7 @@ const GameView: FunctionComponent = () => {
           gameDataState,
           stateTransition,
           peers,
+          userID,
           threadId,
         ).then((newGameDataState) =>
           useGameDataStore.setState({
@@ -109,6 +112,7 @@ const GameView: FunctionComponent = () => {
           gameDataState,
           stateTransition,
           peers,
+          userID,
           threadId,
         ).then((newGameDataState) =>
           useGameDataStore.setState({
@@ -136,6 +140,7 @@ const GameView: FunctionComponent = () => {
               gameDataState,
               stateTransition,
               peers,
+              userID,
               threadId,
             ).then((newGameDataState) =>
               useGameDataStore.setState({
@@ -162,6 +167,7 @@ const GameView: FunctionComponent = () => {
               gameDataState,
               stateTransition,
               peers,
+              userID,
               threadId,
             ).then((newGameDataState) =>
               useGameDataStore.setState({
@@ -211,6 +217,7 @@ const GameView: FunctionComponent = () => {
         gameDataState,
         stateTransition,
         peers,
+        userID,
         threadId,
       );
     }
@@ -238,7 +245,13 @@ const GameView: FunctionComponent = () => {
       },
     };
 
-    updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+    updateGameDataStateAndLog(
+      gameDataState,
+      stateTransition,
+      peers,
+      userID,
+      threadId,
+    );
   }
 
   function pung(chowOptions: Tile[]) {
@@ -267,6 +280,7 @@ const GameView: FunctionComponent = () => {
         gameDataState,
         stateTransition,
         peers,
+        userID,
         threadId,
       );
     }
@@ -299,6 +313,7 @@ const GameView: FunctionComponent = () => {
         gameDataState,
         stateTransition,
         peers,
+        userID,
         threadId,
       );
     }
@@ -311,7 +326,13 @@ const GameView: FunctionComponent = () => {
         isSending: true,
       },
     };
-    updateGameDataStateAndLog(gameDataState, stateTransition, peers, threadId);
+    updateGameDataStateAndLog(
+      gameDataState,
+      stateTransition,
+      peers,
+      userID,
+      threadId,
+    );
   }
 
   function replaceFlower() {
@@ -330,6 +351,7 @@ const GameView: FunctionComponent = () => {
         gameDataState,
         stateTransition,
         peers,
+        userID,
         threadId,
       );
     } else {

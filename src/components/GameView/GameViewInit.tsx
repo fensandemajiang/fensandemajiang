@@ -3,10 +3,16 @@ import SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
 import { useConnectionStore, useGameDataStore } from '../../utils/store';
 import GameView from './GameView';
 import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
-import { Update, ThreadID, Filter } from '@textile/hub';
+import { Update, Where, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
-import type { ConnectionState, DbConnectDetail } from '../../types';
+import { sendResponseToPlayer } from './GameFunctions';
+import {
+  ConnectionState,
+  DbConnectDetail,
+  Event,
+  EventType,
+} from '../../types';
 const useInterval = (callback: () => any, delay: number) => {
   const savedCallback = useRef(function () {
     // do nothing
@@ -28,6 +34,7 @@ const useInterval = (callback: () => any, delay: number) => {
 };
 const GameViewInit: FunctionComponent = () => {
   const [displayGameView, setDisplayGameView] = useState(false);
+  const [hasCompletedConnection, setHasCompletedConnection] = useState(false);
 
   useEffect(() => {
     if (useConnectionStore.getState().connectionState.threadId.length === 0) {
@@ -91,8 +98,13 @@ const GameViewInit: FunctionComponent = () => {
                 },
               });
             } else if (update.collectionName === 'completedConnection') {
-              console.log('number of connected', value.length);
-              if (value.length === 6) setDisplayGameView(true);
+              console.log(
+                'number of connected',
+                update.collectionName,
+                update.instance,
+                JSON.stringify(value),
+              );
+              //if (value.length === 4) setDisplayGameView(true);
             }
           });
       });
@@ -164,28 +176,48 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          const condition = () =>
-            stateTransitionAllowed(
-              useGameDataStore.getState().gameDataState.currentState,
-              JSON.parse(data),
+          const event: Event = JSON.parse(data);
+          const isRequest = event.eventType === EventType.Request;
+          if (isRequest) {
+            const response: Event = {
+              ...event,
+              eventType: EventType.Response,
+              body: '{}',
+            };
+            sendResponseToPlayer(peers, response);
+            const condition = () =>
+              stateTransitionAllowed(
+                useGameDataStore.getState().gameDataState.currentState,
+                JSON.parse(event.body),
+              );
+            waitForCondition(condition).then(() =>
+              updateGameDataStateAndLog(
+                useGameDataStore.getState().gameDataState,
+                JSON.parse(event.body),
+                peers,
+                userID,
+                threadIdString,
+              )
+                .then((newDataStore) => {
+                  useGameDataStore.setState({
+                    ...useGameDataStore.getState(),
+                    gameDataState: newDataStore,
+                  });
+                })
+                .catch((err) => {
+                  console.error(err);
+                }),
             );
-          waitForCondition(condition).then(() =>
-            updateGameDataStateAndLog(
-              useGameDataStore.getState().gameDataState,
-              JSON.parse(data),
-              peers,
-              threadIdString,
-            )
-              .then((newDataStore) => {
-                useGameDataStore.setState({
-                  ...useGameDataStore.getState(),
-                  gameDataState: newDataStore,
-                });
-              })
-              .catch((err) => {
-                console.error(err);
-              }),
-          );
+          } else {
+            // handle response
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                recievedResponse: true,
+              },
+            });
+          }
         });
 
         const connectMutex = new Mutex();
@@ -203,24 +235,23 @@ const GameViewInit: FunctionComponent = () => {
               },
             });
 
-            console.log(
-              'completed connections',
-              useConnectionStore.getState().connectionState
-                .returnedConnectionIds.length,
-            );
-            if (
-              useConnectionStore.getState().connectionState
-                .returnedConnectionIds.length === 3
-            ) {
-              console.log('sending completed connection');
-              setTimeout(
-                () =>
-                  client.create(threadId, 'completedConnection', [
-                    { userId: userID },
-                  ]),
-                Math.floor(Math.random() * 300),
+            async function asyncWrapper() {
+              console.log(
+                'completed connections',
+                useConnectionStore.getState().connectionState
+                  .returnedConnectionIds.length,
               );
+              if (
+                useConnectionStore.getState().connectionState
+                  .returnedConnectionIds.length === 3
+              ) {
+                if (!hasCompletedConnection) setHasCompletedConnection(true);
+                await client.create(threadId, 'completedConnection', [
+                  { userId: userID },
+                ]);
+              }
             }
+            asyncWrapper();
           });
         });
 
@@ -290,7 +321,43 @@ const GameViewInit: FunctionComponent = () => {
   }, 200 + Math.floor(Math.random() * 100));
   */
 
-  return displayGameView ? <GameView /> : <div>Loading...</div>;
+  /*
+  async function refresh() {
+    const connState: ConnectionState =
+      useConnectionStore.getState().connectionState;
+    const client = connState.client;
+    const threadIdString =
+      useConnectionStore.getState().connectionState.threadId;
+    const threadId = ThreadID.fromString(threadIdString);
+    if (!displayGameView) {
+      if (client) {
+        client
+          .find(threadId, 'completedConnection', {})
+          .then((value: unknown[]) => {
+            if (value.length === 4)
+              setDisplayGameView(true);
+          });
+      }
+    }
+  }
+  */
+
+  return displayGameView ? (
+    <GameView />
+  ) : (
+    <div>
+      {' '}
+      hello world{' '}
+      <button
+        className="bg-blue-500 text-white p-3"
+        onClick={() => setDisplayGameView(true)}
+      >
+        {' '}
+        go to gameview{' '}
+      </button>{' '}
+    </div>
+  );
+  //displayGameView ? <GameView /> : <div><div>Loading...</div> <button className="bg-blue-500 text-white p-3" onClick={refresh}>refresh</button></div>;
 };
 
 export default GameViewInit;

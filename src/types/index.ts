@@ -25,6 +25,7 @@ export interface ConnectionState {
   threadId: string;
   peers: { [userId: string]: SimplePeer.Instance };
   returnedConnectionIds: string[];
+  recievedResponse: boolean;
 }
 export enum UserConnectionState {
   Connected,
@@ -126,6 +127,18 @@ export enum ActionType {
 }
 export interface Peers {
   [userId: string]: SimplePeer.Instance;
+}
+
+export enum EventType {
+  Request,
+  Response,
+}
+export interface Event {
+  eventType: EventType;
+  eventId: string;
+  requester: string;
+  responder: string;
+  body: string;
 }
 
 export interface PlayerAction {
