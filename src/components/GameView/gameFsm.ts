@@ -685,7 +685,7 @@ export function stateTransitionAllowed(
     case ActionType.NoPengGang:
       return currentState === GameState.PengGang;
     default:
-      throw Error('Invalid state transition');
       console.log("currState", currentState, "state trans", stateTransition.action);
+      throw Error('Invalid state transition');
   }
 }
