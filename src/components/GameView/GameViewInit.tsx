@@ -176,6 +176,7 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
+          console.log("data", data);
           const event: Event = JSON.parse(data);
           const isRequest = event.eventType === EventType.Request;
           if (isRequest) {
@@ -185,6 +186,8 @@ const GameViewInit: FunctionComponent = () => {
               body: '{}',
             };
             sendResponseToPlayer(peers, response);
+
+            console.log("body", event.body);
             const condition = () => {
               try {
                 return stateTransitionAllowed(
