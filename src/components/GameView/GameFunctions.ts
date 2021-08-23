@@ -359,15 +359,16 @@ export async function sendToEveryone(
   fromPeerId: string,
 ): Promise<void> {
   for (const toPeerId in peers) {
-    while (true) {
+    var keepTrying = true;
+    do {
       try {
         await sendToPlayer(peers, data, fromPeerId, toPeerId);
-        break;
+        keepTrying = false;
       } catch (err) {
         // TODO send req again if req fails
         // do nothing really, the loop will cause us to try again
         console.log("fail req, trying again");
       }
-    }
+    } while(keepTrying);
   }
 }
