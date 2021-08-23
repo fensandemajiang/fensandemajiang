@@ -320,7 +320,7 @@ export async function sendToPlayer(
     peers[event.responder].send(JSON.stringify(event));
 
     let failCount = 0;
-    const checkRecievedResp = setInterval(() => {
+    const checkReceivedResp = setInterval(() => {
       if (
         useConnectionStore.getState().connectionState.receivedResponse[
           event.eventId
@@ -340,14 +340,15 @@ export async function sendToPlayer(
             receivedResponse: newReceivedResponse,
           },
         });
-        clearInterval(checkRecievedResp);
+        clearInterval(checkReceivedResp);
         resolve();
       } else if (failCount >= 10) {
+        clearInterval(checkReceivedResp);
         reject('failed at least 10 times, response time out');
       } else {
         failCount += 1;
       }
-    }, 500);
+    }, 1000);
   });
 
   let keepTrying = true;
