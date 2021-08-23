@@ -1,9 +1,15 @@
-import { ActionType, Suite, Event, EventType } from '../../types';
+import {
+  ActionType,
+  Suite,
+  Event,
+  IncompleteEvent,
+  EventType,
+} from '../../types';
 import type { Tile } from '../../types';
 import { getRandomInt } from '../../utils/utilFunc';
 import type SimplePeer from 'vite-compatible-simple-peer/simplepeer.min.js';
-import { v4 as uuidv4 } from 'uuid';
 import { useConnectionStore } from '../../utils/store';
+import { v4 as uuidv4 } from 'uuid';
 
 export function tileEqual(tile1: Tile, tile2: Tile): boolean {
   if (tile1 === undefined || tile2 === undefined) return false;
@@ -306,38 +312,26 @@ export function randomizeDeck(deck: Tile[]): Tile[] {
   return newDeck;
 }
 
-export async function sendResponseToPlayer(
-  peers: { [userId: string]: SimplePeer.Instance },
-  event: Event,
-) {
-  await sendToPlayer(
-    peers,
-    JSON.stringify(event),
-    event.responder,
-    event.requester,
-  );
-}
 export async function sendToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
-  data: string,
-  fromPeerId: string,
-  toPeerId: string,
+  event: Event,
 ): Promise<void> {
-  const p = new Promise((resolve, reject) => {
-    const event: Event = {
-      eventType: EventType.Request,
-      eventId: uuidv4(),
-      requester: fromPeerId,
-      responder: toPeerId,
-      body: data,
-    };
-    peers[toPeerId].send(JSON.stringify(event));
-
+  const p: Promise<void> = new Promise((resolve, reject): void => {
+    peers[event.responder].send(JSON.stringify(event));
 
     let failCount = 0;
     const checkRecievedResp = setInterval(() => {
-      if (useConnectionStore.getState().connectionState.receivedResponse[event.eventId]) {
-        const { [event.eventId]: recRespBool, ...newReceivedResponse}: { [eventId: string]: boolean } = { ...useConnectionStore.getState().connectionState.receivedResponse };
+      if (
+        useConnectionStore.getState().connectionState.receivedResponse[
+          event.eventId
+        ]
+      ) {
+        const {
+          [event.eventId]: recRespBool,
+          ...newReceivedResponse
+        }: { [eventId: string]: boolean } = {
+          ...useConnectionStore.getState().connectionState.receivedResponse,
+        };
 
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
@@ -362,16 +356,20 @@ export async function sendToPlayer(
       await p;
       keepTrying = false;
     } catch (err) {
-      console.log("fail req, trying again");
+      console.log('fail req, trying again');
     }
   } while (keepTrying);
 }
 export async function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
-  data: string,
-  fromPeerId: string,
+  incompleteEvent: IncompleteEvent,
 ): Promise<void> {
   for (const toPeerId in peers) {
-    await sendToPlayer(peers, data, fromPeerId, toPeerId);
+    const event: Event = {
+      ...incompleteEvent,
+      responder: toPeerId,
+      eventId: uuidv4(),
+    };
+    await sendToPlayer(peers, event);
   }
 }

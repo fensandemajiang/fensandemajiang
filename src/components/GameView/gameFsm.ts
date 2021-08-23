@@ -5,6 +5,8 @@ import {
   Tile,
   Peers,
   GameState,
+  IncompleteEvent,
+  EventType,
 } from '../../types';
 import { compStr } from '../../utils/utilFunc';
 import {
@@ -38,7 +40,12 @@ async function drawTile(
         isSending: false,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(toSendStateTransition),
+    };
+    await sendToEveryone(peers, event);
 
     return {
       ...gameDataState,
@@ -92,7 +99,12 @@ async function placeTile(
         isSending: false,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(toSendStateTransition),
+    };
+    await sendToEveryone(peers, event);
 
     return {
       ...gameDataState,
@@ -169,7 +181,12 @@ async function chi(
         isSending: false,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(toSendStateTransition),
+    };
+    await sendToEveryone(peers, event);
 
     return {
       ...gameDataState,
@@ -255,7 +272,12 @@ async function peng(
         isSending: false,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(toSendStateTransition),
+    };
+    await sendToEveryone(peers, event);
 
     return {
       ...gameDataState,
@@ -349,7 +371,12 @@ async function gang(
         isSending: false,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(toSendStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(toSendStateTransition),
+    };
+    await sendToEveryone(peers, event);
 
     return {
       ...gameDataState,
@@ -411,7 +438,12 @@ async function replaceFlower(
       ...stateTransition,
       body: { isSending: false, deck: newDeck, shownTiles: newShownTiles },
     };
-    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(newStateTransition),
+    };
+    await sendToEveryone(peers, event);
     return {
       ...gameDataState,
       shownTiles: newShownTiles,
@@ -459,7 +491,12 @@ async function initGame(
         deck: newDeck,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(newStateTransition),
+    };
+    await sendToEveryone(peers, event);
     return {
       ...gameDataState,
       deck: Array.from(newDeck),
@@ -535,7 +572,12 @@ async function hu(
         score: newScore,
       },
     };
-    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(newStateTransition),
+    };
+    await sendToEveryone(peers, event);
   }
   if (isSending === true) {
     return {
@@ -570,7 +612,12 @@ async function noDeclare(
       ...stateTransition,
       body: { isSending: false },
     };
-    await sendToEveryone(peers, JSON.stringify(newStateTransition), userId);
+    const event: IncompleteEvent = {
+      eventType: EventType.Request,
+      requester: userId,
+      body: JSON.stringify(newStateTransition),
+    };
+    await sendToEveryone(peers, event);
   }
   const nextState = isChi ? GameState.PengGang : GameState.DrawCard;
   const newCurrentPlayerInd: number =
@@ -685,7 +732,12 @@ export function stateTransitionAllowed(
     case ActionType.NoPengGang:
       return currentState === GameState.PengGang;
     default:
-      console.log("currState", currentState, "state trans", stateTransition.action);
+      console.log(
+        'currState',
+        currentState,
+        'state trans',
+        stateTransition.action,
+      );
       throw Error('Invalid state transition');
   }
 }

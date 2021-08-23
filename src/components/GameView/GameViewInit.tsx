@@ -6,7 +6,7 @@ import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
 import { Update, Where, ThreadID, Filter } from '@textile/hub';
 import { waitForCondition } from '../../utils/utilFunc';
 import { Mutex } from 'async-mutex';
-import { sendResponseToPlayer } from './GameFunctions';
+import { sendToPlayer } from './GameFunctions';
 import {
   ConnectionState,
   DbConnectDetail,
@@ -176,54 +176,56 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          console.log("data", data);
+          console.log('data', data);
           const event: Event = JSON.parse(data);
           const isRequest = event.eventType === EventType.Request;
           if (isRequest) {
             const response: Event = {
               ...event,
               eventType: EventType.Response,
+              requester: event.responder,
+              responder: event.requester,
               body: '{}',
             };
-            sendResponseToPlayer(peers, response);
+            sendToPlayer(peers, response).then(() => {
+              console.log('body', event.body);
+              const condition = () => {
+                try {
+                  return stateTransitionAllowed(
+                    useGameDataStore.getState().gameDataState.currentState,
+                    JSON.parse(event.body),
+                  );
+                } catch (err) {
+                  return false;
+                }
+              };
 
-            console.log("body", event.body);
-            const condition = () => {
-              try {
-                return stateTransitionAllowed(
-                  useGameDataStore.getState().gameDataState.currentState,
+              waitForCondition(condition).then(() =>
+                updateGameDataStateAndLog(
+                  useGameDataStore.getState().gameDataState,
                   JSON.parse(event.body),
-                );
-              } catch (err) {
-                return false;
-              }
-            };
-            
-            waitForCondition(condition).then(() =>
-              updateGameDataStateAndLog(
-                useGameDataStore.getState().gameDataState,
-                JSON.parse(event.body),
-                peers,
-                userID,
-                threadIdString,
-              )
-                .then((newDataStore) => {
-                  useGameDataStore.setState({
-                    ...useGameDataStore.getState(),
-                    gameDataState: newDataStore,
-                  });
-                })
-                .catch((err) => {
-                  console.error(err);
-                }),
-            );
+                  peers,
+                  userID,
+                  threadIdString,
+                )
+                  .then((newDataStore) => {
+                    useGameDataStore.setState({
+                      ...useGameDataStore.getState(),
+                      gameDataState: newDataStore,
+                    });
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                  }),
+              );
+            });
           } else {
             // handle response
             const newReceivedResponse: { [eventId: string]: boolean } = {
               ...useConnectionStore.getState().connectionState.receivedResponse,
-              [event.eventId]: true
+              [event.eventId]: true,
             };
-            
+
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {

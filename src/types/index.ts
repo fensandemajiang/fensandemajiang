@@ -133,6 +133,13 @@ export enum EventType {
   Request,
   Response,
 }
+
+export interface IncompleteEvent {
+  eventType: EventType;
+  requester: string;
+  responder?: string;
+  body: string;
+}
 export interface Event {
   eventType: EventType;
   eventId: string;
