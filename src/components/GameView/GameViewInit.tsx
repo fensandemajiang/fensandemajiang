@@ -185,11 +185,17 @@ const GameViewInit: FunctionComponent = () => {
               body: '{}',
             };
             sendResponseToPlayer(peers, response);
-            const condition = () =>
-              stateTransitionAllowed(
-                useGameDataStore.getState().gameDataState.currentState,
-                JSON.parse(event.body),
-              );
+            const condition = () => {
+              try {
+                return stateTransitionAllowed(
+                  useGameDataStore.getState().gameDataState.currentState,
+                  JSON.parse(event.body),
+                );
+              } catch (err) {
+                return false;
+              }
+            };
+            
             waitForCondition(condition).then(() =>
               updateGameDataStateAndLog(
                 useGameDataStore.getState().gameDataState,

@@ -359,7 +359,7 @@ export async function sendToEveryone(
   fromPeerId: string,
 ): Promise<void> {
   for (const toPeerId in peers) {
-    var keepTrying = true;
+    let keepTrying = true;
     do {
       try {
         await sendToPlayer(peers, data, fromPeerId, toPeerId);
