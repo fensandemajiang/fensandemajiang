@@ -316,50 +316,51 @@ export async function sendToPlayer(
   peers: { [userId: string]: SimplePeer.Instance },
   event: Event,
 ): Promise<void> {
-  const p: Promise<void> = new Promise((resolve, reject): void => {
-    peers[event.responder].send(JSON.stringify(event));
+  async function recursiveSend(depth: number): Promise<void> {
+    if (depth >= 5) throw Error('Tried 5 times, did not receive reply back');
 
-    let failCount = 0;
-    const checkReceivedResp = setInterval(() => {
-      if (
-        useConnectionStore.getState().connectionState.receivedResponse[
-          event.eventId
-        ]
-      ) {
-        const {
-          [event.eventId]: recRespBool,
-          ...newReceivedResponse
-        }: { [eventId: string]: boolean } = {
-          ...useConnectionStore.getState().connectionState.receivedResponse,
-        };
+    const p: Promise<void> = new Promise((resolve, reject): void => {
+      peers[event.responder].send(JSON.stringify(event));
 
-        useConnectionStore.setState({
-          ...useConnectionStore.getState(),
-          connectionState: {
-            ...useConnectionStore.getState().connectionState,
-            receivedResponse: newReceivedResponse,
-          },
-        });
-        clearInterval(checkReceivedResp);
-        resolve();
-      } else if (failCount >= 10) {
-        clearInterval(checkReceivedResp);
-        reject('failed at least 10 times, response time out');
-      } else {
-        failCount += 1;
-      }
-    }, 1000);
-  });
+      let failCount = 0;
+      const checkReceivedResp = setInterval(() => {
+        if (
+          useConnectionStore.getState().connectionState.receivedResponse[
+            event.eventId
+          ]
+        ) {
+          const {
+            [event.eventId]: recRespBool,
+            ...newReceivedResponse
+          }: { [eventId: string]: boolean } = {
+            ...useConnectionStore.getState().connectionState.receivedResponse,
+          };
 
-  let keepTrying = true;
-  do {
+          useConnectionStore.setState({
+            ...useConnectionStore.getState(),
+            connectionState: {
+              ...useConnectionStore.getState().connectionState,
+              receivedResponse: newReceivedResponse,
+            },
+          });
+          clearInterval(checkReceivedResp);
+          resolve();
+        } else if (failCount >= 10) {
+          clearInterval(checkReceivedResp);
+          reject('failed at least 10 times, response time out');
+        } else {
+          failCount += 1;
+        }
+      }, 1000);
+    });
+
     try {
       await p;
-      keepTrying = false;
     } catch (err) {
-      console.log('fail req, trying again');
+      await recursiveSend(depth + 1);
     }
-  } while (keepTrying);
+  }
+  await recursiveSend(0);
 }
 export async function sendToEveryone(
   peers: { [userId: string]: SimplePeer.Instance },
