@@ -183,7 +183,6 @@ const GameView: FunctionComponent = () => {
     userConnectedCount,
     countdown,
     gameDataState,
-    peers,
     signalIDs,
     threadId,
     userID,
