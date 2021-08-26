@@ -343,6 +343,7 @@ export async function sendToPlayer(
               receivedResponse: newReceivedResponse,
             },
           });
+          console.log('SENT TO PLAYER');
           clearInterval(checkReceivedResp);
           resolve();
         } else if (failCount >= 10) {
