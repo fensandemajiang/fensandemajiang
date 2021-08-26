@@ -20,12 +20,12 @@ export async function waitForCondition(
   condition: () => boolean,
 ): Promise<void> {
   return new Promise(function (resolve, reject) {
-    while (condition() !== true) {
-      setTimeout(function () {
-        // do nothing
-      }, 100);
-    }
-    resolve();
+    const interval = setInterval(() => {
+      if (condition()) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 100);
   });
 }
 
