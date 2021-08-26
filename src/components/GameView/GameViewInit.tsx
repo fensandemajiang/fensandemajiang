@@ -98,12 +98,12 @@ const GameViewInit: FunctionComponent = () => {
                 },
               });
             } else if (update.collectionName === 'completedConnection') {
-              console.log(
-                'number of connected',
-                update.collectionName,
-                update.instance,
-                JSON.stringify(value),
-              );
+              //console.log(
+              //  'number of connected',
+              //  update.collectionName,
+              //  update.instance,
+              //  JSON.stringify(value),
+              //);
               //if (value.length === 4) setDisplayGameView(true);
             }
           });

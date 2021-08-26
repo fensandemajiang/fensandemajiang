@@ -113,25 +113,25 @@ export enum GameState {
 }
 
 export enum ActionType {
-  DrawTile = 1,
-  PlaceTile,
-  Chi,
-  Peng,
-  Gang,
-  ReplaceFlower,
-  InitGame,
-  Hu,
-  NoChi,
-  NoPengGang,
-  SetPlayerId,
+  DrawTile = "DrawTile",
+  PlaceTile = "PlaceTile",
+  Chi = "Chi",
+  Peng = "Peng",
+  Gang = "Gang",
+  ReplaceFlower = "ReplaceFlower",
+  InitGame = "InitGame",
+  Hu = "Hu",
+  NoChi = "NoChi",
+  NoPengGang = "NoPengGang",
+  SetPlayerId = "SetPlayerId",
 }
 export interface Peers {
   [userId: string]: SimplePeer.Instance;
 }
 
 export enum EventType {
-  Request,
-  Response,
+  Request = "Request",
+  Response = "Response",
 }
 
 export interface IncompleteEvent {
