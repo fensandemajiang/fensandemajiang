@@ -1,4 +1,5 @@
 import type { GameDataState } from '../types';
+import isEqual from 'lodash/isEqual';
 export function compStr(a: string, b: string): number {
   return a.localeCompare(b, 'en', { numeric: true });
 }
@@ -50,5 +51,5 @@ export const isGameDataStateEqual = (
   leftState: GameDataState,
   rightState: GameDataState,
 ): boolean => {
-  return true;
+  return isEqual(leftState, rightState);
 };
