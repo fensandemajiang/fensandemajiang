@@ -223,11 +223,13 @@ const GameViewInit: FunctionComponent = () => {
             });
           } else {
             // handle response
+
+            // set received response for event id to true
+            // if we are receiving a response, we can assume that the value already exists in the store
             const newReceivedResponse: { [eventId: string]: boolean } = {
               ...useConnectionStore.getState().connectionState.receivedResponse,
               [event.eventId]: true,
             };
-
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {

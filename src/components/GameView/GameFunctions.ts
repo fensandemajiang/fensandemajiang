@@ -322,37 +322,55 @@ export async function sendToPlayer(
     const p: Promise<void> = new Promise((resolve, reject): void => {
       peers[event.responder].send(JSON.stringify(event));
 
-      let failCount = 0;
-      const checkReceivedResp = setInterval(() => {
-        if (
-          useConnectionStore.getState().connectionState.receivedResponse[
-            event.eventId
-          ]
-        ) {
-          const {
-            [event.eventId]: recRespBool,
-            ...newReceivedResponse
-          }: { [eventId: string]: boolean } = {
-            ...useConnectionStore.getState().connectionState.receivedResponse,
-          };
+      // only keep trying if it's a request, if it's a response, we'll just assume they get it
+      if (event.eventType === EventType.Request) {
+        // add false value to store
+        const newReceivedResponse: { [eventId: string]: boolean } = {
+          ...useConnectionStore.getState().connectionState.receivedResponse,
+          [event.eventId]: false
+        };
+        useConnectionStore.setState({
+          ...useConnectionStore.getState(),
+          connectionState: {
+            ...useConnectionStore.getState().connectionState,
+            receivedResponse: newReceivedResponse
+          }
+        });
 
-          useConnectionStore.setState({
-            ...useConnectionStore.getState(),
-            connectionState: {
-              ...useConnectionStore.getState().connectionState,
-              receivedResponse: newReceivedResponse,
-            },
-          });
-          console.log('SENT TO PLAYER');
-          clearInterval(checkReceivedResp);
-          resolve();
-        } else if (failCount >= 10) {
-          clearInterval(checkReceivedResp);
-          reject('failed at least 10 times, response time out');
-        } else {
-          failCount += 1;
-        }
-      }, 1000);
+        let failCount = 0;
+        const checkReceivedResp = setInterval(() => {
+          if ( // keep checking until true
+            useConnectionStore.getState().connectionState.receivedResponse[
+              event.eventId
+            ]
+          ) {
+            const {
+              [event.eventId]: didReceiveResp,
+              ...newReceivedResponse
+            }: { [eventId: string]: boolean } = {
+              ...useConnectionStore.getState().connectionState.receivedResponse,
+            };
+
+            console.log("did receive response ", event.eventId, didReceiveResp);
+
+            useConnectionStore.setState({
+              ...useConnectionStore.getState(),
+              connectionState: {
+                ...useConnectionStore.getState().connectionState,
+                receivedResponse: newReceivedResponse,
+              },
+            });
+            console.log('SENT TO PLAYER');
+            clearInterval(checkReceivedResp);
+            resolve();
+          } else if (failCount >= 10) {
+            clearInterval(checkReceivedResp);
+            reject('failed at least 10 times, response time out');
+          } else {
+            failCount += 1;
+          }
+        }, 2000);
+      }
     });
 
     try {
