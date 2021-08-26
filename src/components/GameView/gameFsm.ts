@@ -28,6 +28,7 @@ async function drawTile(
 ): Promise<GameDataState> {
   const deck: Tile[] = gameDataState.deck;
   const newDeck: Tile[] = deck.slice(0, deck.length - 1);
+
   if (stateTransition.body?.isSending) {
     const lastTile: Tile = deck[deck.length - 1];
     const newHand: Tile[] = [...gameDataState.yourHand, lastTile];

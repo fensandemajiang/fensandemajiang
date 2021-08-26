@@ -11,8 +11,9 @@ import {
   useGameDataStore,
   useBetStore,
 } from '../../utils/store';
+import { isGameDataStateEqual } from '../../utils/utilFunc';
 import { updateGameDataStateAndLog } from './gameFsm';
-import { Suite, Tile, PlayerAction, ActionType, GameState } from '../../types';
+import { Suite, Tile, PlayerAction, ActionType, GameDataState, GameState } from '../../types';
 import {
   mostRecentDiscard,
   amFirstPlayer,
@@ -34,8 +35,17 @@ const GameView: FunctionComponent = () => {
   const timer = useRef<any>();
 
   useEffect(() => {
+    function setGameDataStore(newState: GameDataState): void {
+      if (!isGameDataStateEqual(newState, useGameDataStore.getState().gameDataState)) {
+        useGameDataStore.setState({
+          ...useGameDataStore.getState(),
+          gameDataState: newState
+        });
+      }
+    }
+
     if (userConnectedCount === 3) {
-      console.log(gameDataState.currentState);
+      console.log("current state", gameDataState.currentState);
       // all users have connected
       if (gameDataState.currentState === GameState.Start) {
         const stateTransition: PlayerAction = {
@@ -53,12 +63,9 @@ const GameView: FunctionComponent = () => {
             userID,
             threadId,
           )
-            .then((newGameDataState) =>
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newGameDataState,
-              }),
-            )
+            .then((newGameDataState: GameDataState) => {
+              setGameDataStore(newGameDataState);
+            })
             .catch((err) => console.error(err));
         } else {
           updateGameDataStateAndLog(
@@ -68,12 +75,9 @@ const GameView: FunctionComponent = () => {
             userID,
             threadId,
           )
-            .then((newGameDataState) =>
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newGameDataState,
-              }),
-            )
+            .then((newGameDataState: GameDataState) => {
+              setGameDataStore(newGameDataState);
+            })
             .catch((err) => console.error(err));
         }
       } else if (
@@ -92,12 +96,9 @@ const GameView: FunctionComponent = () => {
           peers,
           userID,
           threadId,
-        ).then((newGameDataState) =>
-          useGameDataStore.setState({
-            ...useGameDataStore.getState(),
-            gameDataState: newGameDataState,
-          }),
-        );
+        ).then((newGameDataState) => {
+          setGameDataStore(newGameDataState);
+        });
       } else if (
         gameDataState.currentState === GameState.DrawCard &&
         gameDataState.currentTurn === gameDataState.yourPlayerId
@@ -114,12 +115,9 @@ const GameView: FunctionComponent = () => {
           peers,
           userID,
           threadId,
-        ).then((newGameDataState) =>
-          useGameDataStore.setState({
-            ...useGameDataStore.getState(),
-            gameDataState: newGameDataState,
-          }),
-        );
+        ).then((newGameDataState) => {
+          setGameDataStore(newGameDataState);
+        });
       } else if (gameDataState.currentState === GameState.PengGang) {
         timer.current = setInterval(() => {
           if (
@@ -142,12 +140,9 @@ const GameView: FunctionComponent = () => {
               peers,
               userID,
               threadId,
-            ).then((newGameDataState) =>
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newGameDataState,
-              }),
-            );
+            ).then((newGameDataState) => {
+              setGameDataStore(newGameDataState);
+            });
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Chi) {
@@ -169,12 +164,9 @@ const GameView: FunctionComponent = () => {
               peers,
               userID,
               threadId,
-            ).then((newGameDataState) =>
-              useGameDataStore.setState({
-                ...useGameDataStore.getState(),
-                gameDataState: newGameDataState,
-              }),
-            );
+            ).then((newGameDataState) => {
+              setGameDataStore(newGameDataState);
+            });
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Hu) {
