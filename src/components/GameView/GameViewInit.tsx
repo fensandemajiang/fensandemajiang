@@ -177,9 +177,8 @@ const GameViewInit: FunctionComponent = () => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
           const event: Event = JSON.parse(data);
-          console.log('event', event);
+          console.log({ receievedEvent: event });
           const isRequest = event.eventType === EventType.Request;
-          console.log('IS REQUEST: ' + isRequest);
           if (isRequest) {
             const response: Event = {
               ...event,
@@ -190,7 +189,6 @@ const GameViewInit: FunctionComponent = () => {
             };
             console.log('RESPONSE: ' + JSON.stringify(response));
             sendToPlayer(peers, response).then(() => {
-              console.log('body', event.body);
               const condition = () => {
                 try {
                   return stateTransitionAllowed(
@@ -201,7 +199,7 @@ const GameViewInit: FunctionComponent = () => {
                   return false;
                 }
               };
-              
+
               waitForCondition(condition).then(() =>
                 updateGameDataStateAndLog(
                   useGameDataStore.getState().gameDataState,

@@ -321,25 +321,27 @@ export async function sendToPlayer(
 
     const p: Promise<void> = new Promise((resolve, reject): void => {
       peers[event.responder].send(JSON.stringify(event));
+      console.log({ sentEvent: event });
 
       // only keep trying if it's a request, if it's a response, we'll just assume they get it
       if (event.eventType === EventType.Request) {
         // add false value to store
         const newReceivedResponse: { [eventId: string]: boolean } = {
           ...useConnectionStore.getState().connectionState.receivedResponse,
-          [event.eventId]: false
+          [event.eventId]: false,
         };
         useConnectionStore.setState({
           ...useConnectionStore.getState(),
           connectionState: {
             ...useConnectionStore.getState().connectionState,
-            receivedResponse: newReceivedResponse
-          }
+            receivedResponse: newReceivedResponse,
+          },
         });
 
         let failCount = 0;
         const checkReceivedResp = setInterval(() => {
-          if ( // keep checking until true
+          if (
+            // keep checking until true
             useConnectionStore.getState().connectionState.receivedResponse[
               event.eventId
             ]
@@ -351,8 +353,6 @@ export async function sendToPlayer(
               ...useConnectionStore.getState().connectionState.receivedResponse,
             };
 
-            console.log("did receive response ", event.eventId, didReceiveResp);
-
             useConnectionStore.setState({
               ...useConnectionStore.getState(),
               connectionState: {
@@ -360,7 +360,6 @@ export async function sendToPlayer(
                 receivedResponse: newReceivedResponse,
               },
             });
-            console.log('SENT TO PLAYER');
             clearInterval(checkReceivedResp);
             resolve();
           } else if (failCount >= 10) {
