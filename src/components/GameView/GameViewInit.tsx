@@ -176,8 +176,8 @@ const GameViewInit: FunctionComponent = () => {
         peers[id].on('data', (data) => {
           // determine what kind of data was sent over
           // modify state in zustand accordingly
-          console.log('data', data);
           const event: Event = JSON.parse(data);
+          console.log("event", event);
           const isRequest = event.eventType === EventType.Request;
           if (isRequest) {
             const response: Event = {
