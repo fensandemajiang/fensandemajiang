@@ -199,7 +199,7 @@ const GameViewInit: FunctionComponent = () => {
                   return false;
                 }
               };
-
+              
               waitForCondition(condition).then(() =>
                 updateGameDataStateAndLog(
                   useGameDataStore.getState().gameDataState,
