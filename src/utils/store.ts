@@ -22,11 +22,14 @@ const initialConnectionDataState: ConnectionState = {
 };
 
 export const useConnectionStore = create<ConnectionDataStore>(
-  devtools((set: SetState<ConnectionDataStore>) => ({
-    connectionState: initialConnectionDataState,
-    updateConnectionState: (connectionState: ConnectionState) =>
-      set({ connectionState }),
-  })),
+  devtools(
+    (set: SetState<ConnectionDataStore>) => ({
+      connectionState: initialConnectionDataState,
+      updateConnectionState: (connectionState: ConnectionState) =>
+        set({ connectionState }),
+    }),
+    'FenSanDeMajiang ConnectionStore',
+  ),
 );
 
 export type GameDataStore = {
@@ -100,11 +103,14 @@ const initialGameDataState: GameDataState = {
 };
 
 export const useGameDataStore = create<GameDataStore>(
-  devtools((set: SetState<GameDataStore>) => ({
-    gameDataState: initialGameDataState,
-    updateGameDataState: (gameDataState: GameDataState) =>
-      set({ gameDataState }),
-  })),
+  devtools(
+    (set: SetState<GameDataStore>) => ({
+      gameDataState: initialGameDataState,
+      updateGameDataState: (gameDataState: GameDataState) =>
+        set({ gameDataState }),
+    }),
+    'FenSanDeMajiang GameStore',
+  ),
 );
 
 export type UserStore = {
@@ -121,10 +127,13 @@ const initialUserState: UserState = {
 };
 
 export const useUserStore = create<UserStore>(
-  devtools((set: SetState<UserStore>) => ({
-    userState: initialUserState,
-    updateUserState: (userState: UserState) => set({ userState }),
-  })),
+  devtools(
+    (set: SetState<UserStore>) => ({
+      userState: initialUserState,
+      updateUserState: (userState: UserState) => set({ userState }),
+    }),
+    'FenSanDeMajiang UserStore',
+  ),
 );
 
 export type BetStore = {
@@ -138,8 +147,11 @@ const initialBetState: BetState = {
 };
 
 export const useBetStore = create<BetStore>(
-  devtools((set: SetState<BetStore>) => ({
-    betState: initialBetState,
-    updateBetState: (betState: BetState) => set({ betState }),
-  })),
+  devtools(
+    (set: SetState<BetStore>) => ({
+      betState: initialBetState,
+      updateBetState: (betState: BetState) => set({ betState }),
+    }),
+    'FenSanDeMajiang BetStore',
+  ),
 );
