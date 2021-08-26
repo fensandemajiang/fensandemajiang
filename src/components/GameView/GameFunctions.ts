@@ -370,6 +370,8 @@ export async function sendToPlayer(
             failCount += 1;
           }
         }, 2000);
+      } else {
+        resolve();
       }
     });
 
