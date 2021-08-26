@@ -28,7 +28,7 @@ export const useConnectionStore = create<ConnectionDataStore>(
       updateConnectionState: (connectionState: ConnectionState) =>
         set({ connectionState }),
     }),
-    'FenSanDeMajiang ConnectionStore',
+    { name: 'FenSanDeMajiang ConnectionStore' },
   ),
 );
 
