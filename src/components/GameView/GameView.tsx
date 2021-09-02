@@ -174,7 +174,7 @@ const GameView: FunctionComponent = () => {
           if (bettingEnabled && !betPaidOut) {
             setOpenGameOver(true);
           } else {
-            setOpenGameOver(true);
+            setOpenGameOver(false);
           }
         }
       }
