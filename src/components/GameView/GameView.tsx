@@ -12,8 +12,15 @@ import {
   useBetStore,
 } from '../../utils/store';
 import { isGameDataStateEqual } from '../../utils/utilFunc';
-import { updateGameDataStateAndLog } from './gameFsm';
-import { Suite, Tile, PlayerAction, ActionType, GameDataState, GameState } from '../../types';
+import { updateGameDataStateAndLog, stateTransitionAllowed } from './gameFsm';
+import {
+  Suite,
+  Tile,
+  PlayerAction,
+  ActionType,
+  GameDataState,
+  GameState,
+} from '../../types';
 import {
   mostRecentDiscard,
   amFirstPlayer,
@@ -36,16 +43,21 @@ const GameView: FunctionComponent = () => {
 
   useEffect(() => {
     function setGameDataStore(newState: GameDataState): void {
-      if (!isGameDataStateEqual(newState, useGameDataStore.getState().gameDataState)) {
+      if (
+        !isGameDataStateEqual(
+          newState,
+          useGameDataStore.getState().gameDataState,
+        )
+      ) {
         useGameDataStore.setState({
           ...useGameDataStore.getState(),
-          gameDataState: newState
+          gameDataState: newState,
         });
       }
     }
 
     if (userConnectedCount === 3) {
-      console.log("current state", gameDataState.currentState);
+      console.log('current state', gameDataState.currentState);
       // all users have connected
       if (gameDataState.currentState === GameState.Start) {
         const stateTransition: PlayerAction = {
@@ -55,30 +67,34 @@ const GameView: FunctionComponent = () => {
             userId: userID,
           },
         };
-        if (bettingEnabled) {
-          updateGameDataStateAndLog(
-            gameDataState,
-            stateTransition,
-            peers,
-            userID,
-            threadId,
-          )
-            .then((newGameDataState: GameDataState) => {
-              setGameDataStore(newGameDataState);
-            })
-            .catch((err) => console.error(err));
-        } else {
-          updateGameDataStateAndLog(
-            gameDataState,
-            stateTransition,
-            peers,
-            userID,
-            threadId,
-          )
-            .then((newGameDataState: GameDataState) => {
-              setGameDataStore(newGameDataState);
-            })
-            .catch((err) => console.error(err));
+        if (
+          stateTransitionAllowed(gameDataState.currentState, stateTransition)
+        ) {
+          if (bettingEnabled) {
+            updateGameDataStateAndLog(
+              gameDataState,
+              stateTransition,
+              peers,
+              userID,
+              threadId,
+            )
+              .then((newGameDataState: GameDataState) => {
+                setGameDataStore(newGameDataState);
+              })
+              .catch((err) => console.error(err));
+          } else {
+            updateGameDataStateAndLog(
+              gameDataState,
+              stateTransition,
+              peers,
+              userID,
+              threadId,
+            )
+              .then((newGameDataState: GameDataState) => {
+                setGameDataStore(newGameDataState);
+              })
+              .catch((err) => console.error(err));
+          }
         }
       } else if (
         gameDataState.currentState === GameState.ShuffleDeck &&
@@ -90,15 +106,19 @@ const GameView: FunctionComponent = () => {
             isSending: true,
           },
         };
-        updateGameDataStateAndLog(
-          gameDataState,
-          stateTransition,
-          peers,
-          userID,
-          threadId,
-        ).then((newGameDataState) => {
-          setGameDataStore(newGameDataState);
-        });
+        if (
+          stateTransitionAllowed(gameDataState.currentState, stateTransition)
+        ) {
+          updateGameDataStateAndLog(
+            gameDataState,
+            stateTransition,
+            peers,
+            userID,
+            threadId,
+          ).then((newGameDataState) => {
+            setGameDataStore(newGameDataState);
+          });
+        }
       } else if (
         gameDataState.currentState === GameState.DrawCard &&
         gameDataState.currentTurn === gameDataState.yourPlayerId
@@ -109,15 +129,19 @@ const GameView: FunctionComponent = () => {
             isSending: true,
           },
         };
-        updateGameDataStateAndLog(
-          gameDataState,
-          stateTransition,
-          peers,
-          userID,
-          threadId,
-        ).then((newGameDataState) => {
-          setGameDataStore(newGameDataState);
-        });
+        if (
+          stateTransitionAllowed(gameDataState.currentState, stateTransition)
+        ) {
+          updateGameDataStateAndLog(
+            gameDataState,
+            stateTransition,
+            peers,
+            userID,
+            threadId,
+          ).then((newGameDataState) => {
+            setGameDataStore(newGameDataState);
+          });
+        }
       } else if (gameDataState.currentState === GameState.PengGang) {
         timer.current = setInterval(() => {
           if (
@@ -134,15 +158,22 @@ const GameView: FunctionComponent = () => {
                 isSending: true,
               },
             };
-            updateGameDataStateAndLog(
-              gameDataState,
-              stateTransition,
-              peers,
-              userID,
-              threadId,
-            ).then((newGameDataState) => {
-              setGameDataStore(newGameDataState);
-            });
+            if (
+              stateTransitionAllowed(
+                gameDataState.currentState,
+                stateTransition,
+              )
+            ) {
+              updateGameDataStateAndLog(
+                gameDataState,
+                stateTransition,
+                peers,
+                userID,
+                threadId,
+              ).then((newGameDataState) => {
+                setGameDataStore(newGameDataState);
+              });
+            }
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Chi) {
@@ -158,15 +189,22 @@ const GameView: FunctionComponent = () => {
                 isSending: true,
               },
             };
-            updateGameDataStateAndLog(
-              gameDataState,
-              stateTransition,
-              peers,
-              userID,
-              threadId,
-            ).then((newGameDataState) => {
-              setGameDataStore(newGameDataState);
-            });
+            if (
+              stateTransitionAllowed(
+                gameDataState.currentState,
+                stateTransition,
+              )
+            ) {
+              updateGameDataStateAndLog(
+                gameDataState,
+                stateTransition,
+                peers,
+                userID,
+                threadId,
+              ).then((newGameDataState) => {
+                setGameDataStore(newGameDataState);
+              });
+            }
           }
         }, 1000);
       } else if (gameDataState.currentState === GameState.Hu) {
@@ -204,13 +242,15 @@ const GameView: FunctionComponent = () => {
         },
       };
 
-      updateGameDataStateAndLog(
-        gameDataState,
-        stateTransition,
-        peers,
-        userID,
-        threadId,
-      );
+      if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+        updateGameDataStateAndLog(
+          gameDataState,
+          stateTransition,
+          peers,
+          userID,
+          threadId,
+        );
+      }
     }
   }
 
@@ -236,13 +276,15 @@ const GameView: FunctionComponent = () => {
       },
     };
 
-    updateGameDataStateAndLog(
-      gameDataState,
-      stateTransition,
-      peers,
-      userID,
-      threadId,
-    );
+    if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+      updateGameDataStateAndLog(
+        gameDataState,
+        stateTransition,
+        peers,
+        userID,
+        threadId,
+      );
+    }
   }
 
   function pung(chowOptions: Tile[]) {
@@ -267,13 +309,15 @@ const GameView: FunctionComponent = () => {
         },
       };
 
-      updateGameDataStateAndLog(
-        gameDataState,
-        stateTransition,
-        peers,
-        userID,
-        threadId,
-      );
+      if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+        updateGameDataStateAndLog(
+          gameDataState,
+          stateTransition,
+          peers,
+          userID,
+          threadId,
+        );
+      }
     }
   }
 
@@ -300,13 +344,15 @@ const GameView: FunctionComponent = () => {
         },
       };
 
-      updateGameDataStateAndLog(
-        gameDataState,
-        stateTransition,
-        peers,
-        userID,
-        threadId,
-      );
+      if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+        updateGameDataStateAndLog(
+          gameDataState,
+          stateTransition,
+          peers,
+          userID,
+          threadId,
+        );
+      }
     }
   }
 
@@ -317,13 +363,15 @@ const GameView: FunctionComponent = () => {
         isSending: true,
       },
     };
-    updateGameDataStateAndLog(
-      gameDataState,
-      stateTransition,
-      peers,
-      userID,
-      threadId,
-    );
+    if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+      updateGameDataStateAndLog(
+        gameDataState,
+        stateTransition,
+        peers,
+        userID,
+        threadId,
+      );
+    }
   }
 
   function replaceFlower() {
@@ -338,13 +386,15 @@ const GameView: FunctionComponent = () => {
           isSending: true,
         },
       };
-      updateGameDataStateAndLog(
-        gameDataState,
-        stateTransition,
-        peers,
-        userID,
-        threadId,
-      );
+      if (stateTransitionAllowed(gameDataState.currentState, stateTransition)) {
+        updateGameDataStateAndLog(
+          gameDataState,
+          stateTransition,
+          peers,
+          userID,
+          threadId,
+        );
+      }
     } else {
       console.log('no flower found');
     }
